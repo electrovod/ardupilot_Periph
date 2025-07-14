@@ -189,6 +189,17 @@ void AP_Periph_FW::rcout_update()
         actuator.mask = 0;
     }
 
+// Moved from End-of-Function by GrayCat:
+#if HAL_WITH_ESC_TELEM
+    if (now_ms - last_esc_telem_update_ms >= esc_telem_update_period_ms) {
+        last_esc_telem_update_ms = now_ms;
+        esc_telem_update();
+    }
+#if AP_EXTENDED_ESC_TELEM_ENABLED
+    esc_telem_extended_update(now_ms);
+#endif
+#endif
+
     if (!rcout_has_new_data_to_update) {
         return;
     }
@@ -199,15 +210,6 @@ void AP_Periph_FW::rcout_update()
     srv.cork();
     SRV_Channels::output_ch_all();
     srv.push();
-#if HAL_WITH_ESC_TELEM
-    if (now_ms - last_esc_telem_update_ms >= esc_telem_update_period_ms) {
-        last_esc_telem_update_ms = now_ms;
-        esc_telem_update();
-    }
-#if AP_EXTENDED_ESC_TELEM_ENABLED
-    esc_telem_extended_update(now_ms);
-#endif
-#endif
 }
 
 #if AP_SIM_ENABLED

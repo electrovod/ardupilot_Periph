@@ -20,7 +20,7 @@
  */
 #define DEFAULT_SERIAL0_PROTOCOL SerialProtocol_None
 #define DEFAULT_SERIAL1_PROTOCOL SerialProtocol_None
-#define DEFAULT_SERIAL2_PROTOCOL SerialProtocol_None
+// #define DEFAULT_SERIAL2_PROTOCOL SerialProtocol_None
 #define DEFAULT_SERIAL3_PROTOCOL SerialProtocol_None
 #define DEFAULT_SERIAL4_PROTOCOL SerialProtocol_None
 #define DEFAULT_SERIAL5_PROTOCOL SerialProtocol_None

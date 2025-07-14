@@ -1,0 +1,12 @@
+# up to 9 motors/servos
+
+
+# Bi-Directional DShot 600
+# ESC_PWM_TYPE 7
+# OUT_BLH_BDMASK 15
+
+# DShot telem on RX1
+# ESC_TELEM_PORT 0
+
+# .. by GrayCat:
+# FLASH_BOOTLOADER 1

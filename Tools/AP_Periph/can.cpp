@@ -182,7 +182,7 @@ static void readUniqueID(uint8_t* out_uid)
 void AP_Periph_FW::handle_get_node_info(CanardInstance* canard_instance,
                                         CanardRxTransfer* transfer)
 {
-    uint8_t buffer[UAVCAN_PROTOCOL_GETNODEINFO_RESPONSE_MAX_SIZE];
+    uint8_t buffer[UAVCAN_PROTOCOL_GETNODEINFO_RESPONSE_MAX_SIZE];       // MAX_SIZE 377
     uavcan_protocol_GetNodeInfoResponse pkt {};
 
     node_status.uptime_sec = AP_HAL::millis() / 1000U;
@@ -1235,6 +1235,8 @@ void AP_Periph_FW::processTx(void)
         if (sent) {
             canardPopTxQueue(&dronecan.canard);
             dronecan.tx_fail_count = 0;
+// GC_Debug:
+hal.scheduler->delay(1);
         } else {
             // exit and try again later. If we fail 8 times in a row
             // then cleanup any stale transfers to keep the queue from
@@ -1757,39 +1759,65 @@ uint8_t AP_Periph_FW::get_motor_number(const uint8_t esc_number) const
   send ESC status packets based on AP_ESC_Telem
  */
 void AP_Periph_FW::esc_telem_update()
-{
+    {
     uint32_t mask = esc_telem.get_active_esc_mask();
-    while (mask != 0) {
+    if (0 == mask)   
+        {       // +++++++++++++++++++++ No real ESC Telemetry events, let's fake one!
+        uavcan_equipment_esc_Status pkt {};
+        pkt.esc_index = 1 ;
+        pkt.voltage = 3.7;                              // Float type
+        pkt.current = 0.1234;                           // Float type
+        pkt.temperature = 12.34;                        // Float type, scale 0.01 (???)
+        pkt.rpm = 2345;                                 // Int type
+        pkt.error_count = 0;
+
+        uint8_t buffer[UAVCAN_EQUIPMENT_ESC_STATUS_MAX_SIZE];
+        uint16_t total_size = uavcan_equipment_esc_Status_encode(&pkt, buffer, !canfdout() );
+        canard_broadcast(UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, UAVCAN_EQUIPMENT_ESC_STATUS_ID, CANARD_TRANSFER_PRIORITY_LOW, &buffer[0], total_size);
+        }       // --------------------- No real ESC Telemetry events, let's fake one!
+
+    else 
+    while (mask != 0) 
+        {       // ++++++++++++++++++++++++++++ Check all ESCs' Telemetry Loop:
         int8_t i = __builtin_ffs(mask) - 1;
         mask &= ~(1U<<i);
         const float nan = nanf("");
         uavcan_equipment_esc_Status pkt {};
         pkt.esc_index = get_motor_number(i);
 
-        if (!esc_telem.get_voltage(i, pkt.voltage)) {
+        if (!esc_telem.get_voltage(i, pkt.voltage)) 
+            {
             pkt.voltage = nan;
-        }
-        if (!esc_telem.get_current(i, pkt.current)) {
+            }
+        if (!esc_telem.get_current(i, pkt.current)) 
+            {
             pkt.current = nan;
-        }
+            }
+
         int16_t temperature;
-        if (esc_telem.get_motor_temperature(i, temperature)) {
+        if (esc_telem.get_motor_temperature(i, temperature)) 
+            {
             pkt.temperature = C_TO_KELVIN(temperature*0.01);
-        } else if (esc_telem.get_temperature(i, temperature)) {
-            pkt.temperature = C_TO_KELVIN(temperature*0.01);
-        } else {
-            pkt.temperature = nan;
-        }
+            } else if (esc_telem.get_temperature(i, temperature)) 
+                {
+                pkt.temperature = C_TO_KELVIN(temperature*0.01);
+                } else 
+                    {
+                    pkt.temperature = nan;
+                    }
+        
         float rpm;
-        if (esc_telem.get_raw_rpm(i, rpm)) {
+        if (esc_telem.get_raw_rpm(i, rpm)) 
+            {
             pkt.rpm = rpm;
-        }
+            }
 
 #if AP_EXTENDED_ESC_TELEM_ENABLED
         uint8_t power_rating_pct;
-        if (esc_telem.get_power_percentage(i, power_rating_pct)) {
+        if (esc_telem.get_power_percentage(i, power_rating_pct)) 
+            {
             pkt.power_rating_pct = power_rating_pct;
-        }
+            }
 #endif
 
         pkt.error_count = 0;
@@ -1801,8 +1829,8 @@ void AP_Periph_FW::esc_telem_update()
                          CANARD_TRANSFER_PRIORITY_LOW,
                          &buffer[0],
                          total_size);
-    }
-}
+        };      // --------------------------- Check all ESCs' Telemetry Loop:
+    };      // ------------------------- AP_Periph_FW::esc_telem_update() -----------------------------
 #endif // HAL_WITH_ESC_TELEM
 
 #if AP_EXTENDED_ESC_TELEM_ENABLED
@@ -1987,6 +2015,12 @@ void AP_Periph_FW::can_update()
 #if AP_PERIPH_ESC_APD_ENABLED
         apd_esc_telem_update();
 #endif
+
+// By GrayCat: forceful ESC Telemetry:
+#if 0 && HAL_WITH_ESC_TELEM
+        esc_telem_update();
+#endif          // --- HAL_WITH_ESC_TELEM
+
     #if AP_PERIPH_MSP_ENABLED
         msp_sensor_update();
     #endif

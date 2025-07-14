@@ -289,6 +289,9 @@ bool CANIface::computeTimings(uint32_t target_bitrate, Timings& out_timings)
 int16_t CANIface::send(const AP_HAL::CANFrame& frame, uint64_t tx_deadline,
                        CanIOFlags flags)
 {
+
+int retc = 0;
+
     if (frame.isErrorFrame() || frame.dlc > 8) {
         return -1;
     }
@@ -317,29 +320,40 @@ int16_t CANIface::send(const AP_HAL::CANFrame& frame, uint64_t tx_deadline,
          * Seeking for an empty slot
          */
         uint8_t txmailbox = 0xFF;
-        if ((can_->TSR & bxcan::TSR_TME0) == bxcan::TSR_TME0) {
+        if ((can_->TSR & bxcan::TSR_TME0) == bxcan::TSR_TME0) 
+            {
             txmailbox = 0;
-        } else if ((can_->TSR & bxcan::TSR_TME1) == bxcan::TSR_TME1) {
-            txmailbox = 1;
-        } else if ((can_->TSR & bxcan::TSR_TME2) == bxcan::TSR_TME2) {
-            txmailbox = 2;
-        } else {
-            PERF_STATS(stats.tx_overflow);
+            } 
+            else 
+#if 0            
+            if ((can_->TSR & bxcan::TSR_TME1) == bxcan::TSR_TME1) 
+                { 
+                txmailbox = 1;
+                } 
+                else if ((can_->TSR & bxcan::TSR_TME2) == bxcan::TSR_TME2) 
+                    {
+                    txmailbox = 2;
+                    } 
+                    else 
+#endif 
+                        {
+                        PERF_STATS(stats.tx_overflow);
 #if !defined(HAL_BOOTLOADER_BUILD)
-            if (stats.tx_success == 0) {
-                /*
-                  if we have never successfully transmitted a frame
-                  then we may be operating with just MAVCAN or UDP
-                  MCAST. Consider the frame sent if the send
-                  succeeds. This allows for UDP MCAST and MAVCAN to
-                  operate fully when the CAN bus has no cable plugged
-                  in
-                 */
-                return AP_HAL::CANIface::send(frame, tx_deadline, flags);
-            }
+                        if (stats.tx_success == 0) 
+                            {
+                            /*
+                            if we have never successfully transmitted a frame
+                            then we may be operating with just MAVCAN or UDP
+                            MCAST. Consider the frame sent if the send
+                            succeeds. This allows for UDP MCAST and MAVCAN to
+                            operate fully when the CAN bus has no cable plugged
+                            in
+                            */
+                            return AP_HAL::CANIface::send(frame, tx_deadline, flags);
+                            }
 #endif
-            return 0;       // No transmission for you.
-        }
+                        return 0;       // No transmission for you.
+                        }
 
         /*
          * Setting up the mailbox
@@ -372,12 +386,18 @@ int16_t CANIface::send(const AP_HAL::CANFrame& frame, uint64_t tx_deadline,
         txi.abort_on_error = (flags & AbortOnError) != 0;
         // setup frame initial state
         txi.pushed         = false;
+    // GC_Debug:
+    // hal.scheduler->delay(2);
+    int icnt;
+    for (icnt=0; icnt<0x1FFFFF; icnt++ )
+	    retc=icnt;
+    retc = 1;
     }
 
     // also send on MAVCAN, but don't consider it an error if we can't send
     AP_HAL::CANIface::send(frame, tx_deadline, flags);
 
-    return 1;
+    return retc;
 }
 
 int16_t CANIface::receive(AP_HAL::CANFrame& out_frame, uint64_t& out_timestamp_us, CanIOFlags& out_flags)

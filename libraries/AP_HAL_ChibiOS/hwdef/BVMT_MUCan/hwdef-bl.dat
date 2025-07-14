@@ -1,0 +1,5 @@
+include ../MatekL431/hwdef-bl.inc
+
+undef APJ_BOARD_ID
+APJ_BOARD_ID AP_HW_MUCAN
+

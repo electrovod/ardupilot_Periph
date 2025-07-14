@@ -120,8 +120,8 @@ $PIP3 install -U $PYTHON_PKGS
     done
 )
 
-ccache --set-config sloppiness=file_macro,time_macros
-# ccache --set-config ignore_options="--specs=nano.specs --specs=nosys.specs"
+ccache --set-config sloppiness=file_macro,locale,time_macros
+ccache --set-config ignore_options="--specs=nano.specs --specs=nosys.specs"
 
 if [ ! -d $OPT/$ARM_ROOT ]; then
     (

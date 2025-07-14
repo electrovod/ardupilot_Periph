@@ -438,6 +438,9 @@ int16_t CANIface::send(const AP_HAL::CANFrame& frame, uint64_t tx_deadline,
         pending_tx_[index].aborted        = false;
         pending_tx_[index].setup          = true;
         pending_tx_[index].pushed         = false;
+
+// GC_Debug:
+    hal.scheduler->delay(2);        
     }
 
     // also send on MAVCAN, but don't consider it an error if we can't get the MAVCAN out
