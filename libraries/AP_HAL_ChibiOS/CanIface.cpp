@@ -290,7 +290,8 @@ int16_t CANIface::send(const AP_HAL::CANFrame& frame, uint64_t tx_deadline,
                        CanIOFlags flags)
 {
 
-int retc = 0;
+// GC_Debug:
+volatile int retc = 0;
 
     if (frame.isErrorFrame() || frame.dlc > 8) {
         return -1;
@@ -389,7 +390,7 @@ int retc = 0;
     // GC_Debug:
     // hal.scheduler->delay(2);
     int icnt;
-    for (icnt=0; icnt<0x1FFFFF; icnt++ )
+    for (icnt=0; icnt<0x1FFFF; icnt++ )
 	    retc=icnt;
     retc = 1;
     }

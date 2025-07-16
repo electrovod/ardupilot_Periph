@@ -1522,13 +1522,19 @@ void AP_BLHeli::init(uint32_t mask, AP_HAL::RCOutput::output_mode otype)
  */
 void AP_BLHeli::read_telemetry_packet(void)
 {
+
 #if HAL_WITH_ESC_TELEM
+// GC_Debug:
+    if (telem_uart != nullptr)                                                         
+        telem_uart->write( (const uint8_t*) "\00\00\314\314\377\3776123025", /* len */ 6 );
+
     uint8_t buf[telem_packet_size];
-    if (telem_uart->read(buf, telem_packet_size) < telem_packet_size) {
+    if (telem_uart->read(buf, telem_packet_size) < /* telem_packet_size */ 3 ) {
         // short read, we should have 10 bytes ready when this function is called
         return;
     }
 
+#if 0
     // calculate crc
     uint8_t crc = 0;
     for (uint8_t i=0; i<telem_packet_size-1; i++) {    
@@ -1546,6 +1552,13 @@ void AP_BLHeli::read_telemetry_packet(void)
     // we have received valid data, mark the ESC as now active
     hal.rcout->set_active_escs_mask(1<<motor_idx);
     update_rpm(motor_idx, new_rpm);
+#else                                  // Fake telemetry:
+    const uint8_t motor_idx = 2;
+    uint16_t new_rpm = AP_HAL::millis();
+    hal.rcout->set_active_escs_mask(1<<motor_idx);
+    update_rpm(motor_idx, new_rpm);
+    memcpy( buf, "123456", 6);
+#endif //  0
 
     TelemetryData t {
         .temperature_cdeg = int16_t(buf[0] * 100),
@@ -1553,6 +1566,9 @@ void AP_BLHeli::read_telemetry_packet(void)
         .current = float(uint16_t((buf[3]<<8) | buf[4])) * 0.01,
         .consumption_mah = float(uint16_t((buf[5]<<8) | buf[6])),
     };
+
+        // GC_Debug by GrayCat:
+    update_rpm( 2, ( AP_HAL::millis() * 0.02 ), 0.0);
 
     update_telem_data(motor_idx, t,
         AP_ESC_Telem_Backend::TelemetryType::CURRENT
@@ -1641,7 +1657,7 @@ void AP_BLHeli::update_telemetry(void)
     }
     if (!telem_uart_started) {
         // we need to use begin() here to ensure the correct thread owns the uart
-        telem_uart->begin(115200);
+        telem_uart->begin( /* Default : 115200 */ 19200 );
         telem_uart_started = true;
     }
 

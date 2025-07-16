@@ -91,7 +91,7 @@ void AP_Periph_FW::rcin_init()
     serial_manager.set_protocol_and_baud(
         g_rcin.rcin1_port,
         AP_SerialManager::SerialProtocol_RCIN,
-        115200  // baud doesn't matter; RC Protocol autobauds
+        /* Default: 115200 */ 19200  // baud doesn't matter; RC Protocol autobauds
         );
 
     auto &rc = AP::RC();

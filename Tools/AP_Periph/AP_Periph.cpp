@@ -96,7 +96,8 @@ void AP_Periph_FW::init()
 #if !HAL_GCS_ENABLED
     hal.serial(0)->begin(AP_SERIALMANAGER_CONSOLE_BAUD, 32, 32);
 #endif
-    hal.serial(3)->begin(115200, 128, 256);
+    hal.serial(3)->begin( /* Default: 115200 */ 19200, 128, 256);
+    hal.serial(2)->begin( /* Default: 115200 */ 19200, 128, 256);
 
     load_parameters();
 

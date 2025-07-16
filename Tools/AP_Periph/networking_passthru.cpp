@@ -46,13 +46,13 @@ const AP_Param::GroupInfo Networking_Periph::Passthru::var_info[] = {
     // @DisplayName: Endpoint 1 Baud Rate
     // @Description: The baud rate used for Endpoint 1. Only applies to serial ports.
     // @CopyFieldsFrom: SERIAL1_BAUD
-    AP_GROUPINFO("BAUD1", 4,  Networking_Periph::Passthru, baud1, 115200),
+    AP_GROUPINFO("BAUD1", 4,  Networking_Periph::Passthru, baud1, /* Default: 115200 */ 19200 ),
 
     // @Param: BAUD2
     // @DisplayName: Endpoint 2 Baud Rate
     // @Description: The baud rate used for Endpoint 2. Only applies to serial ports.
     // @CopyFieldsFrom: SERIAL1_BAUD
-    AP_GROUPINFO("BAUD2", 5,  Networking_Periph::Passthru, baud2, 115200),
+    AP_GROUPINFO("BAUD2", 5,  Networking_Periph::Passthru, baud2, /* Default: 115200 */ 19200 ),
 
     // @Param: OPT1
     // @DisplayName: Serial Port Options EP1

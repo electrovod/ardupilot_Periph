@@ -18,6 +18,7 @@
 #if AP_SIM_ENABLED
 #include <dronecan_msgs.h>
 #endif
+#include "../../libraries/AP_ESC_Telem/AP_ESC_Telem.h"
 
 // magic value from UAVCAN driver packet
 // dsdl/uavcan/equipment/esc/1030.RawCommand.uavcan
@@ -42,7 +43,7 @@ void AP_Periph_FW::rcout_init()
 
 #if HAL_WITH_ESC_TELEM && !HAL_GCS_ENABLED
     if (g.esc_telem_port >= 0) {
-        serial_manager.set_protocol_and_baud(g.esc_telem_port, AP_SerialManager::SerialProtocol_ESCTelemetry, 115200);
+        serial_manager.set_protocol_and_baud(g.esc_telem_port, AP_SerialManager::SerialProtocol_ESCTelemetry, /* default: 115200 */ 19200 );
     }
 #endif
 
@@ -97,16 +98,54 @@ void AP_Periph_FW::rcout_init_1Hz()
 
 void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 {
+    auto *uart2 = hal.serial(2);
+    #define ReadBufSize 64            
+    static char wr_buffer[ReadBufSize] = {0};
+    
+    wr_buffer[0] = 0xAA;
+
     if (rc == nullptr) {
         return;
     }
 
     const uint8_t channel_count = MIN(num_channels, SERVO_OUT_MOTOR_MAX);
-    for (uint8_t i=0; i<channel_count; i++) {
+    for (uint8_t i=0; i<channel_count; i++) 
+        {
         // we don't support motor reversal yet on ESCs in AP_Periph
         SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), MAX(0,rc[i]));
-    }
+// GC_Debug:
+#ifndef GC_Debug_UART2
 
+        if ( 2 == i)
+            {            
+            memcpy(wr_buffer+1, &(rc[i]), 2 );            
+            // esc_telem.update_rpm( 2, ( MAX(0,rc[i]) * 0.1 ), 0.0);
+            };      // ---------- if ( 2 == i)
+        
+        // AP_ESC_Telem_Backend::TelemetryData tdata {};
+
+        if ( 0 == i)
+            {
+            // tdata.voltage = rc[i]*0.01;
+            memcpy(wr_buffer+1+2, &(rc[i]), 2 );            
+            // esc_telem.update_telem_data(i, tdata, AP_ESC_Telem_Backend::TelemetryType::VOLTAGE );
+            };
+        if ( 1 == i)
+            {            
+            // tdata.current = rc[i]*0.08;
+            memcpy(wr_buffer+1+4, &(rc[i]), 2 );            
+            // esc_telem.update_telem_data(i, tdata, AP_ESC_Telem_Backend::TelemetryType::CURRENT );
+            };
+        if ( 3 == i)
+            {            
+            // tdata.temperature_cdeg = rc[i]*0.1;
+            memcpy(wr_buffer+1+6, &(rc[i]), 2 );            
+            // esc_telem.update_telem_data(i, tdata, AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE );
+            };
+
+#endif      //  GC_Debug_UART2
+        };      // --------- for (uint8_t i=0;)
+    uart2->write( (const uint8_t*) wr_buffer, /* len */ 9 );
     rcout_has_new_data_to_update = true;
 }
 
@@ -189,7 +228,7 @@ void AP_Periph_FW::rcout_update()
         actuator.mask = 0;
     }
 
-// Moved from End-of-Function by GrayCat:
+// +-+- Moved from End-of-Function by GrayCat:
 #if HAL_WITH_ESC_TELEM
     if (now_ms - last_esc_telem_update_ms >= esc_telem_update_period_ms) {
         last_esc_telem_update_ms = now_ms;

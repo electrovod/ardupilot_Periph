@@ -218,6 +218,12 @@ void AP_Periph_FW::handle_get_node_info(CanardInstance* canard_instance,
                    UAVCAN_PROTOCOL_GETNODEINFO_ID,
                    &buffer[0],
                    total_size);
+// GC_Debug:
+if ( hal.serial(2)->get_baud_rate() != 19200 )
+    {
+    hal.serial(2)->end();
+    hal.serial(2)->begin( /* Default: 115200 */ 19200);
+    };
 }
 
 // compatability code added Mar 2024 for 4.6:
@@ -1235,8 +1241,9 @@ void AP_Periph_FW::processTx(void)
         if (sent) {
             canardPopTxQueue(&dronecan.canard);
             dronecan.tx_fail_count = 0;
-// GC_Debug:
-hal.scheduler->delay(1);
+// GC_Debug by GrayCat :
+if ( canardPeekTxQueue(&dronecan.canard) != NULL )                              // Still non-empty queue?...
+    hal.scheduler->delay(3);
         } else {
             // exit and try again later. If we fail 8 times in a row
             // then cleanup any stale transfers to keep the queue from
@@ -1760,29 +1767,93 @@ uint8_t AP_Periph_FW::get_motor_number(const uint8_t esc_number) const
  */
 void AP_Periph_FW::esc_telem_update()
     {
-    uint32_t mask = esc_telem.get_active_esc_mask();
-    if (0 == mask)   
-        {       // +++++++++++++++++++++ No real ESC Telemetry events, let's fake one!
-        uavcan_equipment_esc_Status pkt {};
+    uint32_t mask = esc_telem.get_active_esc_mask();    
+    auto *uart3 = hal.serial(3);
+    #define ReadBufSize 64
+    static char read_buffer[ReadBufSize] = {0};    
+     // uint32_t                        now_ms = AP_HAL::millis();
+    uavcan_equipment_esc_Status     pkt {};
+    AP_ESC_Telem_Backend::TelemetryData tdata {};
+
+// GC_Debug:
+if ( hal.serial(2)->get_baud_rate() != 19200 )
+    {
+    hal.serial(2)->end();
+    hal.serial(2)->begin( /* Default: 115200 */ 19200);
+    };
+
+    // GC_Debug by GrayCat:
+    // esc_telem.update_rpm( 3, ( AP_HAL::millis() * 0.1 ), 0.0);
+               
+#ifdef GC_Debug_UART2
+    auto *uart2 = hal.serial(2);
+    static char wr_buffer[ReadBufSize] = {0};
+    if (uart2 != nullptr)                                                         
+        {
+        wr_buffer[0] = 0x55;
+        memcpy(wr_buffer+1, &now_ms, 4 );
+        uart2->write( (const uint8_t*) wr_buffer, /* len */ 5 );
+        };    
+#endif      //  GC_Debug_UART2
+
+        {       // +++++++++++++++++++++ No real ESC Telemetry events, let's fake one! GC_Debug by GrayCat :        
+         
+        if (uart3 != nullptr)                                                         
+            {       // ++++++++++++++ UART3 OK
+                // read serial
+            uint32_t nbytes = uart3->available();
+
+            if ( (nbytes > 0)  && (nbytes < sizeof(read_buffer)) )
+                {
+                for (uint8_t index=0; index<nbytes; index++) 
+                    read_buffer[index] = uart3->read();
+                uart3->write( (const uint8_t*) read_buffer, /* len */ nbytes );
+
+                esc_telem.update_rpm( 2, (read_buffer[1]+(read_buffer[2] << 8)) * 1.0 , 0.0);
+                tdata.voltage = (read_buffer[3]+(read_buffer[4] << 8)) * 0.01;
+                tdata.current = (read_buffer[5]+(read_buffer[6] << 8)) * 0.08;
+                tdata.temperature_cdeg = (read_buffer[7]+(read_buffer[8] << 8)) * 0.5;
+                esc_telem.update_telem_data(0, tdata, AP_ESC_Telem_Backend::TelemetryType::VOLTAGE | AP_ESC_Telem_Backend::TelemetryType::CURRENT | AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE );
+                }      // -------- if (nbytes != 0)  
+                else
+                    {       // ++++++++++ Fake-fake:
+                    static char wr_buffer[ReadBufSize] = {0};
+                    float rpm;
+
+                    wr_buffer[0] = 0xFF;
+                    if (esc_telem.get_raw_rpm( 2, rpm))             
+                        memcpy(wr_buffer+1, &(rpm), 4 );
+                    uart3->write( (const uint8_t*) wr_buffer, /* len */ 4 );
+                    };      // ---------- Fake-fake
+            };      // ---------- UART3 OK
+#ifdef GC_Debug_DirectFake
         pkt.esc_index = 1 ;
-        pkt.voltage = 3.7;                              // Float type
+        pkt.voltage = 3.2 + (( (now_ms << 2) + (now_ms >> 4 ) ) & 0xFF ) / 256.0;                              // Float type
         pkt.current = 0.1234;                           // Float type
         pkt.temperature = 12.34;                        // Float type, scale 0.01 (???)
-        pkt.rpm = 2345;                                 // Int type
+        float rpm;
+        if (esc_telem.get_raw_rpm( pkt.esc_index, rpm))             
+            pkt.rpm = rpm;
+            else                                                                            // No real data in telemetry
+                pkt.rpm = ((now_ms+2179) + (now_ms << 3)  + (now_ms << 7) ) & 0x7FF;                                 // Int type
         pkt.error_count = 0;
 
         uint8_t buffer[UAVCAN_EQUIPMENT_ESC_STATUS_MAX_SIZE];
         uint16_t total_size = uavcan_equipment_esc_Status_encode(&pkt, buffer, !canfdout() );
         canard_broadcast(UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, UAVCAN_EQUIPMENT_ESC_STATUS_ID, CANARD_TRANSFER_PRIORITY_LOW, &buffer[0], total_size);
+#endif      //  GC_Debug_DirectFake
         }       // --------------------- No real ESC Telemetry events, let's fake one!
 
+
+    if ( (0 == mask) )   
+        { }
     else 
     while (mask != 0) 
         {       // ++++++++++++++++++++++++++++ Check all ESCs' Telemetry Loop:
         int8_t i = __builtin_ffs(mask) - 1;
         mask &= ~(1U<<i);
         const float nan = nanf("");
-        uavcan_equipment_esc_Status pkt {};
+        // moved to start-of-function: uavcan_equipment_esc_Status pkt {};
         pkt.esc_index = get_motor_number(i);
 
         if (!esc_telem.get_voltage(i, pkt.voltage)) 
@@ -2015,11 +2086,6 @@ void AP_Periph_FW::can_update()
 #if AP_PERIPH_ESC_APD_ENABLED
         apd_esc_telem_update();
 #endif
-
-// By GrayCat: forceful ESC Telemetry:
-#if 0 && HAL_WITH_ESC_TELEM
-        esc_telem_update();
-#endif          // --- HAL_WITH_ESC_TELEM
 
     #if AP_PERIPH_MSP_ENABLED
         msp_sensor_update();
