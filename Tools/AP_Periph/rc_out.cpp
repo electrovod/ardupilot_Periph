@@ -18,7 +18,9 @@
 #if AP_SIM_ENABLED
 #include <dronecan_msgs.h>
 #endif
+
 #include "../../libraries/AP_ESC_Telem/AP_ESC_Telem.h"
+#include "AP_ESC_Telem_HW-FOC.h"
 
 // magic value from UAVCAN driver packet
 // dsdl/uavcan/equipment/esc/1030.RawCommand.uavcan
@@ -96,17 +98,22 @@ void AP_Periph_FW::rcout_init_1Hz()
     }
 }
 
-void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
-{
-    auto *uart2 = hal.serial(2);
-    #define ReadBufSize 64            
-    static char wr_buffer[ReadBufSize] = {0};
-    
-    wr_buffer[0] = 0xAA;
+HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packet of HW_FOC Telemetry
+    {
+    HW_FOC_Val_HEAD,                                                // Header
+    HW_FOC_Val_Len,                                                 // Data frame length, from here, excluding CRC
+    HW_FOC_Val_Ver,                                                 // Version of the Protocol
+    HW_FOC_Val_Cmd,                                                 // Command: "Real-time data"        
+    };                                       
 
-    if (rc == nullptr) {
+void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
+    {
+    auto    *uart2 = hal.serial(2);
+    #define ReadBufSize 64                
+    int     AllZeros = 1;
+
+    if (rc == nullptr) 
         return;
-    }
 
     const uint8_t channel_count = MIN(num_channels, SERVO_OUT_MOTOR_MAX);
     for (uint8_t i=0; i<channel_count; i++) 
@@ -115,37 +122,49 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
         SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), MAX(0,rc[i]));
 // GC_Debug:
 #ifndef GC_Debug_UART2
-
+         // ::  rc[i] :: [-8192, 8191]
         if ( 2 == i)
-            {            
-            memcpy(wr_buffer+1, &(rc[i]), 2 );            
-            // esc_telem.update_rpm( 2, ( MAX(0,rc[i]) * 0.1 ), 0.0);
+            {                
+            HW_FOC_Telem.eRPM_H = rc[i] >> 8;
+            HW_FOC_Telem.eRPM_L = rc[i] & 0xFF;
+            if ( rc[i]) AllZeros = 0;
             };      // ---------- if ( 2 == i)
         
         // AP_ESC_Telem_Backend::TelemetryData tdata {};
 
         if ( 0 == i)
             {
-            // tdata.voltage = rc[i]*0.01;
-            memcpy(wr_buffer+1+2, &(rc[i]), 2 );            
-            // esc_telem.update_telem_data(i, tdata, AP_ESC_Telem_Backend::TelemetryType::VOLTAGE );
+            HW_FOC_Telem.iVolt_L = rc[i] & 0xFF;
+            HW_FOC_Telem.iVolt_H = rc[i] >> 8;
+            if ( rc[i]) AllZeros = 0;
             };
         if ( 1 == i)
             {            
-            // tdata.current = rc[i]*0.08;
-            memcpy(wr_buffer+1+4, &(rc[i]), 2 );            
-            // esc_telem.update_telem_data(i, tdata, AP_ESC_Telem_Backend::TelemetryType::CURRENT );
+#if 0
+            HW_FOC_Telem.iCurr_L = rc[i] & 0xFF;
+            HW_FOC_Telem.iCurr_H = rc[i] >> 8;
+            if ( rc[i]) AllZeros = 0;
+#else
+            rc[i] = HW_FOC_Telem.PktNum_L * 32;
+            HW_FOC_Telem.iCurr_H = rc[i] & 0xFF;
+            HW_FOC_Telem.iCurr_L = 0;
+#endif            
             };
         if ( 3 == i)
             {            
-            // tdata.temperature_cdeg = rc[i]*0.1;
-            memcpy(wr_buffer+1+6, &(rc[i]), 2 );            
-            // esc_telem.update_telem_data(i, tdata, AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE );
+            HW_FOC_Telem.mTemp = rc[i] & 0xFF;
+            HW_FOC_Telem.cTemp = (rc[i] + 17) >> 8;
+            if ( rc[i]) AllZeros = 0;
             };
 
 #endif      //  GC_Debug_UART2
         };      // --------- for (uint8_t i=0;)
-    uart2->write( (const uint8_t*) wr_buffer, /* len */ 9 );
+    
+    if ( !AllZeros )
+        {
+        uart2->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
+        HW_FOC_Telem.PktNum_L++;
+        };
     rcout_has_new_data_to_update = true;
 }
 
