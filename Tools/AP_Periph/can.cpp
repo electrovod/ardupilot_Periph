@@ -1761,6 +1761,16 @@ uint8_t AP_Periph_FW::get_motor_number(const uint8_t esc_number) const
 #define                 HW_FOC_INTER_PACKET_TO      10                  ///< TimeOut between HW_FOC packets
 HW_FOC_ESC_Telem_t      UART_Telem_In;                                  // Must be the Packet of HW_FOC Telemetry
 uint8_t          *const UART_Telem_Ptr = (uint8_t *) &UART_Telem_In;
+/// @brief  Union to convert signed bytes to 16-bit int and then to Float
+typedef union Bytes2int_u
+    {
+    int16_t      Int16;
+    struct bytes_s
+        {
+        int8_t b1;
+        int8_t b2;
+        }       Int8s;
+    } Bytes2int_t;
 
 /*
   send ESC status packets based on AP_ESC_Telem
@@ -1774,6 +1784,7 @@ void AP_Periph_FW::esc_telem_update()
     static uint8_t      read_buffer[ReadBufSize] = {0};    
     static int32_t      LastPackTS; 
     int32_t             now_ms = AP_HAL::millis();
+    // Bytes2int_t         b2i;
     uavcan_equipment_esc_Status     pkt {};
     AP_ESC_Telem_Backend::TelemetryData tdata {};
 
@@ -1788,7 +1799,7 @@ void AP_Periph_FW::esc_telem_update()
         };
 
     // GC_Debug by GrayCat:
-    esc_telem.update_rpm( 3, ( now_ms * 0.002f ), 0.0);
+    // esc_telem.update_rpm( 3, ( now_ms * 0.002f ), 0.0);
                
         {       // +++++++++++++++++++++ No real ESC Telemetry events, let's fake one! GC_Debug by GrayCat :                         
         if ( (uart3 != nullptr) )
@@ -1804,7 +1815,7 @@ void AP_Periph_FW::esc_telem_update()
                 for (uint8_t index=0; index < nbytes; index++) 
                     {       // +++++++++ byte-by-byte Read loop
                     read_buffer[BufIdx++] = uart3->read();
-                    BufIdx = BufIdx % ReadBufSize;                                              // wrap read-buffer
+                    BufIdx %=  ReadBufSize;                                              // wrap read-buffer
                     };      // --------- byte-by-byte Read loop
                 
                 if (    (nbytes <= sizeof(UART_Telem_In) ) 
@@ -1814,17 +1825,35 @@ void AP_Periph_FW::esc_telem_update()
                     &&  (HW_FOC_Val_Cmd ==read_buffer[3] ) 
                     )
                     {
+                    int16_t         IntBuf;
                     memcpy( UART_Telem_Ptr, read_buffer, sizeof(UART_Telem_In) );
                     uart3->write( UART_Telem_Ptr, /* len */ sizeof(UART_Telem_In) );
+                                        
+                    IntBuf  = ( (int16_t)UART_Telem_In.eRPM_H << 8);                                 // Init 16-bit Signed Int;                    
+                    IntBuf |=  UART_Telem_In.eRPM_L;                                                // Add 16-bit Signed Int;
+                    if ( IntBuf & 0x2000)
+                        IntBuf = 0xE000 + (IntBuf & 0x1FFF) ;
+                    esc_telem.update_rpm( 0, ( (IntBuf*10) / /* motor_poles */ /* 14 */ 1 ) * 1.0f , 0.0);
+                    tdata.input_duty  = ( UART_Telem_In.iThrot_L +( (uint16_t)UART_Telem_In.iThrot_H << 8)) * 100.0f / 1024.0f;
+                    tdata.output_duty = ( UART_Telem_In.oThrot_L +( (uint16_t)UART_Telem_In.oThrot_H << 8)) * 100.0f / 1024.0f;
+                    
+                    IntBuf  = ( (int16_t)UART_Telem_In.iVolt_H << 8);                                 // Init 16-bit Signed Int;                    
+                    IntBuf |=  UART_Telem_In.iVolt_L;                                                // Add 16-bit Signed Int;
+                    if ( IntBuf & 0x2000)
+                        IntBuf = 0xE000 + (IntBuf & 0x1FFF) ;
+                    tdata.voltage = IntBuf / 10.0f;
 
-                    int eRPM = ( UART_Telem_In.eRPM_L+( UART_Telem_In.eRPM_H << 8)) * 10;
-                    esc_telem.update_rpm( 0, (eRPM / /* motor_poles */ /* 14 */ 1 ) * 1.0f , 0.0);
-                    tdata.input_duty = ( UART_Telem_In.iThrot_L +( UART_Telem_In.iThrot_H << 8)) * 100.0f / 1024.0f;
-                    tdata.output_duty = ( UART_Telem_In.oThrot_L +( UART_Telem_In.oThrot_H << 8)) * 100.0f / 1024.0f;
-                    tdata.voltage = ( UART_Telem_In.iVolt_L +( UART_Telem_In.iVolt_H << 8)) / 10.0f;
-                    tdata.current = ( UART_Telem_In.iCurr_L +( UART_Telem_In.iCurr_H << 8)) / 64.0f;
-                    tdata.temperature_cdeg = ( UART_Telem_In.mTemp ) * 100.0f;                     // centi-degrees C, negative values allowed
-                    tdata.motor_temp_cdeg = ( UART_Telem_In.cTemp ) * 100.0f;                      // centi-degrees C, negative values allowed
+                    IntBuf  = ( (int16_t)UART_Telem_In.iCurr_H << 8);                                 // Init 16-bit Signed Int;                    
+                    IntBuf |=  UART_Telem_In.iCurr_L;                                                // Add 16-bit Signed Int;
+                    if ( IntBuf & 0x2000)
+                        IntBuf = 0xE000 + (IntBuf & 0x1FFF) ;
+                    tdata.current = IntBuf / 64.0f;
+
+                    tdata.temperature_cdeg =  (int8_t) UART_Telem_In.mTemp * 100.0f;                     // centi-degrees C, negative values allowed
+                    if (UART_Telem_In.cTemp & 0x80)
+                        tdata.motor_temp_cdeg  =  (int8_t)UART_Telem_In.cTemp * 100.0f;                      // centi-degrees C, negative values allowed
+                        else 
+                            tdata.motor_temp_cdeg  = (uint8_t)UART_Telem_In.cTemp * 100.0f;                      // centi-degrees C, negative values allowed
                     tdata.power_percentage = UART_Telem_In.PktNum_L;
                     esc_telem.update_telem_data(0, tdata, 
                             AP_ESC_Telem_Backend::TelemetryType::VOLTAGE | 
@@ -1846,6 +1875,7 @@ void AP_Periph_FW::esc_telem_update()
                     // float rpm;
 
                     wr_buffer[0] = 0xFF;
+                    wr_buffer[1] = now_ms;
                     
                     memcpy( wr_buffer+1, UART_Telem_Ptr, nbytes );
                     uart3->write( (const uint8_t*) UART_Telem_Ptr, /* len */ 6 );

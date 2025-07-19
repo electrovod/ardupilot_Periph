@@ -31,16 +31,16 @@ MAVPACKED(
         uint8_t     iThrot_L;                                       ///< Input Throttle -- low     |__ Real val = <reg> *100 /1024
         uint8_t     oThrot_H;                                       ///< Output Throttle -- high   /
         uint8_t     oThrot_L;                                       ///< Output Throttle -- low   /
-        int8_t      eRPM_H;                                         ///< "electronics" RPM -- high
-        int8_t      eRPM_L;                                         ///< "electronics" RPM -- low;  Real val = <reg> *10 / <poles pairs> num
-        int8_t      iVolt_H;                                        ///< Input voltage -- high
-        int8_t      iVolt_L;                                        ///< Input voltage -- low;  Real val = <reg> /10
-        int8_t      iCurr_H;                                        ///< Input Current -- high
-        int8_t      iCurr_L;                                        ///< Input Current -- low;  Real val = <reg> / 64
-        int8_t      pCurr_H;                                        ///< Phase Current -- high
-        int8_t      pCurr_L;                                        ///< Phase Current -- low;  Real val = <reg> / 64
-        int8_t      mTemp;                                          ///< MOSFET temperature, see LookUp table
-        int8_t      cTemp;                                          ///< Capacitor temperature, see LookUp table
+        uint8_t     eRPM_H;                                         ///< "electronics" RPM -- high
+        uint8_t     eRPM_L;                                         ///< "electronics" RPM -- low;  Real val = <reg> *10 / <poles pairs> num
+        uint8_t     iVolt_H;                                        ///< Input voltage -- high
+        uint8_t     iVolt_L;                                        ///< Input voltage -- low;  Real val = <reg> /10
+        uint8_t     iCurr_H;                                        ///< Input Current -- high
+        uint8_t     iCurr_L;                                        ///< Input Current -- low;  Real val = <reg> / 64
+        uint8_t     pCurr_H;                                        ///< Phase Current -- high
+        uint8_t     pCurr_L;                                        ///< Phase Current -- low;  Real val = <reg> / 64
+        uint8_t     mTemp;                                          ///< MOSFET temperature, see LookUp table
+        uint8_t     cTemp;                                          ///< Capacitor temperature, see LookUp table
         uint8_t     Status_H;                                       ///< Status code -- high, see masks
         uint8_t     Status_L;                                       ///< Status code -- low, see masks
         uint8_t     CRC_L;                                          ///< LOW  byte of CRC -- Little-Endian here!

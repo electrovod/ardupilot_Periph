@@ -125,35 +125,38 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
          // ::  rc[i] :: [-8192, 8191]
         if ( 2 == i)
             {                
+            if ( rc[i]) AllZeros = 0;
+            rc[i] /= 10;                                            // Correct for DroneCAD_GUI multiplier
             HW_FOC_Telem.eRPM_H = rc[i] >> 8;
             HW_FOC_Telem.eRPM_L = rc[i] & 0xFF;
-            if ( rc[i]) AllZeros = 0;
             };      // ---------- if ( 2 == i)
         
         // AP_ESC_Telem_Backend::TelemetryData tdata {};
 
         if ( 0 == i)
             {
-            HW_FOC_Telem.iVolt_L = rc[i] & 0xFF;
-            HW_FOC_Telem.iVolt_H = rc[i] >> 8;
+            int16_t NewVal = rc[i] & 0x3FFF;
+            HW_FOC_Telem.iVolt_L = NewVal & 0xFF;
+            HW_FOC_Telem.iVolt_H = NewVal / 256;
             if ( rc[i]) AllZeros = 0;
             };
         if ( 1 == i)
             {            
-#if 0
-            HW_FOC_Telem.iCurr_L = rc[i] & 0xFF;
-            HW_FOC_Telem.iCurr_H = rc[i] >> 8;
+#if 1
             if ( rc[i]) AllZeros = 0;
+            int16_t NewVal = rc[i] & 0x3FFF;
+            HW_FOC_Telem.iCurr_L = NewVal & 0xFF;
+            HW_FOC_Telem.iCurr_H = NewVal >> 8;            
 #else
             rc[i] = HW_FOC_Telem.PktNum_L * 32;
-            HW_FOC_Telem.iCurr_H = rc[i] & 0xFF;
-            HW_FOC_Telem.iCurr_L = 0;
+            HW_FOC_Telem.iCurr_H = rc[i] / 256;
+            HW_FOC_Telem.iCurr_L = rc[i] & 0xFF;
 #endif            
             };
         if ( 3 == i)
             {            
             HW_FOC_Telem.mTemp = rc[i] & 0xFF;
-            HW_FOC_Telem.cTemp = (rc[i] + 17) >> 8;
+            HW_FOC_Telem.cTemp = (rc[i] + 17) >> 6;
             if ( rc[i]) AllZeros = 0;
             };
 
