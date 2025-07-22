@@ -1758,7 +1758,7 @@ uint8_t AP_Periph_FW::get_motor_number(const uint8_t esc_number) const
     return (motor_num == -1) ? esc_number : motor_num;
 }
 
-#define                 HW_FOC_INTER_PACKET_TO      10                  ///< TimeOut between HW_FOC packets
+#define                 HW_FOC_INTER_PACKET_TO      3                  ///< TimeOut between HW_FOC packets
 HW_FOC_ESC_Telem_t      UART_Telem_In;                                  // Must be the Packet of HW_FOC Telemetry
 uint8_t          *const UART_Telem_Ptr = (uint8_t *) &UART_Telem_In;
 /// @brief  Union to convert signed bytes to 16-bit int and then to Float
@@ -1777,9 +1777,9 @@ typedef union Bytes2int_u
  */
 void AP_Periph_FW::esc_telem_update()
     {
-    uint32_t            mask = esc_telem.get_active_esc_mask();    
+    uint32_t            mask;                                  // = esc_telem.get_active_esc_mask();    
     auto                *uart3 = hal.serial(3);
-    #define ReadBufSize 64
+    #define ReadBufSize 128
     static int          BufIdx;
     static uint8_t      read_buffer[ReadBufSize] = {0};    
     static int32_t      LastPackTS; 
@@ -1792,10 +1792,10 @@ void AP_Periph_FW::esc_telem_update()
     if ( hal.serial(2)->get_baud_rate() != 19200 )
         {
         hal.serial(2)->end();
-        hal.serial(2)->begin( /* Default: 115200 */ 19200, /* rxSpace */ 32,  /* txSpace */ 32 );
+        hal.serial(2)->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
 
         hal.serial(3)->end();
-        hal.serial(3)->begin( /* Default: 115200 */ 19200, /* rxSpace */ 64,  /* txSpace */ 64 );
+        hal.serial(3)->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
         };
 
     // GC_Debug by GrayCat:
@@ -1833,7 +1833,7 @@ void AP_Periph_FW::esc_telem_update()
                     IntBuf |=  UART_Telem_In.eRPM_L;                                                // Add 16-bit Signed Int;
                     if ( IntBuf & 0x2000)
                         IntBuf = 0xE000 + (IntBuf & 0x1FFF) ;
-                    esc_telem.update_rpm( 0, ( (IntBuf*10) / /* motor_poles */ /* 14 */ 1 ) * 1.0f , 0.0);
+                    esc_telem.update_rpm( 0, ( (IntBuf*10) / /* motor_poles */  20 ) * 1.0f , 0.0);
                     tdata.input_duty  = ( UART_Telem_In.iThrot_L +( (uint16_t)UART_Telem_In.iThrot_H << 8)) * 100.0f / 1024.0f;
                     tdata.output_duty = ( UART_Telem_In.oThrot_L +( (uint16_t)UART_Telem_In.oThrot_H << 8)) * 100.0f / 1024.0f;
                     
@@ -1871,14 +1871,19 @@ void AP_Periph_FW::esc_telem_update()
                     {       // ++++++++++ Fake-fake:
                     if ( (now_ms - LastPackTS) > HW_FOC_INTER_PACKET_TO )                       // Too long timeout?...
                         BufIdx = 0;                                                             //...restart buffer
-                    static char wr_buffer[ReadBufSize] = {0};
-                    // float rpm;
+                    static char wr_buffer[ReadBufSize] = {0};                    
 
-                    wr_buffer[0] = 0xFF;
-                    wr_buffer[1] = now_ms;
-                    
-                    memcpy( wr_buffer+1, UART_Telem_Ptr, nbytes );
-                    uart3->write( (const uint8_t*) UART_Telem_Ptr, /* len */ 6 );
+                    if ( (now_ms - LastPackTS) > 2000 )                       // Too long timeout?...
+                        {       // +++++++++++++++ Too long timeout, no data...
+                        esc_telem.update_rpm( 0,  0.0f , 0.0);
+
+                        wr_buffer[0] = 0xFF;
+                        wr_buffer[1] = now_ms;
+                        
+                        memcpy( wr_buffer+1, UART_Telem_Ptr, nbytes );
+                        uart3->write( (const uint8_t*) UART_Telem_Ptr, /* len */ 6 );
+                        LastPackTS = now_ms;                                                            // Store TimeStamp for comparison
+                        };      // ---------------- Too long timeout, no data...
                     };      // ---------- Fake-fake
             };      // ---------- UART3 OK
 #ifdef GC_Debug_DirectFake
@@ -1898,7 +1903,8 @@ void AP_Periph_FW::esc_telem_update()
         canard_broadcast(UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, UAVCAN_EQUIPMENT_ESC_STATUS_ID, CANARD_TRANSFER_PRIORITY_LOW, &buffer[0], total_size);
 #endif      //  GC_Debug_DirectFake
         }       // --------------------- No real ESC Telemetry events, let's fake one!
-    
+
+    mask = esc_telem.get_active_esc_mask();    
     while (mask != 0) 
         {       // ++++++++++++++++++++++++++++ Check all ESCs' Telemetry Loop:
         int8_t i = __builtin_ffs(mask) - 1;

@@ -72,9 +72,9 @@ void AP_Periph_FW::can_mag_update(void)
     
     uint8_t buffer[UAVCAN_EQUIPMENT_AHRS_MAGNETICFIELDSTRENGTH_MAX_SIZE];
     uint16_t total_size = uavcan_equipment_ahrs_MagneticFieldStrength_encode(&pkt, buffer, !periph.canfdout());
-
+// GrayCat addition: fake MessageType to avoid mess-up with real Compass:
     canard_broadcast(UAVCAN_EQUIPMENT_AHRS_MAGNETICFIELDSTRENGTH_SIGNATURE,
-                    UAVCAN_EQUIPMENT_AHRS_MAGNETICFIELDSTRENGTH_ID,
+                    UAVCAN_EQUIPMENT_AHRS_MAGNETICFIELDSTRENGTH_ID + 1100,
                     CANARD_TRANSFER_PRIORITY_LOW,
                     &buffer[0],
                     total_size);

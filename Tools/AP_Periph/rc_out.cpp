@@ -86,7 +86,7 @@ void AP_Periph_FW::rcout_init()
 #if HAL_WITH_ESC_TELEM
     esc_telem_update_period_ms = 1000 / constrain_int32(g.esc_telem_rate.get(), 1, 1000);
 #endif
-}
+};      // ---------------------------- rcout_init() ---------------------------
 
 void AP_Periph_FW::rcout_init_1Hz()
 {
@@ -252,10 +252,13 @@ void AP_Periph_FW::rcout_update()
 
 // +-+- Moved from End-of-Function by GrayCat:
 #if HAL_WITH_ESC_TELEM
-    if (now_ms - last_esc_telem_update_ms >= esc_telem_update_period_ms) {
+    if (    (now_ms - last_esc_telem_update_ms >= esc_telem_update_period_ms) 
+        ||  ( hal.serial(3)->available() > 0 )
+        )
+        {
         last_esc_telem_update_ms = now_ms;
         esc_telem_update();
-    }
+        }
 #if AP_EXTENDED_ESC_TELEM_ENABLED
     esc_telem_extended_update(now_ms);
 #endif
