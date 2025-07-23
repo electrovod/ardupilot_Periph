@@ -7,6 +7,7 @@
 
 # DShot telem on RX1
 ESC_TELEM_PORT 0
+ESC_CMD_TIMO 2000
 
 # .. by GrayCat:
 # FLASH_BOOTLOADER 1

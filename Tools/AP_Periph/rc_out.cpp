@@ -106,6 +106,7 @@ HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packe
     HW_FOC_Val_Cmd,                                                 // Command: "Real-time data"        
     };                                       
 
+/// @brief  Called from rcout_update() 
 void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     {
     auto    *uart2 = hal.serial(2);
