@@ -136,6 +136,10 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 
         if ( 0 == i)
             {
+// GC_Debug:
+            int OldPWM =  SRV_Channels::srv_channel(0)->get_output_pwm();
+            // SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), 20 );
+            SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 0 ,  /* uint16_t value */ /*  OldPWM+1 */ (rc[i] & 0x3FFF) + (0*OldPWM ));
             int16_t NewVal = rc[i] & 0x3FFF;
             HW_FOC_Telem.iVolt_L = NewVal & 0xFF;
             HW_FOC_Telem.iVolt_H = NewVal / 256;
@@ -146,6 +150,7 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 #if 1
             if ( rc[i]) AllZeros = 0;
             int16_t NewVal = rc[i] & 0x3FFF;
+            SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 1 ,  /* uint16_t value */ NewVal );
             HW_FOC_Telem.iCurr_L = NewVal & 0xFF;
             HW_FOC_Telem.iCurr_H = NewVal >> 8;            
 #else
@@ -225,7 +230,7 @@ void AP_Periph_FW::rcout_update()
         // If we've seen ESCs previously, and a timeout has occurred, then zero the outputs
         int16_t esc_output[last_esc_num_channels];
         memset(esc_output, 0, sizeof(esc_output));
-        rcout_esc(esc_output, last_esc_num_channels);
+        rcout_esc(esc_output, last_esc_num_channels);                               // Here is our "ESC_Cmd -> UART" translator
 
         // Don't need to run again until new commands have been received
         last_esc_num_channels = 0;
@@ -259,6 +264,8 @@ void AP_Periph_FW::rcout_update()
         {
         last_esc_telem_update_ms = now_ms;
         esc_telem_update();
+// GC_Debug:
+        rcout_has_new_data_to_update = true;
         }
 #if AP_EXTENDED_ESC_TELEM_ENABLED
     esc_telem_extended_update(now_ms);

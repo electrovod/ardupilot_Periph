@@ -1877,7 +1877,12 @@ void AP_Periph_FW::esc_telem_update()
                         {       // +++++++++++++++ Too long timeout, no data...
                         esc_telem.update_rpm( 0,  0.0f , 0.0);                                  // No rotation, ....
                         tdata.motor_temp_cdeg  =  ( ( (now_ms/1000 ) + 120) & 0xFF) * 50.0f;    // centi-degrees C : keepalive
-                        esc_telem.update_telem_data(0, tdata, AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE );
+                        float ESC_Out0 =  SRV_Channels::srv_channel(0)->get_output_pwm();
+                        // tdata.input_duty  = SRV_Channels::get_output_scaled(1);
+                        // tdata.output_duty = ( UART_Telem_In.oThrot_L +( (uint16_t)UART_Telem_In.oThrot_H << 8)) * 100.0f / 1024.0f;
+                        tdata.voltage = ESC_Out0;
+                        esc_telem.update_telem_data(0, tdata, AP_ESC_Telem_Backend::TelemetryType::VOLTAGE | 
+                                                              AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE );
 
                         wr_buffer[0] = 0xFF;
                         wr_buffer[1] = now_ms;

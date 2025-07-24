@@ -18,14 +18,22 @@ APJ_BOARD_ID AP_HW_MUCAN
 # undef STDOUT_SERIAL 
 define HAL_USE_SERIAL TRUE
 
- --------------------- PWM -----------------------
+# blue LED0 marked as ACT
+# PB3 LED OUTPUT HIGH
+undef PB3 
+# define HAL_LED_ON 1
+undef HAL_LED_ON 
+
+#  --------------------- PWM -----------------------
 undef   PB10 
-PB10   TIM2_CH3   TIM2 PWM(1) GPIO(50)
-PA8   TIM1_CH1  TIM1 PWM(2) GPIO(51)
+PB10  TIM2_CH3   TIM2 PWM(1) 
+PB3   TIM2_CH2   TIM2 PWM(2) 
 PA9   TIM1_CH2  TIM1 PWM(3) GPIO(52)
 # PA10  TIM1_CH3  TIM1 PWM(3) GPIO(52)
 PA11  TIM1_CH4  TIM1 PWM(4) GPIO(53)
 PA15  TIM2_CH1  TIM2 PWM(5) GPIO(54)
+
+BRD_SAFETY_MASK, 15
 
 # Beeper
 PA6   TIM16_CH1 TIM16 GPIO(32) ALARM
@@ -40,11 +48,8 @@ COMPASS RM3100 SPI:rm3100 false ROTATION_PITCH_180
 define HAL_COMPASS_MAX_SENSORS 1
 
 # added QMC5883L for different board varients
-COMPASS QMC5883L I2C:0:0xd false ROTATION_PITCH_180_YAW_90
+# COMPASS QMC5883L I2C:0:0xd false ROTATION_PITCH_180_YAW_90
 define AP_PERIPH_MAG_MAX_RATE 3
-
-# -------------------- MSP --------------------------------
-# define AP_PERIPH_MSP_ENABLED 0
 
 # -------------------- Buzzer+NeoPixels --------------d------
 define AP_PERIPH_RC_OUT_ENABLED 1
@@ -61,8 +66,9 @@ define ESC_TELEM_MAX_ESCS 4
 
 # enable ESC control
 define HAL_SERIAL_ESC_COMM_ENABLED 1
-define HAL_SUPPORT_RCOUT_SERIAL 1
+# define HAL_SUPPORT_RCOUT_SERIAL 1
 define HAL_WITH_ESC_TELEM 1
+OUT_BLH_BDMASK 15
 
 define AP_PERIPH_SERIAL_OPTIONS_ENABLED 1
 
@@ -87,10 +93,12 @@ SERIAL2_BAUD 19200
 
 # enable Serial3 port with DMA
 # undef PB10
-undef PB11
 # PB10  USART3_TX USART3 SPEED_HIGH
+
 undef PC4 
 PC4   USART3_TX USART3 SPEED_HIGH
+
+undef PB11
 PB11  USART3_RX USART3 SPEED_HIGH
 define DEFAULT_SERIAL3_BAUD 19200
 # SERIAL3_PROTOCOL SerialProtocol_ESCTelemetry
@@ -100,12 +108,6 @@ define DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
 DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
 SERIAL3_PROTOCOL SerialProtocol_Scripting
 define SERIAL3_PROTOCOL SerialProtocol_Scripting
-
-# define  AP_RPM_ENABLED 1
-# define  HAL_ENABLE_DRONECAN_DRIVERS 1
-# define  AP_RPM_DRONECAN_ENABLED 1
-# define  AP_RPM_ESC_TELEM_OUTBOUND_ENABLED 1
-# undef  AP_AIRSPEED_DRONECAN_ENABLED
 
 AP_EXTENDED_ESC_TELEM_ENABLED 1
 define AP_EXTENDED_ESC_TELEM_ENABLED 1
