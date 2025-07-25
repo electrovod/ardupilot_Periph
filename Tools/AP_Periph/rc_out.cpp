@@ -106,7 +106,7 @@ HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packe
     HW_FOC_Val_Cmd,                                                 // Command: "Real-time data"        
     };                                       
 
-/// @brief  Called from rcout_update() 
+/// ::  Called from rcout_update() 
 void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     {
     auto    *uart2 = hal.serial(2);
@@ -127,7 +127,7 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
         if ( 2 == i)
             {                
             if ( rc[i]) AllZeros = 0;
-            rc[i] /= 10;                                            // Correct for DroneCAD_GUI multiplier
+            rc[i] /= 10;                                            // Correct for DroneCAN_GUI multiplier
             HW_FOC_Telem.eRPM_H = rc[i] >> 8;
             HW_FOC_Telem.eRPM_L = rc[i] & 0xFF;
             };      // ---------- if ( 2 == i)
@@ -137,9 +137,9 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
         if ( 0 == i)
             {
 // GC_Debug:
-            int OldPWM =  SRV_Channels::srv_channel(0)->get_output_pwm();
+            // int OldPWM =  SRV_Channels::srv_channel(0)->get_output_pwm();
             // SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), 20 );
-            SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 0 ,  /* uint16_t value */ /*  OldPWM+1 */ (rc[i] & 0x3FFF) + (0*OldPWM ));
+            // SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 0 ,  /* uint16_t value */ /*  OldPWM+1 */ (rc[i] & 0x3FFF) );
             int16_t NewVal = rc[i] & 0x3FFF;
             HW_FOC_Telem.iVolt_L = NewVal & 0xFF;
             HW_FOC_Telem.iVolt_H = NewVal / 256;
@@ -150,11 +150,11 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 #if 1
             if ( rc[i]) AllZeros = 0;
             int16_t NewVal = rc[i] & 0x3FFF;
-            SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 1 ,  /* uint16_t value */ NewVal );
+            // SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 1 ,  /* uint16_t value */ NewVal );
             HW_FOC_Telem.iCurr_L = NewVal & 0xFF;
             HW_FOC_Telem.iCurr_H = NewVal >> 8;            
 #else
-            rc[i] = HW_FOC_Telem.PktNum_L * 32;
+            // rc[i] = HW_FOC_Telem.PktNum_L * 32;
             HW_FOC_Telem.iCurr_H = rc[i] / 256;
             HW_FOC_Telem.iCurr_L = rc[i] & 0xFF;
 #endif            
@@ -265,7 +265,7 @@ void AP_Periph_FW::rcout_update()
         last_esc_telem_update_ms = now_ms;
         esc_telem_update();
 // GC_Debug:
-        rcout_has_new_data_to_update = true;
+// rcout_has_new_data_to_update = true;
         }
 #if AP_EXTENDED_ESC_TELEM_ENABLED
     esc_telem_extended_update(now_ms);

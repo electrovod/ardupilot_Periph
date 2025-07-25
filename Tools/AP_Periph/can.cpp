@@ -1758,6 +1758,34 @@ uint8_t AP_Periph_FW::get_motor_number(const uint8_t esc_number) const
     return (motor_num == -1) ? esc_number : motor_num;
 }
 
+ADC_2_Temp_t temp_table[] = {
+    { 241, 	0}, 	{ 240, 	1}, 	{ 239, 	2}, 	{ 238, 	3}, 	{ 237, 	4}, 	{ 236, 	5}, 	{ 235, 	6}, 	{ 234, 	7}, 	{ 233, 	8}, 	{ 232, 	9},
+    { 231, 	10}, 	{ 230, 	11}, 	{ 229, 	12}, 	{ 228, 	13}, 	{ 227, 	14}, 	{ 226, 	15}, 	{ 224, 	16}, 	{ 223, 	17}, 	{ 222, 	18}, 	{ 220, 	19},
+    { 219, 	20}, 	{ 217, 	21}, 	{ 216, 	22}, 	{ 214, 	23}, 	{ 213, 	24}, 	{ 211, 	25}, 	{ 209, 	26}, 	{ 208, 	27}, 	{ 206, 	28}, 	{ 204, 	29},
+    { 202, 	30}, 	{ 201, 	31}, 	{ 199, 	32}, 	{ 197, 	33}, 	{ 195, 	34}, 	{ 193, 	35}, 	{ 191, 	36}, 	{ 189, 	37}, 	{ 187, 	38}, 	{ 185, 	39},
+    { 183, 	40}, 	{ 181, 	41}, 	{ 179, 	42}, 	{ 177, 	43}, 	{ 174, 	44}, 	{ 172, 	45}, 	{ 170, 	46}, 	{ 168, 	47}, 	{ 166, 	48}, 	{ 164, 	49},
+    { 161, 	50}, 	{ 159, 	51}, 	{ 157, 	52}, 	{ 154, 	53}, 	{ 152, 	54}, 	{ 150, 	55}, 	{ 148, 	56}, 	{ 146, 	57}, 	{ 143, 	58}, 	{ 141, 	59},
+    { 139, 	60}, 	{ 136, 	61}, 	{ 134, 	62}, 	{ 132, 	63}, 	{ 130, 	64}, 	{ 128, 	65}, 	{ 125, 	66}, 	{ 123, 	67}, 	{ 121, 	68}, 	{ 119, 	69},
+    { 117, 	70}, 	{ 115, 	71}, 	{ 113, 	72}, 	{ 111, 	73}, 	{ 109, 	74}, 	{ 106, 	75}, 	{ 105, 	76}, 	{ 103, 	77}, 	{ 101, 	78}, 	{ 99, 	79},
+    { 97, 	80}, 	{ 95, 	81}, 	{ 93, 	82}, 	{ 91, 	83}, 	{ 90, 	84}, 	{ 88, 	85}, 	{ 85, 	86}, 	{ 84, 	87}, 	{ 82, 	88}, 	{ 81, 	89},
+    { 79, 	90}, 	{ 77, 	91}, 	{ 76, 	92}, 	{ 74, 	93}, 	{ 73, 	94}, 	{ 72, 	95}, 	{ 69, 	96}, 	{ 68, 	97}, 	{ 66, 	98}, 	{ 65, 	99},
+    { 64, 	100}, 	{ 62, 	101}, 	{ 62, 	102}, 	{ 61, 	103}, 	{ 59, 	104}, 	{ 58, 	105}, 	{ 56, 	106}, 	{ 54, 	107}, 	{ 54, 	108}, 	{ 53, 	109},
+    { 51, 	110}, 	{ 51, 	111}, 	{ 50, 	112}, 	{ 48, 	113}, 	{ 48, 	114}, 	{ 46, 	115}, 	{ 46, 	116}, 	{ 44, 	117}, 	{ 43, 	118}, 	{ 43, 	119},
+    { 41, 	120}, 	{ 41, 	121}, 	{ 39, 	122}, 	{ 39, 	123}, 	{ 39, 	124}, 	{ 37, 	125}, 	{ 37, 	126}, 	{ 35, 	127}, 	{ 35, 	127}, 	{ 33, 	127},
+};
+
+int FOC_temp_decode(int temp_raw)
+    {
+    if (temp_raw == 0) 
+      return 0;
+   
+    for (int i=1; i < sizeof(temp_table) ; i++)   
+        if (temp_table[i].ADC_Val <= temp_raw )
+            return(temp_table[i].Temp_Val);
+      
+    return(127);
+    };      // ----------------------------- FOC_temp_decode() -------------------------------
+
 #define                 HW_FOC_INTER_PACKET_TO      3                  ///< TimeOut between HW_FOC packets
 HW_FOC_ESC_Telem_t      UART_Telem_In;                                  // Must be the Packet of HW_FOC Telemetry
 uint8_t          *const UART_Telem_Ptr = (uint8_t *) &UART_Telem_In;
@@ -1850,10 +1878,11 @@ void AP_Periph_FW::esc_telem_update()
                     tdata.current = IntBuf / 64.0f;
 
                     tdata.temperature_cdeg =  (int8_t) UART_Telem_In.mTemp * 100.0f;                     // centi-degrees C, negative values allowed
-                    if (UART_Telem_In.cTemp & 0x80)
-                        tdata.motor_temp_cdeg  =  (int8_t)UART_Telem_In.cTemp * 100.0f;                      // centi-degrees C, negative values allowed
+                    int RealTemp = FOC_temp_decode( UART_Telem_In.cTemp );
+                    if ( RealTemp & 0x80)
+                        tdata.motor_temp_cdeg  =  (int8_t)RealTemp * 100.0f;                      // centi-degrees C, negative values allowed
                         else 
-                            tdata.motor_temp_cdeg  = (uint8_t)UART_Telem_In.cTemp * 100.0f;                      // centi-degrees C, negative values allowed
+                            tdata.motor_temp_cdeg  = (uint8_t)RealTemp * 100.0f;                      // centi-degrees C, negative values allowed
                     tdata.power_percentage = UART_Telem_In.PktNum_L;
                     esc_telem.update_telem_data(0, tdata, 
                             AP_ESC_Telem_Backend::TelemetryType::VOLTAGE | 
@@ -1876,12 +1905,12 @@ void AP_Periph_FW::esc_telem_update()
                     if ( (now_ms - LastPackTS) > 2000 )                       // Too long timeout?...
                         {       // +++++++++++++++ Too long timeout, no data...
                         esc_telem.update_rpm( 0,  0.0f , 0.0);                                  // No rotation, ....
-                        tdata.motor_temp_cdeg  =  ( ( (now_ms/1000 ) + 120) & 0xFF) * 50.0f;    // centi-degrees C : keepalive
-                        float ESC_Out0 =  SRV_Channels::srv_channel(0)->get_output_pwm();
-                        // tdata.input_duty  = SRV_Channels::get_output_scaled(1);
-                        // tdata.output_duty = ( UART_Telem_In.oThrot_L +( (uint16_t)UART_Telem_In.oThrot_H << 8)) * 100.0f / 1024.0f;
-                        tdata.voltage = ESC_Out0;
-                        esc_telem.update_telem_data(0, tdata, AP_ESC_Telem_Backend::TelemetryType::VOLTAGE | 
+                        tdata.motor_temp_cdeg  =  ( ( (now_ms/500 ) & 0xFF) + 120) * 50.0f;    // centi-degrees C : keepalive
+                        // float ESC_Out0 =  SRV_Channels::srv_channel(0)->get_output_pwm();                                                
+                        tdata.output_duty = SRV_Channels::srv_channel(0)->get_output_pwm() / 1024.0f;
+                        // tdata.voltage = ESC_Out0;
+                        esc_telem.update_telem_data(0, tdata, /* AP_ESC_Telem_Backend::TelemetryType::VOLTAGE |  */
+                                                              AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY |
                                                               AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE );
 
                         wr_buffer[0] = 0xFF;

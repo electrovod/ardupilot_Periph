@@ -20,24 +20,21 @@ define HAL_USE_SERIAL TRUE
 
 # blue LED0 marked as ACT
 # PB3 LED OUTPUT HIGH
-undef PB3 
 # define HAL_LED_ON 1
-undef HAL_LED_ON 
 
 #  --------------------- PWM -----------------------
 undef   PB10 
 PB10  TIM2_CH3   TIM2 PWM(1) 
-PB3   TIM2_CH2   TIM2 PWM(2) 
-PA9   TIM1_CH2  TIM1 PWM(3) GPIO(52)
+PA8   TIM1_CH1   TIM1 PWM(2) GPIO(51)
+PA9   TIM1_CH2   TIM1 PWM(3) GPIO(52)
 # PA10  TIM1_CH3  TIM1 PWM(3) GPIO(52)
-PA11  TIM1_CH4  TIM1 PWM(4) GPIO(53)
-PA15  TIM2_CH1  TIM2 PWM(5) GPIO(54)
+PA11  TIM1_CH4   TIM1 PWM(4) GPIO(53)
+PA15  TIM2_CH1   TIM2 PWM(5) GPIO(54)
 
-BRD_SAFETY_MASK, 15
+BRD_SAFETY_MASK 15
 
 # Beeper
 PA6   TIM16_CH1 TIM16 GPIO(32) ALARM
-
 
 # ---------------------- COMPASS ---------------------------
 define AP_PERIPH_MAG_ENABLED 1

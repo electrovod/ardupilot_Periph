@@ -47,4 +47,11 @@ MAVPACKED(
         uint8_t     CRC_H;                                          ///< HIGH byte of CRC -- Little-Endian here!
         })  HW_FOC_ESC_Telem_t;
 
+MAVPACKED(
+    typedef struct ADC_2_Temp_s
+    {
+        uint8_t     ADC_Val;
+        uint8_t     Temp_Val;
+    } )  ADC_2_Temp_t;
+
 #endif // HAL_WITH_ESC_TELEM
