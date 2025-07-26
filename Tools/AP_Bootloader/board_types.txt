@@ -520,3 +520,4 @@ AP_HW_CUBEORANGEPLUS_ODID           11063
 
 # GrayCat addition: Motor-Uart CAN translator:
 AP_HW_MUCAN                         3998
+AP_HW_HoWiCan                       3997

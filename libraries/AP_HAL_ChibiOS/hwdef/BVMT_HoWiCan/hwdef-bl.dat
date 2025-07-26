@@ -1,0 +1,12 @@
+include ../MatekH743/hwdef-bl.dat                                                                                   
+
+undef APJ_BOARD_ID
+APJ_BOARD_ID AP_HW_HoWiCan
+
+undef BOOTLOADER_BAUDRATE 
+define BOOTLOADER_BAUDRATE 19200
+
+PD0 CAN1_RX CAN1                                                                                                    
+PD1 CAN1_TX CAN1                                                                                                    
+                                                                                                                    
+env AP_PERIPH 1 

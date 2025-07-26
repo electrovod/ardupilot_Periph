@@ -54,4 +54,9 @@ MAVPACKED(
         uint8_t     Temp_Val;
     } )  ADC_2_Temp_t;
 
+// ============================== P R O C E D U R E S : ==========================
+
+/// @brief Decode "HobbyWing" ADC value into temperature:
+int FOC_temp_decode(int temp_raw);
+
 #endif // HAL_WITH_ESC_TELEM
