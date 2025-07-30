@@ -19,14 +19,15 @@
   for which port is used.
  */
 #define DEFAULT_SERIAL0_PROTOCOL SerialProtocol_None
-#define DEFAULT_SERIAL1_PROTOCOL SerialProtocol_None
+// GC_Debug by GrayCat:
+// #define DEFAULT_SERIAL1_PROTOCOL SerialProtocol_None
 // #define DEFAULT_SERIAL2_PROTOCOL SerialProtocol_None
 // #define DEFAULT_SERIAL3_PROTOCOL SerialProtocol_None
-#define DEFAULT_SERIAL4_PROTOCOL SerialProtocol_None
+// #define DEFAULT_SERIAL4_PROTOCOL SerialProtocol_None
 #define DEFAULT_SERIAL5_PROTOCOL SerialProtocol_None
-#define DEFAULT_SERIAL6_PROTOCOL SerialProtocol_None
-#define DEFAULT_SERIAL7_PROTOCOL SerialProtocol_None
-#define DEFAULT_SERIAL8_PROTOCOL SerialProtocol_None
+// #define DEFAULT_SERIAL6_PROTOCOL SerialProtocol_None
+// fine DEFAULT_SERIAL7_PROTOCOL SerialProtocol_None
+// fine DEFAULT_SERIAL8_PROTOCOL SerialProtocol_None
 #define DEFAULT_SERIAL9_PROTOCOL SerialProtocol_None
 
 #ifndef HAL_LOGGING_MAVLINK_ENABLED

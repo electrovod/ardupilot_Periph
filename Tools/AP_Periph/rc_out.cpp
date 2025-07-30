@@ -109,8 +109,6 @@ HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packe
 /// ::  Called from rcout_update() 
 void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     {
-    auto    *uart2 = hal.serial(2);
-    #define ReadBufSize 64                
     int     AllZeros = 1;
 
     if (rc == nullptr) 
@@ -171,7 +169,16 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     
     if ( !AllZeros )
         {
-        uart2->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
+        auto    *uart_dbg = hal.serial(7);                // Serial 8
+        
+        // GC_Debug:
+        if ( uart_dbg->get_baud_rate() != 19200 )
+            {
+            uart_dbg->end();
+            uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
+            };
+
+        uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
         HW_FOC_Telem.PktNum_L++;
         };
     rcout_has_new_data_to_update = true;

@@ -388,10 +388,8 @@ volatile int retc = 0;
         // setup frame initial state
         txi.pushed         = false;
     // GC_Debug:
-    // hal.scheduler->delay(2);
-    int icnt;
-    for (icnt=0; icnt<0x1FFFF; icnt++ )
-	    retc=icnt;
+    hal.scheduler->delay(1);
+    
     retc = 1;
     }
 

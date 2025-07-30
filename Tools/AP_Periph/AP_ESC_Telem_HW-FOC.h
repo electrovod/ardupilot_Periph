@@ -54,9 +54,33 @@ MAVPACKED(
         uint8_t     Temp_Val;
     } )  ADC_2_Temp_t;
 
+    /// @brief  Union to convert signed bytes to 16-bit int and then to Float
+typedef union Bytes2int_u
+    {
+    int16_t      Int16;
+    struct bytes_s
+        {
+        int8_t b1;
+        int8_t b2;
+        }       Int8s;
+    } Bytes2int_t;
+
+// ============================== C O N S T A N T S : ============================
+
+#define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
+
+#define                 ReadBufSize                 128                 ///< Size of the intermediate buffer
+#define                 HW_FOC_INTER_PACKET_TO      3                  ///< TimeOut between HW_FOC packets
+
 // ============================== P R O C E D U R E S : ==========================
 
 /// @brief Decode "HobbyWing" ADC value into temperature:
 int FOC_temp_decode(int temp_raw);
+
+/// Convert under-16bit values from UART Telemetry to Int16:
+int16_t Convert_FOC2Int( uint8_t RegLow, uint8_t RegHi   );
+
+/// Procedure to read, convert and put into internal structures of HW FOC packets:
+void ReadTelem_N(int Uart_N );
 
 #endif // HAL_WITH_ESC_TELEM

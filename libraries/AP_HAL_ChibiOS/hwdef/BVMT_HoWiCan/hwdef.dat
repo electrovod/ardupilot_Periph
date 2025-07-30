@@ -5,7 +5,7 @@ undef APJ_BOARD_ID
 APJ_BOARD_ID AP_HW_HoWiCan
 env AP_PERIPH 1
 
-undef ROMFS
+# undef ROMFS
 undef HAL_HAVE_SAFETY_SWITCH
 undef IMU
 undef BOOTLOADER_DEV_LIST
@@ -22,11 +22,10 @@ env BUILD_ABIN False
 # define AP_BOOTLOADER_FLASHING_ENABLED 0
 
 # We need UART1 for Telemetry input
-# undef STDOUT_SERIAL
+undef STDOUT_SERIAL
 define HAL_USE_SERIAL TRUE
 
 undef AP_PERIPH_MAG_ENABLED 
-undef AP_PERIPH_RC_OUT_ENABLED 
 undef AP_PERIPH_NOTIFY_ENABLED 
 undef AP_SERIALLED_ENABLED 
 define HAL_USE_ADC FALSE
@@ -63,34 +62,70 @@ define BOOTLOADER_BAUDRATE 19200
 
 # enable ESC control
 define HAL_SERIAL_ESC_COMM_ENABLED 1
-# define HAL_SUPPORT_RCOUT_SERIAL 1
+define HAL_SUPPORT_RCOUT_SERIAL 1
 define HAL_WITH_ESC_TELEM 1
 HAL_WITH_ESC_TELEM 1
                                                                                                                     
 define AP_PERIPH_SERIAL_OPTIONS_ENABLED 1
-                                                                                                                   
+    # .......... Ser 1 settings:
+define DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
+SERIAL1_PROTOCOL SerialProtocol_Scripting
+define SERIAL1_PROTOCOL SerialProtocol_Scripting
+define DEFAULT_SERIAL1_BAUD 19200
+define SERIAL1_BAUD 19200
+SERIAL1_BAUD 19200
+    # .......... Ser 2 settings:
 define DEFAULT_SERIAL2_PROTOCOL  SerialProtocol_Scripting
 DEFAULT_SERIAL2_PROTOCOL  SerialProtocol_Scripting
 SERIAL2_PROTOCOL SerialProtocol_Scripting
 define SERIAL2_PROTOCOL SerialProtocol_Scripting
-
 define DEFAULT_SERIAL2_BAUD 19200
 define SERIAL2_BAUD 19200
 SERIAL2_BAUD 19200
-
+    # .......... Ser 3 settings:
 define DEFAULT_SERIAL3_BAUD 19200
-# SERIAL3_PROTOCOL SerialProtocol_ESCTelemetry
 SERIAL3_BAUD 19200
-
 define DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
 DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
 SERIAL3_PROTOCOL SerialProtocol_Scripting
 define SERIAL3_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 4 settings:
+define DEFAULT_SERIAL4_BAUD 19200
+SERIAL4_BAUD 19200
+define DEFAULT_SERIAL4_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL4_PROTOCOL  SerialProtocol_Scripting
+SERIAL4_PROTOCOL SerialProtocol_Scripting
+define SERIAL4_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 6 settings:
+define DEFAULT_SERIAL6_BAUD 19200
+SERIAL6_BAUD 19200
+define DEFAULT_SERIAL6_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL6_PROTOCOL  SerialProtocol_Scripting
+SERIAL6_PROTOCOL SerialProtocol_Scripting
+define SERIAL6_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 7 settings:
+define DEFAULT_SERIAL7_BAUD 19200
+SERIAL7_BAUD 19200
+define DEFAULT_SERIAL7_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL7_PROTOCOL  SerialProtocol_Scripting
+SERIAL7_PROTOCOL SerialProtocol_Scripting
+define SERIAL7_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 8 settings:
+define DEFAULT_SERIAL8_BAUD 19200
+SERIAL8_BAUD 19200
+define DEFAULT_SERIAL8_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL8_PROTOCOL  SerialProtocol_Scripting
+SERIAL8_PROTOCOL SerialProtocol_Scripting
+define SERIAL8_PROTOCOL SerialProtocol_Scripting
 
-AP_EXTENDED_ESC_TELEM_ENABLED 0
-define AP_EXTENDED_ESC_TELEM_ENABLED 0
+
+define AP_PERIPH_RC_OUT_ENABLED 1
+# define AP_PERIPH_NOTIFY_ENABLED 1
+AP_EXTENDED_ESC_TELEM_ENABLED 1
+define AP_EXTENDED_ESC_TELEM_ENABLED 1
 
 # ................. PWMs: .....................
-define ESC_TELEM_MAX_ESCS 4                                                                                         
-BRD_SAFETY_MASK 15  
-OUT_BLH_BDMASK 15                                                                                                   
+define ESC_TELEM_MAX_ESCS 5
+BRD_SAFETY_MASK 15
+OUT_BLH_BDMASK 15
