@@ -1242,7 +1242,7 @@ void AP_Periph_FW::processTx(void)
             dronecan.tx_fail_count = 0;
 // GC_Debug by GrayCat :
 if ( canardPeekTxQueue(&dronecan.canard) != NULL )                              // Still non-empty queue?...
-    hal.scheduler->delay(3);
+    hal.scheduler->delay( /* Reading, but can not process >10Hz:  3 */ 1 );
         } else {
             // exit and try again later. If we fail 8 times in a row
             // then cleanup any stale transfers to keep the queue from
@@ -1824,7 +1824,7 @@ void ReadTelem_N(int Uart_N )
         if ( uartN->get_baud_rate() != 19200 )
             {       // +++++++++++++++++++++++++++++++++++ Reinit COM-port 
             uartN->end();
-            uartN->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
+            uartN->begin( /* Default: 115200 */ 19200, /* rxSpace */ 32,  /* txSpace */ 32 );
             };      // ----------------------------------- Reinit COM-port 
 
         if ( (nbytes > 0)  )

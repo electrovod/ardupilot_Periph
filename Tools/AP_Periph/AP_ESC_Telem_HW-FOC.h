@@ -69,8 +69,8 @@ typedef union Bytes2int_u
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
-#define                 ReadBufSize                 128                 ///< Size of the intermediate buffer
-#define                 HW_FOC_INTER_PACKET_TO      3                  ///< TimeOut between HW_FOC packets
+#define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
+#define                 HW_FOC_INTER_PACKET_TO      2                  ///< TimeOut between HW_FOC packets
 
 // ============================== P R O C E D U R E S : ==========================
 
