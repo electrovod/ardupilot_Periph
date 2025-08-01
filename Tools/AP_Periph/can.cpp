@@ -1242,7 +1242,11 @@ void AP_Periph_FW::processTx(void)
             dronecan.tx_fail_count = 0;
 // GC_Debug by GrayCat :
 if ( canardPeekTxQueue(&dronecan.canard) != NULL )                              // Still non-empty queue?...
-    hal.scheduler->delay( /* Reading, but can not process >10Hz:  3 */ 1 );
+#ifdef Slow_CAN
+    hal.scheduler->delay(  Slow_CAN_Del * 3  );
+#else  // def Slow_CAN
+    hal.scheduler->delay(  1  );                                                // Faster
+#endif      // Slow_CAN
         } else {
             // exit and try again later. If we fail 8 times in a row
             // then cleanup any stale transfers to keep the queue from
@@ -1998,7 +2002,9 @@ int32_t             now_ms = AP_HAL::millis();
                          total_size);
 
 // GC_Debug:
-// hal.scheduler->delay(1);
+#ifdef Slow_CAN
+    hal.scheduler->delay(2);                                // Inter-Packets delay
+#endif      // def Slow_CAN
         };      // --------------------------- Check all ESCs' Telemetry Loop:
     };      // ------------------------- AP_Periph_FW::esc_telem_update() -----------------------------
 #endif // HAL_WITH_ESC_TELEM

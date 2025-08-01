@@ -11,6 +11,9 @@
     #define ESC_TELEM_MAX_ESCS NUM_SERVO_CHANNELS
 #endif
 
+#define Slow_CAN                    1                               ///< Flag whether to slow down CAN packets' transmission
+#define Slow_CAN_Del                2                               ///< Base Delay for slowed-down CAN, in ms
+
 #define HW_FOC_Val_HEAD             ( (uint8_t)0x9B)                ///< Header
 #define HW_FOC_Val_Len              0x16                            ///< Data frame length, from "Head", excluding CRC
 #define HW_FOC_Val_Ver              0x01                            ///< Version of Proto

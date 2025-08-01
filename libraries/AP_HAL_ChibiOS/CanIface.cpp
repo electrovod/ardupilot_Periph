@@ -52,6 +52,11 @@
 # if !defined(STM32H7XX) && !defined(STM32G4)
 #include "CANIface.h"
 
+// GC_Debug:
+#include "AP_ESC_Telem/AP_ESC_Telem.h"
+#include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h"
+
+
 /* STM32F3's only CAN inteface does not have a number. */
 #if defined(STM32F3XX)
 #define RCC_APB1ENR_CAN1EN     RCC_APB1ENR_CANEN
@@ -387,9 +392,11 @@ volatile int retc = 0;
         txi.abort_on_error = (flags & AbortOnError) != 0;
         // setup frame initial state
         txi.pushed         = false;
-    // GC_Debug:
-    hal.scheduler->delay(1);
-    
+#ifdef Slow_CAN
+    hal.scheduler->delay( Slow_CAN_Del );        
+    #warning ==== Slow_CAN in CANfdIface !
+#endif          // def Slow_CAN    
+
     retc = 1;
     }
 

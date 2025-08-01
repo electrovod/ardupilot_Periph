@@ -52,6 +52,11 @@
 # if defined(STM32H7XX) || defined(STM32G4)
 #include "CANFDIface.h"
 
+// GC_Debug:
+#include "AP_ESC_Telem/AP_ESC_Telem.h"
+#include <GCS_MAVLink/GCS_MAVLink.h>
+#include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h"
+
 #define FDCAN1_IT0_IRQHandler      STM32_FDCAN1_IT0_HANDLER
 #define FDCAN1_IT1_IRQHandler      STM32_FDCAN1_IT1_HANDLER
 #define FDCAN2_IT0_IRQHandler      STM32_FDCAN2_IT0_HANDLER
@@ -440,7 +445,9 @@ int16_t CANIface::send(const AP_HAL::CANFrame& frame, uint64_t tx_deadline,
         pending_tx_[index].pushed         = false;
 
 // GC_Debug:
-    hal.scheduler->delay(1);        
+#ifdef Slow_CAN
+    hal.scheduler->delay( Slow_CAN_Del );            
+#endif          // def Slow_CAN
     }
 
     // also send on MAVCAN, but don't consider it an error if we can't get the MAVCAN out
