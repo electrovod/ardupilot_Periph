@@ -104,6 +104,8 @@ HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packe
     HW_FOC_Val_Len,                                                 // Data frame length, from here, excluding CRC
     HW_FOC_Val_Ver,                                                 // Version of the Protocol
     HW_FOC_Val_Cmd,                                                 // Command: "Real-time data"        
+    0,
+    0
     };                                       
 
 /// ::  Called from rcout_update() 
@@ -125,9 +127,9 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
         if ( 2 == i)
             {                
             if ( rc[i]) AllZeros = 0;
-            rc[i] /= 10;                                            // Correct for DroneCAN_GUI multiplier
-            HW_FOC_Telem.eRPM_H = rc[i] >> 8;
-            HW_FOC_Telem.eRPM_L = rc[i] & 0xFF;
+            int16_t TmpVal =  rc[i] / 10;                                            // Correct for DroneCAN_GUI multiplier
+            HW_FOC_Telem.eRPM_H = TmpVal >> 8;
+            HW_FOC_Telem.eRPM_L = TmpVal & 0xFF;
             };      // ---------- if ( 2 == i)
         
         // AP_ESC_Telem_Backend::TelemetryData tdata {};

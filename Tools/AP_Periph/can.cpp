@@ -1241,11 +1241,12 @@ void AP_Periph_FW::processTx(void)
             canardPopTxQueue(&dronecan.canard);
             dronecan.tx_fail_count = 0;
 // GC_Debug by GrayCat :
-if ( canardPeekTxQueue(&dronecan.canard) != NULL )                              // Still non-empty queue?...
+
 #ifdef Slow_CAN
-    hal.scheduler->delay(  Slow_CAN_Del * 3  );
-#else  // def Slow_CAN
-    hal.scheduler->delay(  1  );                                                // Faster
+    if ( canardPeekTxQueue(&dronecan.canard) != NULL )                              // Still non-empty queue?...
+        hal.scheduler->delay(  Slow_CAN_Del * 3  );
+#else  // Fast_CAN:
+    // hal.scheduler->delay(  1  );                                                // Faster
 #endif      // Slow_CAN
         } else {
             // exit and try again later. If we fail 8 times in a row
@@ -1795,8 +1796,11 @@ int FOC_temp_decode(int temp_raw)
 
 HW_FOC_ESC_Telem_t      UART_Telem_In;                                  // Must be the Packet of HW_FOC Telemetry
 uint8_t          *const UART_Telem_Ptr = (uint8_t *) &UART_Telem_In;
+static int              BufIdx[NUM_Telems];    
+
+static int              Telem_Errs[NUM_Telems] = {0};
 static uint8_t          read_buffer[NUM_Telems][ReadBufSize] = {0};    
-static uint8_t          Telem_Errs[NUM_Telems] = {0};
+static char             wr_buffer[ReadBufSize] = { 0 };
 
 int16_t Convert_FOC2Int( uint8_t RegLow, uint8_t RegHi   )
     {
@@ -1815,7 +1819,7 @@ void ReadTelem_N(int Uart_N )
     {
     auto                   *uartN = hal.serial( Uart_N+1 );
     static int32_t          LastPackTS[NUM_Telems]; 
-    static int              BufIdx[NUM_Telems];    
+    
     int32_t                 now_ms = AP_HAL::millis();
     AP_ESC_Telem_Backend::TelemetryData tdata {};
 
@@ -1829,6 +1833,7 @@ void ReadTelem_N(int Uart_N )
             {       // +++++++++++++++++++++++++++++++++++ Reinit COM-port 
             uartN->end();
             uartN->begin( /* Default: 115200 */ 19200, /* rxSpace */ 32,  /* txSpace */ 32 );
+            return;
             };      // ----------------------------------- Reinit COM-port 
 
         if ( (nbytes > 0)  )
@@ -1843,14 +1848,15 @@ void ReadTelem_N(int Uart_N )
                 };      // --------- byte-by-byte Read loop
             
             if (    (nbytes <= sizeof(UART_Telem_In) ) 
-                &&  (HW_FOC_Val_HEAD==read_buffer[Uart_N][0] )                                      // Check Head-of-Packet
+                &&  ( BufIdx[Uart_N] >= 20 )                                                 // Packet Long enough?...
+                &&  (HW_FOC_Val_HEAD==read_buffer[Uart_N][0] )                               // Check Head-of-Packet
                 &&  (HW_FOC_Val_Len ==read_buffer[Uart_N][1] ) 
                 &&  (HW_FOC_Val_Ver ==read_buffer[Uart_N][2] ) 
                 &&  (HW_FOC_Val_Cmd ==read_buffer[Uart_N][3] ) 
                 )
                 {       // ++++++++++++++++ Valid FOC Telemetry packet received, decode it!
                 memcpy( UART_Telem_Ptr, read_buffer[Uart_N], sizeof(UART_Telem_In) );               // Copy to local buffer to parse...
-                uartN->write( UART_Telem_Ptr, /* len */ sizeof(UART_Telem_In) );                    // Mirror back!
+                // uartN->write( UART_Telem_Ptr, /* len */ sizeof(UART_Telem_In) );                    // Mirror back!
 
                 AP::esc_telem().update_rpm( Uart_N, ( ( Convert_FOC2Int( UART_Telem_In.eRPM_L, UART_Telem_In.eRPM_H )*10) / /* motor_poles */  20 ) * 1.0f , 0.0);
                 Telem_Errs[Uart_N] = 0;                                                             // Reset err counter;
@@ -1884,25 +1890,26 @@ void ReadTelem_N(int Uart_N )
                 {       // ++++++++++ UART empty, do Fake-fake if needed:
                 if ( (now_ms - LastPackTS[Uart_N]) > HW_FOC_INTER_PACKET_TO )                       // Too long timeout?...
                     BufIdx[Uart_N] = 0;                                                             //...restart buffer
-                static char wr_buffer[ReadBufSize] = { (char)( Uart_N+1) };
 
                 if ( (now_ms - LastPackTS[Uart_N]) > 1000 )                       // Too long timeout?...
                     {       // +++++++++++++++ Too long timeout, no data...                    
                     if ( Telem_Errs[Uart_N] < 200 )                               // Wrap errors' counter
                         Telem_Errs[Uart_N]++;
-                    AP::esc_telem().update_rpm( Uart_N,  0.0f , Telem_Errs[Uart_N] * 0.5 );                                  // No rotation, ....
+                    AP::esc_telem().update_rpm( Uart_N,  0.0f , Telem_Errs[Uart_N] * 0.3 );                                  // No rotation, ....
 
-                    tdata.motor_temp_cdeg  =  ( ( (now_ms/500 ) & 0x3F) + 12+ Uart_N*8) * 50.0f;    // centi-degrees C : keepalive                                        
+                    // Free-Running :  tdata.motor_temp_cdeg  =  ( ( (now_ms/500 ) & 0x1F) + 12+ Uart_N*8) * 50.0f;    // centi-degrees C : keepalive                                        
+                    tdata.motor_temp_cdeg  = ( hal.analogin->mcu_temperature() + Uart_N - 1) * 100.0f;                                  // MCU Temperature
+
                     tdata.output_duty = SRV_Channels::srv_channel(Uart_N)->get_output_pwm() / 1024.0f;                    
                     AP::esc_telem().update_telem_data( Uart_N, tdata, /* AP_ESC_Telem_Backend::TelemetryType::VOLTAGE |  */
                                                             AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY |
                                                             AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE );
 
                     wr_buffer[0] = Uart_N+1;
-                    wr_buffer[1] = now_ms / 1000;
+                    // wr_buffer[1] = now_ms / 1000;
                     
-                    memcpy( wr_buffer+2, LastPackTS, 4 );
-                    uartN->write( (const uint8_t*) wr_buffer, /* len */ 6 );
+                    // memcpy( wr_buffer+2, LastPackTS, 4 );
+                    // uartN->write( (const uint8_t*) wr_buffer, /* len */ 6 );
                     LastPackTS[Uart_N] = now_ms;                                                            // Store TimeStamp for comparison
                     };      // ---------------- Too long timeout, no data...
                 };      // ---------- UART empty, do Fake-fake if needed:
@@ -1926,8 +1933,7 @@ void AP_Periph_FW::esc_telem_update()
         hal.serial(7)->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
         };
 
-    // GC_Debug by GrayCat:
-    // esc_telem.update_rpm( 3, ( now_ms * 0.002f ), 0.0);
+    // GC_Debug by GrayCat:    
     ReadTelem_N( 0 );
     ReadTelem_N( 1 );
     ReadTelem_N( 2 );
@@ -1963,6 +1969,10 @@ int32_t             now_ms = AP_HAL::millis();
         const float nan = nanf("");
         // moved to start-of-function: uavcan_equipment_esc_Status pkt {};
         pkt.esc_index = get_motor_number(i);
+// GC_Debug:
+if (127 == i )
+    pkt.esc_index = 4;   // ESC5 !!
+
 
         if (!esc_telem.get_voltage(i, pkt.voltage)) 
             pkt.voltage = nan;
