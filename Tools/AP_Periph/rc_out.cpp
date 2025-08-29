@@ -169,7 +169,7 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 #endif      //  GC_Debug_UART2
         };      // --------- for (uint8_t i=0;)
     
-    if ( !AllZeros )
+    if ( 0 &&  !AllZeros )
         {
         auto    *uart_dbg = hal.serial(7);                // Serial 8
         
@@ -184,13 +184,46 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
         HW_FOC_Telem.PktNum_L++;
         };
     rcout_has_new_data_to_update = true;
-}
+};      // ---------------------------------- rcout_esc() --------------------------
 
 void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_value)
 {
 #if HAL_PWM_COUNT > 0
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
     SRV_Channels::set_output_norm(function, command_value);
+
+// GC_Debug:
+if ( 15 == actuator_id )
+        {        
+        auto    *uart_dbg = hal.serial(7);                // Serial 8
+        
+        // GC_Debug:
+        if ( uart_dbg->get_baud_rate() != 19200 )
+            {
+            uart_dbg->end();
+            uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
+            };
+        // int16_t CmdVal = command_value * 0x7FFF;
+        uint8_t ControlVal  = ( (command_value+1.0) * 127.9) ;                                   // Extract controlling value (byte)...
+        uint8_t IndirectCh = ControlVal / (256/8);
+
+        if ( /* (IndirectCh >= 0 ) && */ ( IndirectCh < 8) )                         // First channel:
+            {
+            const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + IndirectCh /* - 1 */ );
+            SRV_Channels::set_output_norm( function_indir, /* command_value */ (ControlVal % (256/8) ) / (32.0 / 2.0) - 0.99 );
+                // .... Add to mask of channels that will be cleared if no commands are received
+            actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );
+            }
+#if 0
+        HW_FOC_Telem.iThrot_H = CmdVal & 0xFF;
+        HW_FOC_Telem.iThrot_L = CmdVal >> 8;            
+        uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
+#else
+        HW_FOC_Telem.Head = IndirectCh;            
+        uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ 1 );
+#endif
+        HW_FOC_Telem.PktNum_L++;
+        };
 
     // Add to mask of channels that will be cleared if no commands are received
     actuator.mask |= SRV_Channels::get_output_channel_mask(function);
@@ -228,6 +261,7 @@ void AP_Periph_FW::rcout_handle_safety_state(uint8_t safety_state)
     rcout_has_new_data_to_update = true;
 }
 
+/// @brief Called from #can.cpp #can_update() :
 void AP_Periph_FW::rcout_update()
 {
     uint32_t now_ms = AP_HAL::millis();
@@ -263,12 +297,12 @@ void AP_Periph_FW::rcout_update()
 
         // Don't need to run again until new commands have been received
         actuator.mask = 0;
-    }
+    };      // ------------------------ if (has_servo_timed_out && (actuator.mask != 0))
 
 // +-+- Moved from End-of-Function by GrayCat:
 #if HAL_WITH_ESC_TELEM
     if (    (now_ms - last_esc_telem_update_ms >= esc_telem_update_period_ms) 
-        ||  ( hal.serial(3)->available() > 0 )
+        
         )
         {
         last_esc_telem_update_ms = now_ms;

@@ -88,9 +88,9 @@ const AnalogIn::pin_info AnalogIn::pin_config[] = { HAL_ANALOG_PINS };
     #define HAL_MCU_MONITORING_PINS
 #endif
 #ifndef HAL_ANALOG3_PINS
-    #define HAL_ANALOG3_PINS
+    // #define HAL_ANALOG3_PINS
 #endif
-    const AnalogIn::pin_info AnalogIn::pin_config_3[] = { HAL_ANALOG3_PINS HAL_MCU_MONITORING_PINS};
+    // const AnalogIn::pin_info AnalogIn::pin_config_3[] = { HAL_ANALOG3_PINS HAL_MCU_MONITORING_PINS};
     #define ADC3_GRP1_NUM_CHANNELS ARRAY_SIZE(AnalogIn::pin_config_3)
 #endif
 

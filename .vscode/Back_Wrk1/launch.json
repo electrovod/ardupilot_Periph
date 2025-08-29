@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "Launch Ardupilot",
+      "type": "apLaunch",
+      "request": "launch",
+      "target": "AP_Periph",
+      "preLaunchTask": "ardupilot: BVMT_RIO-AP_Periph",
+      "isSITL": false
+    }
+  ],
+  "version": "0.2.0"
+}

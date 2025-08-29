@@ -1,0 +1,1598 @@
+waf [commands] [options]
+
+Main commands (example: ./waf build -j4)
+  AP_Periph         : builds AP_Periph programs
+  add_build_options : add any option in Tools/scripts/build_options.py
+  add_script_options: add any drivers or applets from libraries/AP_Scripting
+  all               : builds all programs of all group
+  antennatracker    : builds antennatracker programs
+  benchmarks        : builds all programs of benchmarks group
+  bin               : builds all programs of bin group
+  blimp             : builds blimp programs
+  bootloader        : builds bootloader programs
+  build             : executes the build
+  check             : builds all programs and run tests
+  check-all         : shortcut for `waf check --alltests`
+  clean             : cleans the project
+  conf              : 
+Decorator: attach new configuration functions to :py:class:`waflib.Build.BuildContext` and
+:py:class:`waflib.Configure.ConfigurationContext`. The methods bound will accept a parameter
+named 'mandatory' to disable the configuration errors::
+
+        def configure(conf):
+                conf.find_program('abc', mandatory=False)
+
+:param f: method to bind
+:type f: function
+
+  configure         : configures the project
+  copter            : builds copter programs
+  dist              : makes a tarball for redistributing the sources
+  distcheck         : checks if the project compiles (tarball from 'dist')
+  distclean         : removes build folders and data
+  examples          : builds all programs of examples group
+  heli              : builds heli programs
+  install           : installs the targets on the system
+  iofirmware        : builds iofirmware programs
+  list              : lists the targets to execute
+  localinstall      : runs install using BLD/install as destdir, where BLD is the build variant directory
+  plane             : builds plane programs
+  replay            : builds replay programs
+  rover             : builds rover programs
+  rsync             : runs localinstall and then rsyncs BLD/install with the target system
+  step              : executes tasks in a step-by-step fashion, for debugging
+  sub               : builds sub programs
+  tests             : builds all programs of tests group
+  tool              : builds all programs of tool group
+  uninstall         : removes the targets installed
+
+Options:
+  --version             show program's version number and exit
+  -c COLORS, --color=COLORS
+                        whether to use colors (yes/no/auto) [default: auto]
+  -j JOBS, --jobs=JOBS  amount of parallel jobs (6)
+  -k, --keep            continue despite errors (-kk to try harder)
+  -v, --verbose         verbosity level -v -vv or -vvv [default: 0]
+  --zones=ZONES         debugging zones (task_gen, deps, tasks, etc)
+  -h, --help            show this help message and exit
+  --notests             Exec no unit tests
+  --alltests            Exec all unit tests
+  --clear-failed        Force failed unit tests to run again next time
+  --testcmd=TESTCMD     Run the unit tests using the test-cmd string example "--testcmd="valgrind --error-exitcode=1 %s" to run
+                        under valgrind
+  --dump-test-scripts   Create python scripts to help debug tests
+
+  Configuration options:
+    -o OUT, --out=OUT   build dir for the project
+    -t TOP, --top=TOP   src dir for the project
+    --check-cxx-compiler=CHECK_CXX_COMPILER
+                        list of C++ compilers to try [g++ clang++ icpc]
+    --check-c-compiler=CHECK_C_COMPILER
+                        list of C compilers to try [gcc clang icc]
+
+  Build and installation options:
+    -p, --progress      -p: progress bar; -pp: ide output
+    --targets=TARGETS   task generators, e.g. "target1,target2"
+
+  Step options:
+    --files=FILES       files to process, by regexp, e.g. "*/main.c,*/test/main.o"
+
+  Installation and uninstallation options:
+    -f, --force         force file installation
+    --distcheck-args=ARGS
+                        arguments to pass to distcheck
+
+  Python Options:
+    --nopyc             Do not install bytecode compiled .pyc files (configuration) [Default:install]
+    --nopyo             Do not install optimised compiled .pyo files (configuration) [Default:install]
+    --nopycache         Do not use __pycache__ directory to install objects [Default:auto]
+    --python=PYTHON     python binary to be used [Default: /usr/bin/python3]
+    --pythondir=PYTHONDIR
+                        Installation path for python modules (py, platform-independent .py and .pyc files)
+    --pythonarchdir=PYTHONARCHDIR
+                        Installation path for python extension (pyext, platform-dependent .so or .dylib files)
+
+  Ardupilot configure options:
+    --board=BOARD       Target board to build, choices are 3DRControlZeroG, ACNS-CM4Pilot, ACNS-F405AIO, AEDROXH7, aero,
+                        AeroFox-Airspeed, AeroFox-Airspeed-DLVR, AeroFox-GNSS_F9P, AEROFOX-H7, AeroFox-PMU, AET-H743-Basic,
+                        airbotf4, AIRLink, Airvolute-DCS2, AnyleafH7, Aocoda-RC-H743Dual, AR-F407SmartBat, ARK_CANNODE, ARK_FPV,
+                        ARK_GPS, ARK_RTK_GPS, ARKV6X, ARKV6X-bdshot, AtomRCF405NAVI, ATOMRCF405NAVI-Deluxe, bbbmini, BeastF7,
+                        BeastF7v2, BeastH7, BeastH7v2, bebop, BETAFPV-F405, BETAFPV-F405-I2C, bhat, BirdCANdy, BlitzF745,
+                        BlitzF745AIO, BlitzH743Pro, BlitzMiniF745, BlitzWingH743, blue, BotBloxDroneNet, BrahmaF4,
+                        BROTHERHOBBYF405v3, BROTHERHOBBYH743, BVMT_HoWiCan, BVMT_MUCan, BVMT_RIO, C-RTK2-HP, canzero,
+                        CarbonixF405, CBU-H7-LC-Stamp, CBU-H7-Stamp, CORVON405V2_1, CORVON743V1, CrazyF405, crazyflie2, CSKY405,
+                        CUAV-7-Nano, CUAV-7-Nano-ODID, CUAV-Nora, CUAV-Nora-bdshot, CUAV-Nora-ODID, CUAV-Pixhack-v3, CUAV-X7,
+                        CUAV-X7-bdshot, CUAV-X7-ODID, CUAV_GPS, CUAVv5, CUAVv5-bdshot, CUAVv5Nano, CUAVv5Nano-bdshot, CubeBlack,
+                        CubeBlack+, CubeBlack-periph, CubeGreen-solo, CubeNode, CubeNode-ETH, CubeOrange, CubeOrange-bdshot,
+                        CubeOrange-joey, CubeOrange-ODID, CubeOrange-periph, CubeOrange-periph-heavy, CubeOrange-SimOnHardWare,
+                        CubeOrangePlus, CubeOrangePlus-bdshot, CubeOrangePlus-ODID, CubeOrangePlus-SimOnHardWare, CubePurple,
+                        CubeRedPrimary, CubeRedPrimary-PPPGW, CubeRedSecondary, CubeRedSecondary-IO, CubeSolo, CubeYellow,
+                        CubeYellow-bdshot, DAKEFPVF405, DAKEFPVH743Pro, dark, DevEBoxH7v2, disco, DroneerF405, DrotekP3Pro,
+                        Durandal, Durandal-bdshot, edge, erleboard, erlebrain2, esp32buzz, esp32diy, esp32empty, esp32icarus,
+                        esp32imu_module_v11, esp32nick, esp32s3devkit, esp32s3empty, esp32s3m5stampfly, esp32tomte76, f103-ADSB,
+                        f103-Airspeed, f103-GPS, f103-HWESC, f103-QiotekPeriph, f103-RangeFinder, f103-Trigger, f303-GPS,
+                        f303-HWESC, f303-M10025, f303-M10070, f303-MatekGPS, f303-PWM, f303-TempSensor, f303-Universal,
+                        F35Lightning, f405-MatekAirspeed, f405-MatekGPS, F4BY, F4BY_F427, FlyingMoonF407, FlyingMoonF427,
+                        FlyingMoonH743, FlywooF405HD-AIOv2, FlywooF405Pro, FlywooF405S-AIO, FlywooF745, FlywooF745Nano,
+                        FlywooH743Pro, fmuv2, fmuv3, fmuv3-bdshot, fmuv5, FoxeerF405v2, FoxeerH743v1, FreeflyRTK, G4-ESC,
+                        GEPRC_TAKER_H743, GEPRCF745BTHD, H757I_EVAL, H757I_EVAL_intf, HEEWING-F405, HEEWING-F405v2, Here4AP,
+                        Here4FC, Hitec-Airspeed, HitecMosaic, HolybroF4_PMU, HolybroG4_Airspeed, HolybroG4_Compass,
+                        HolybroG4_GPS, HolybroGPS, IFLIGHT_2RAW_H7, iomcu, iomcu-dshot, iomcu-f103, iomcu-f103-8MHz-dshot,
+                        iomcu-f103-dshot, iomcu_f103_8MHz, JFB100, JFB110, JHEM_JHEF405, JHEMCU-GSF405A, JHEMCU-GSF405A-RX2,
+                        JHEMCU-H743HD, JHEMCUF405PRO, KakuteF4, KakuteF4-Wing, KakuteF4Mini, KakuteF7, KakuteF7-bdshot,
+                        KakuteF7Mini, KakuteH7, KakuteH7-bdshot, KakuteH7-Wing, KakuteH7Mini, KakuteH7Mini-Nand, KakuteH7v2,
+                        kha_eth, linux, LongBowF405WING, LumenierLUXF765-NDAA, luminousbee4, luminousbee5, MambaF405-2022,
+                        MambaF405US-I2C, MambaF405v2, MambaH743v4, MatekF405, MatekF405-bdshot, MatekF405-CAN, MatekF405-STD,
+                        MatekF405-TE, MatekF405-TE-bdshot, MatekF405-Wing, MatekF405-Wing-bdshot, MatekF765-SE, MatekF765-Wing,
+                        MatekF765-Wing-bdshot, MatekG474-DShot, MatekG474-GPS, MatekG474-Periph, MatekH743, MatekH743-bdshot,
+                        MatekH743-periph, MatekH7A3, MatekL431-ADSB, MatekL431-Airspeed, MatekL431-APDTelem,
+                        MatekL431-BatteryTag, MatekL431-BattMon, MatekL431-bdshot, MatekL431-DShot, MatekL431-EFI,
+                        MatekL431-GPS, MatekL431-HWTelem, MatekL431-MagHiRes, MatekL431-Periph, MatekL431-Proximity,
+                        MatekL431-Rangefinder, MatekL431-RC, MatekL431-Serial, MazzyStarDrone, MFE_AirSpeed_CAN, MFE_POS3_CAN,
+                        MFT-SEMA100, MicoAir405Mini, MicoAir405v2, MicoAir743, MicoAir743-AIO, MicoAir743v2, mindpx-v2, mini-
+                        pix, modalai_fc-v1, mRo-M10095, mRoCANPWM-M10126, mRoControlZeroClassic, mRoControlZeroF7,
+                        mRoControlZeroH7, mRoControlZeroH7-bdshot, mRoControlZeroOEMH7, mRoCZeroOEMH7-bdshot, mRoKitCANrevC,
+                        mRoNexus, mRoPixracerPro, mRoPixracerPro-bdshot, mRoX21, mRoX21-777, MUPilot, NarinFC-H5, NarinFC-H7,
+                        navigator, navigator64, navio, navio2, Nucleo-G491, Nucleo-L476, Nucleo-L496, NucleoH743, NucleoH755,
+                        NxtPX4v2, obal, ocpoc_zynq, omnibusf4, omnibusf4pro, omnibusf4pro-bdshot, omnibusf4pro-one, omnibusf4v6,
+                        OMNIBUSF7V2, OmnibusNanoV6, OmnibusNanoV6-bdshot, ORBITH743, OrqaF405Pro, PH4-mini, PH4-mini-bdshot,
+                        pilotpi, Pix32v5, PixC4-Jetson, PixFlamingo, PixFlamingo-F767, Pixhawk1, Pixhawk1-1M,
+                        Pixhawk1-1M-bdshot, Pixhawk1-bdshot, Pixhawk4, Pixhawk4-bdshot, Pixhawk5X, Pixhawk6C, Pixhawk6C-bdshot,
+                        Pixhawk6X, Pixhawk6X-bdshot, Pixhawk6X-ODID, Pixhawk6X-PPPGW, PixPilot-C3, PixPilot-V3, PixPilot-V6,
+                        PixPilot-V6PRO, Pixracer, Pixracer-bdshot, Pixracer-periph, PixSurveyA1, PixSurveyA1-IND,
+                        PixSurveyA2-IND, pocket, pxf, pxfmini, QioTekAdeptF407, QioTekZealotF427, QioTekZealotH743,
+                        QioTekZealotH743-bdshot, QURT, R9Pilot, RadiolinkPIX6, RADIX2HD, ReaperF745, revo-mini, revo-mini-
+                        bdshot, revo-mini-i2c, revo-mini-i2c-bdshot, revo-mini-sd, rFCU, rGNSS, rst_zynq, SDMODELH7V1,
+                        SDMODELH7V2, SequreH743, Sierra-F405, Sierra-F412, Sierra-F9P, Sierra-L431, Sierra-PrecisionPoint,
+                        Sierra-TrueNavIC, Sierra-TrueNavPro, Sierra-TrueNavPro-G4, Sierra-TrueNorth, Sierra-TrueSpeed, sitl,
+                        SITL_arm_linux_gnueabihf, sitl_periph, sitl_periph_battery_tag, sitl_periph_battmon,
+                        sitl_periph_can_to_serial, sitl_periph_gps, sitl_periph_universal, SITL_static, SITL_x86_64_linux_gnu,
+                        SIYI_N7, SkySakuraH743, SkystarsH7HD, SkystarsH7HD-bdshot, SkystarsH7HDv2, skyviper-f412-rev1, skyviper-
+                        journey, skyviper-v2450, sparky2, SPEDIXF405, SPEDIXH743, speedybeef4, SpeedyBeeF405AIO,
+                        SpeedyBeeF405Mini, SpeedyBeeF405WING, speedybeef4v3, speedybeef4v4, SPRacingH7, SPRacingH7RF, StellarF4,
+                        StellarF4V2, StellarH7V2, SuccexF4, SULILGH7-P1-P2, sw-boom-f407, sw-nav-f405, sw-spar-f407, Swan-K1,
+                        TBS-Colibri-F7, TBS-L431, TBS-L431-Airspeed, TBS-L431-BattMon, TBS-L431-CurrMon, TBS-L431-PWM,
+                        TBS_LUCID_H7, TBS_LUCID_H7_WING, TBS_LUCID_PRO, thepeach-k1, thepeach-r1, TMotorH743, uav-dev-auav-g4,
+                        uav-dev-fc-um982, uav-dev-powermodule, uav-dev_m10s, VM-L431-BatteryTag, VM-L431-Periph-Pico,
+                        VM-L431-SRV-Hub-4CHP, vnav, VRBrain-v51, VRBrain-v52, VRBrain-v54, VRCore-v10, VRUBrain-v51, VUAV-V7pro,
+                        X-MAV-AP-H743v2, YJUAV_A6, YJUAV_A6SE, YJUAV_A6SE_H743, YJUAV_A6Ultra, ZeroOneX6, ZeroOneX6_Air,
+                        ZubaxGNSS, zynq.
+    --debug             Configure as debug variant.
+    -g, --debug-symbols
+                        Add debug symbolds to build.
+    --vs-launch         Generate wscript environment variable to .vscode/setting.json for Visual Studio Code
+    --disable-watchdog  Build with watchdog disabled.
+    --coverage          Configure coverage flags.
+    --Werror            build with -Werror.
+    --disable-Werror    Disable -Werror.
+    --toolchain=TOOLCHAIN
+                        Override default toolchain used for the board. Use "native" for using the host toolchain.
+    --disable-gccdeps   Disable the use of GCC dependencies output method and use waf default method.
+    --enable-asserts    enable OS level asserts.
+    --save-temps        save compiler temporary files.
+    --enable-malloc-guard
+                        enable malloc guard regions.
+    --enable-stats      enable OS level thread statistics.
+    --bootloader        Configure for building a bootloader.
+    --signed-fw         Configure for signed firmware support.
+    --private-key=PRIVATE_KEY
+                        path to private key for signing firmware.
+    --no-autoconfig     Disable autoconfiguration feature. By default, the build system triggers a reconfiguration whenever it
+                        thinks it's necessary - this option disables that.
+    --no-submodule-update
+                        Don't update git submodules. Useful for building with submodules at specific revisions.
+    --enable-header-checks
+                        Enable checking of headers
+    --default-parameters=DEFAULT_PARAMETERS
+                        set default parameters to embed in the firmware
+    --enable-math-check-indexes
+                        Enable checking of math indexes
+    --no-gcs            Disable GCS code
+    --scripting-checks  Enable runtime scripting sanity checks
+    --enable-onvif      Enables and sets up ONVIF camera control
+    --scripting-docs    enable generation of scripting documentation
+    --enable-check-firmware
+                        Enables firmware ID checking on boot
+    --enable-custom-controller
+                        Enables custom controller
+    --enable-gps-logging
+                        Enables GPS logging
+    --enable-networking-tests
+                        Enable the networking test code. Automatically enables networking.
+    --enable-dronecan-tests
+                        Enables DroneCAN tests in sitl
+    --sitl-littlefs     Enable littlefs for filesystem access on SITL (under construction)
+
+  Linux boards configure options:
+    --prefix=PREFIX     installation prefix [default: '/usr/']
+    --destdir=DESTDIR   installation root [default: '']
+    --bindir=BINDIR     bindir
+    --libdir=LIBDIR     libdir
+    --apstatedir=APSTATEDIR
+                        Where to save data like parameters, log and terrain. This is the --localstatedir + ArduPilots
+                        subdirectory [default: board-dependent, usually /var/lib/ardupilot]
+    --rsync-dest=RSYNC_DEST
+                        Destination for the rsync Waf command. It can be passed during configuration in order to save typing.
+    --enable-benchmarks
+                        Enable benchmarks.
+    --enable-lttng      Enable lttng integration
+    --disable-libiio    Don't use libiio even if supported by board and dependencies available
+    --disable-tests     Disable compilation and test execution
+    --enable-sfml       Enable SFML graphics library
+    --enable-sfml-joystick
+                        Enable SFML joystick input library
+    --enable-sfml-audio
+                        Enable SFML audio library
+    --osd               Enable OSD support
+    --osd-fonts         Enable OSD support with fonts
+    --sitl-osd          Enable SITL OSD
+    --sitl-rgbled       Enable SITL RGBLed
+    --force-32bit       Force 32bit build
+    --build-dates       Include build date in binaries.  Appears in AUTOPILOT_VERSION.os_sw_version
+    --sitl-flash-storage
+                        Use flash storage emulation.
+    --ekf-double        Configure EKF as double precision.
+    --ekf-single        Configure EKF as single precision.
+    --static            Force a static build
+    --postype-single    force single precision postype_t
+    --consistent-builds
+                        force consistent build outputs for things like __LINE__
+    --extra-hwdef=EXTRA_HWDEF
+                        Extra hwdef.dat file for custom build.
+    --assert-cc-version=ASSERT_CC_VERSION
+                        fail configure if not using the specified gcc version
+    --num-aux-imus=NUM_AUX_IMUS
+                        number of auxiliary IMUs
+    --board-start-time=BOARD_START_TIME
+                        zero time on boot in microseconds
+    --enable-iomcu-profiled-support
+                        enable iomcu profiled support
+    --enable-new-checking
+                        enables checking of new to ensure NEW_NOTHROW is used
+    --enable-AHRS_EXT   Enable External AHRS
+    --disable-AHRS_EXT  Disable External AHRS
+    --enable-AHRS_EXT_VECTORNAV
+                        Enable VectorNav external AHRS
+    --disable-AHRS_EXT_VECTORNAV
+                        Disable VectorNav external AHRS
+    --enable-BARO_WIND_COMP
+                        Enable Baro wind compensation
+    --disable-BARO_WIND_COMP
+                        Disable Baro wind compensation
+    --enable-EKF2       Enable EKF2
+    --disable-EKF2      Disable EKF2
+    --enable-EKF3       Enable EKF3
+    --disable-EKF3      Disable EKF3
+    --enable-EKF3_EXTNAV
+                        Enable External navigation for EKF3
+    --disable-EKF3_EXTNAV
+                        Disable External navigation for EKF3
+    --enable-EKF3_OPTFLOW
+                        Enable OpticalFlow fusion for EKF3
+    --disable-EKF3_OPTFLOW
+                        Disable OpticalFlow fusion for EKF3
+    --enable-EKF3_WINDEST
+                        Enable Wind estimation for EKF3
+    --disable-EKF3_WINDEST
+                        Disable Wind estimation for EKF3
+    --enable-InertialLabs
+                        Enable InertialLabs external AHRS
+    --disable-InertialLabs
+                        Disable InertialLabs external AHRS
+    --enable-MicroStrain5
+                        Enable MICROSTRAIN 5-series external AHRS
+    --disable-MicroStrain5
+                        Disable MICROSTRAIN 5-series external AHRS
+    --enable-MicroStrain7
+                        Enable MICROSTRAIN 7-series external AHRS
+    --disable-MicroStrain7
+                        Disable MICROSTRAIN 7-series external AHRS
+    --enable-VISUALODOM
+                        Enable Visual Odometry
+    --disable-VISUALODOM
+                        Disable Visual Odometry
+    --enable-LONG_TEXT  Enable extended length text strings
+    --disable-LONG_TEXT
+                        Disable extended length text strings
+    --enable-PERIPH_DEVICE_TEMPERATURE
+                        Enable Emit DroneCAN Temperature Messages for AP_Temperature sensors
+    --disable-PERIPH_DEVICE_TEMPERATURE
+                        Disable Emit DroneCAN Temperature Messages for AP_Temperature sensors
+    --enable-PERIPH_MSP
+                        Enable Emit MSP protocol messages from AP_Periph
+    --disable-PERIPH_MSP
+                        Disable Emit MSP protocol messages from AP_Periph
+    --enable-FETTecOneWire
+                        Enable FETTec OneWire ESCs
+    --disable-FETTecOneWire
+                        Disable FETTec OneWire ESCs
+    --enable-HimarkServo
+                        Enable Himark DroneCAN servos
+    --disable-HimarkServo
+                        Disable Himark DroneCAN servos
+    --enable-HobbywingESC
+                        Enable Hobbywing DroneCAN ESCs
+    --disable-HobbywingESC
+                        Disable Hobbywing DroneCAN ESCs
+    --enable-KDECAN     Enable KDE Direct KDECAN ESC
+    --disable-KDECAN    Disable KDE Direct KDECAN ESC
+    --enable-RobotisServo
+                        Enable RobotisServo protocol
+    --disable-RobotisServo
+                        Disable RobotisServo protocol
+    --enable-SBUS-Output
+                        Enable SBUS output on serial ports
+    --disable-SBUS-Output
+                        Disable SBUS output on serial ports
+    --enable-ServoTelem
+                        Enable servo telemetry library
+    --disable-ServoTelem
+                        Disable servo telemetry library
+    --enable-Volz       Enable Volz Protocol
+    --disable-Volz      Disable Volz Protocol
+    --enable-Volz_DroneCAN
+                        Enable Volz DroneCAN Feedback
+    --disable-Volz_DroneCAN
+                        Disable Volz DroneCAN Feedback
+    --enable-ASP5033    Enable ASP5033 AIRSPEED
+    --disable-ASP5033   Disable ASP5033 AIRSPEED
+    --enable-AUAV_AIRSPEED
+                        ENABLE AUAV AIRSPEED
+    --disable-AUAV_AIRSPEED
+                        Disable AUAV AIRSPEED
+    --enable-Analog     Enable Analog Airspeed
+    --disable-Analog    Disable Analog Airspeed
+    --enable-DLVR       Enable DLVR AIRSPEED
+    --disable-DLVR      Disable DLVR AIRSPEED
+    --enable-DRONECAN_ASPD
+                        Enable DroneCAN AIRSPEED
+    --disable-DRONECAN_ASPD
+                        Disable DroneCAN AIRSPEED
+    --enable-MS4525     Enable MS4525 AIRSPEED
+    --disable-MS4525    Disable MS4525 AIRSPEED
+    --enable-MS5525     Enable MS5525 AIRSPEED
+    --disable-MS5525    Disable MS5525 AIRSPEED
+    --enable-MSP_AIRSPEED
+                        Enable MSP AIRSPEED
+    --disable-MSP_AIRSPEED
+                        Disable MSP AIRSPEED
+    --enable-NMEA_AIRSPEED
+                        Enable NMEA AIRSPEED
+    --disable-NMEA_AIRSPEED
+                        Disable NMEA AIRSPEED
+    --enable-SDP3X      Enable SDP3X AIRSPEED
+    --disable-SDP3X     Disable SDP3X AIRSPEED
+    --enable-BARO_PROBEXT
+                        Enable Probing of External i2c buses
+    --disable-BARO_PROBEXT
+                        Disable Probing of External i2c buses
+    --enable-BARO_TEMPCAL
+                        Enable Baro Temperature Calibration
+    --disable-BARO_TEMPCAL
+                        Disable Baro Temperature Calibration
+    --enable-BARO_THRUST_COMP
+                        Enable thrust compensation on BARO1
+    --disable-BARO_THRUST_COMP
+                        Disable thrust compensation on BARO1
+    --enable-BMP085     Enable BMP085 Barometric Sensor
+    --disable-BMP085    Disable BMP085 Barometric Sensor
+    --enable-BMP280     Enable BMP280 Barometric Sensor
+    --disable-BMP280    Disable BMP280 Barometric Sensor
+    --enable-BMP388     Enable BMP388 Barometric Sensor
+    --disable-BMP388    Disable BMP388 Barometric Sensor
+    --enable-BMP581     Enable BMP581 Barometric Sensor
+    --disable-BMP581    Disable BMP581 Barometric Sensor
+    --enable-DPS280     Enable DPS280/DPS310 Barometric Sensor
+    --disable-DPS280    Disable DPS280/DPS310 Barometric Sensor
+    --enable-DRONECAN_BARO
+                        Enable DroneCAN Barometric Sensor
+    --disable-DRONECAN_BARO
+                        Disable DroneCAN Barometric Sensor
+    --enable-EXTERNALAHRS_BARO
+                        Enable EXTERNALAHRS Barometric Sensor
+    --disable-EXTERNALAHRS_BARO
+                        Disable EXTERNALAHRS Barometric Sensor
+    --enable-FBM320     Enable FBM320 Barometric Sensor
+    --disable-FBM320    Disable FBM320 Barometric Sensor
+    --enable-KELLERLD   Enable KELLERLD Barometric Sensor
+    --disable-KELLERLD  Disable KELLERLD Barometric Sensor
+    --enable-LPS2XH     Enable LPS2XH Barometric Sensor
+    --disable-LPS2XH    Disable LPS2XH Barometric Sensor
+    --enable-MS5607     Enable MS5607 Barometric Sensor
+    --disable-MS5607    Disable MS5607 Barometric Sensor
+    --enable-MS5611     Enable MS5611 Barometric Sensor
+    --disable-MS5611    Disable MS5611 Barometric Sensor
+    --enable-MS5637     Enable MS5637 Barometric Sensor
+    --disable-MS5637    Disable MS5637 Barometric Sensor
+    --enable-MS5837     Enable MS5837 Barometric Sensor
+    --disable-MS5837    Disable MS5837 Barometric Sensor
+    --enable-MSP_BARO   Enable MSP Barometric Sensor
+    --disable-MSP_BARO  Disable MSP Barometric Sensor
+    --enable-SPL06      Enable SPL06 Barometric Sensor
+    --disable-SPL06     Disable SPL06 Barometric Sensor
+    --enable-BATTERY_ESC_TELEM_OUT
+                        Enable Ability to put battery monitor data into ESC telem stream
+    --disable-BATTERY_ESC_TELEM_OUT
+                        Disable Ability to put battery monitor data into ESC telem stream
+    --enable-BATTERY_FUELFLOW
+                        Enable Fuel flow battery monitor
+    --disable-BATTERY_FUELFLOW
+                        Disable Fuel flow battery monitor
+    --enable-BATTERY_FUELLEVEL_ANALOG
+                        Enable Analog Fuel level battry monitor
+    --disable-BATTERY_FUELLEVEL_ANALOG
+                        Disable Analog Fuel level battry monitor
+    --enable-BATTERY_FUELLEVEL_PWM
+                        Enable PWM Fuel level battery monitor
+    --disable-BATTERY_FUELLEVEL_PWM
+                        Disable PWM Fuel level battery monitor
+    --enable-BATTERY_INA2XX
+                        Enable INA2XX battery monitor
+    --disable-BATTERY_INA2XX
+                        Disable INA2XX battery monitor
+    --enable-BATTERY_INA3221
+                        Enable INA3221 battery monitor
+    --disable-BATTERY_INA3221
+                        Disable INA3221 battery monitor
+    --enable-BATTERY_SMBUS
+                        Enable SMBUS battery monitor
+    --disable-BATTERY_SMBUS
+                        Disable SMBUS battery monitor
+    --enable-BATTERY_SUM
+                        Enable Synthetic sum-of-other-batteries backend
+    --disable-BATTERY_SUM
+                        Disable Synthetic sum-of-other-batteries backend
+    --enable-BATTERY_SYNTHETIC_CURRENT
+                        Enable Synthetic Current monitor
+    --disable-BATTERY_SYNTHETIC_CURRENT
+                        Disable Synthetic Current monitor
+    --enable-BATTERY_WATT_MAX
+                        Enable BATT_WATT_MAX parameter
+    --disable-BATTERY_WATT_MAX
+                        Disable BATT_WATT_MAX parameter
+    --enable-CAN-Logging
+                        Enable CAN logging support
+    --disable-CAN-Logging
+                        Disable CAN logging support
+    --enable-DroneCAN   Enable DroneCAN support
+    --disable-DroneCAN  Disable DroneCAN support
+    --enable-Camera     Enable Camera trigger
+    --disable-Camera    Disable Camera trigger
+    --enable-Camera_FOV_Status
+                        Enable GCS camera FOV status
+    --disable-Camera_FOV_Status
+                        Disable GCS camera FOV status
+    --enable-Camera_Info_From_Script
+                        Enable Camera information messages via Lua script
+    --disable-Camera_Info_From_Script
+                        Disable Camera information messages via Lua script
+    --enable-Camera_MAVLink
+                        Enable MAVLink camera
+    --disable-Camera_MAVLink
+                        Disable MAVLink camera
+    --enable-Camera_MAVLinkCamV2
+                        Enable MAVLink CameraV2
+    --disable-Camera_MAVLinkCamV2
+                        Disable MAVLink CameraV2
+    --enable-Camera_Mount
+                        Enable Camera-in-Mount
+    --disable-Camera_Mount
+                        Disable Camera-in-Mount
+    --enable-Camera_Relay
+                        Enable Relay camera trigger
+    --disable-Camera_Relay
+                        Disable Relay camera trigger
+    --enable-Camera_Servo
+                        Enable Servo camera trigger
+    --disable-Camera_Servo
+                        Disable Servo camera trigger
+    --enable-Camera_Solo
+                        Enable Solo gimbal
+    --disable-Camera_Solo
+                        Disable Solo gimbal
+    --enable-Camera_ThermalRange
+                        Enable GCS camera thermal range
+    --disable-Camera_ThermalRange
+                        Disable GCS camera thermal range
+    --enable-RUNCAM     Enable RunCam control
+    --disable-RUNCAM    Disable RunCam control
+    --enable-AK09916    Enable AK0991x compasses
+    --disable-AK09916   Disable AK0991x compasses
+    --enable-AK8963     Enable AK8963 compasses
+    --disable-AK8963    Disable AK8963 compasses
+    --enable-BMM150     Enable BMM150 compasses
+    --disable-BMM150    Disable BMM150 compasses
+    --enable-BMM350     Enable BMM350 compasses
+    --disable-BMM350    Disable BMM350 compasses
+    --enable-CompassLearn
+                        Enable In-Flight compass learning
+    --disable-CompassLearn
+                        Disable In-Flight compass learning
+    --enable-DRONECAN_COMPASS
+                        Enable DroneCAN compasses
+    --disable-DRONECAN_COMPASS
+                        Disable DroneCAN compasses
+    --enable-DRONECAN_COMPASS_HIRES
+                        Enable DroneCAN HiRes compasses for survey logging
+    --disable-DRONECAN_COMPASS_HIRES
+                        Disable DroneCAN HiRes compasses for survey logging
+    --enable-EXTERNALAHRS_COMPASS
+                        Enable ExternalAHRS compasses
+    --disable-EXTERNALAHRS_COMPASS
+                        Disable ExternalAHRS compasses
+    --enable-FixedYawCal
+                        Enable Fixed-Yaw Compass Calibration
+    --disable-FixedYawCal
+                        Disable Fixed-Yaw Compass Calibration
+    --enable-HMC5843    Enable HMC5843 compasses
+    --disable-HMC5843   Disable HMC5843 compasses
+    --enable-ICM20948   Enable AK0991x on ICM20948 compasses
+    --disable-ICM20948  Disable AK0991x on ICM20948 compasses
+    --enable-IIS2MDC    Enable IIS2MDC compasses
+    --disable-IIS2MDC   Disable IIS2MDC compasses
+    --enable-IST8308    Enable IST8308 compasses
+    --disable-IST8308   Disable IST8308 compasses
+    --enable-IST8310    Enable IST8310 compasses
+    --disable-IST8310   Disable IST8310 compasses
+    --enable-LIS3MDL    Enable LIS3MDL compasses
+    --disable-LIS3MDL   Disable LIS3MDL compasses
+    --enable-LSM303D    Enable LSM303D compasses
+    --disable-LSM303D   Disable LSM303D compasses
+    --enable-LSM9DS1    Enable LSM9DS1 compasses
+    --disable-LSM9DS1   Disable LSM9DS1 compasses
+    --enable-MAG3110    Enable MAG3110 compasses
+    --disable-MAG3110   Disable MAG3110 compasses
+    --enable-MMC3416    Enable MMC3416 compasses
+    --disable-MMC3416   Disable MMC3416 compasses
+    --enable-MMC5XX3    Enable MMC5XX3 compasses
+    --disable-MMC5XX3   Disable MMC5XX3 compasses
+    --enable-QMC5883L   Enable QMC5883L compasses
+    --disable-QMC5883L  Disable QMC5883L compasses
+    --enable-QMC5883P   Enable QMC5883P compasses
+    --disable-QMC5883P  Disable QMC5883P compasses
+    --enable-RM3100     Enable RM3100 compasses
+    --disable-RM3100    Disable RM3100 compasses
+    --enable-AC_PAYLOAD_PLACE_ENABLED
+                        Enable Copter Payload Place
+    --disable-AC_PAYLOAD_PLACE_ENABLED
+                        Disable Copter Payload Place
+    --enable-COPTER_ADVANCED_FAILSAFE
+                        Enable Advanced Failsafe
+    --disable-COPTER_ADVANCED_FAILSAFE
+                        Disable Advanced Failsafe
+    --enable-COPTER_AHRS_AUTO_TRIM
+                        Enable Copter AHRS AutoTrim
+    --disable-COPTER_AHRS_AUTO_TRIM
+                        Disable Copter AHRS AutoTrim
+    --enable-MODE_BRAKE
+                        Enable Mode Brake
+    --disable-MODE_BRAKE
+                        Disable Mode Brake
+    --enable-MODE_FLIP  Enable Mode Flip
+    --disable-MODE_FLIP
+                        Disable Mode Flip
+    --enable-MODE_FLOWHOLD
+                        Enable Mode Flowhold
+    --disable-MODE_FLOWHOLD
+                        Disable Mode Flowhold
+    --enable-MODE_FOLLOW
+                        Enable Mode Follow
+    --disable-MODE_FOLLOW
+                        Disable Mode Follow
+    --enable-MODE_GUIDED_NOGPS
+                        Enable Mode Guided NoGPS
+    --disable-MODE_GUIDED_NOGPS
+                        Disable Mode Guided NoGPS
+    --enable-MODE_SPORT
+                        Enable Mode Sport
+    --disable-MODE_SPORT
+                        Disable Mode Sport
+    --enable-MODE_SYSTEMID
+                        Enable Mode SystemID
+    --disable-MODE_SYSTEMID
+                        Disable Mode SystemID
+    --enable-MODE_TURTLE
+                        Enable Mode Turtle
+    --disable-MODE_TURTLE
+                        Disable Mode Turtle
+    --enable-MODE_ZIGZAG
+                        Enable Mode ZigZag
+    --disable-MODE_ZIGZAG
+                        Disable Mode ZigZag
+    --enable-DDS        Enable MicroXRCE DDS support for ROS 2
+    --disable-DDS       Disable MicroXRCE DDS support for ROS 2
+    --enable-CRASHCATCHER
+                        Enable CrashCatcher
+    --disable-CRASHCATCHER
+                        Disable CrashCatcher
+    --enable-KILL_IMU   Enable Allow IMUs to be disabled at runtime
+    --disable-KILL_IMU  Disable Allow IMUs to be disabled at runtime
+    --enable-ESC_EXTENDED_TELM
+                        Enable Extended ESC telemetry
+    --disable-ESC_EXTENDED_TELM
+                        Disable Extended ESC telemetry
+    --enable-PICCOLOCAN
+                        Enable PiccoloCAN
+    --disable-PICCOLOCAN
+                        Disable PiccoloCAN
+    --enable-TORQEEDO   Enable Torqeedo motors
+    --disable-TORQEEDO  Disable Torqeedo motors
+    --enable-APJ_TOOL_PARAMETERS
+                        Enable apj_tool parameter area
+    --disable-APJ_TOOL_PARAMETERS
+                        Disable apj_tool parameter area
+    --enable-FILESYSTEM_MISSION
+                        Enable @MISSION/ filesystem
+    --disable-FILESYSTEM_MISSION
+                        Disable @MISSION/ filesystem
+    --enable-FILESYSTEM_PARAM
+                        Enable @PARAM/ filesystem
+    --disable-FILESYSTEM_PARAM
+                        Disable @PARAM/ filesystem
+    --enable-FILESYSTEM_ROMFS
+                        Enable @ROMFS/ filesystem
+    --disable-FILESYSTEM_ROMFS
+                        Disable @ROMFS/ filesystem
+    --enable-FILESYSTEM_SYS
+                        Enable @SYS/ filesystem
+    --disable-FILESYSTEM_SYS
+                        Disable @SYS/ filesystem
+    --enable-DroneCAN_GPS_Out
+                        Enable Sending GPS data from Autopilot
+    --disable-DroneCAN_GPS_Out
+                        Disable Sending GPS data from Autopilot
+    --enable-ERB        Enable ERB GPS
+    --disable-ERB       Disable ERB GPS
+    --enable-GPS_Blending
+                        Enable GPS Blending
+    --disable-GPS_Blending
+                        Disable GPS Blending
+    --enable-GSOF       Enable GSOF GPS
+    --disable-GSOF      Disable GSOF GPS
+    --enable-MAV        Enable MAVLink GPS
+    --disable-MAV       Disable MAVLink GPS
+    --enable-NMEA_GPS   Enable NMEA GPS
+    --disable-NMEA_GPS  Disable NMEA GPS
+    --enable-NMEA_UNICORE
+                        Enable NMEA Unicore GPS
+    --disable-NMEA_UNICORE
+                        Disable NMEA Unicore GPS
+    --enable-NOVA       Enable NOVA GPS
+    --disable-NOVA      Disable NOVA GPS
+    --enable-SBF        Enable SBF GPS
+    --disable-SBF       Disable SBF GPS
+    --enable-SBP        Enable SBP GPS
+    --disable-SBP       Disable SBP GPS
+    --enable-SBP2       Enable SBP2 GPS
+    --disable-SBP2      Disable SBP2 GPS
+    --enable-SIRF       Enable SiRF GPS
+    --disable-SIRF      Disable SiRF GPS
+    --enable-UBLOX      Enable U-blox GPS
+    --disable-UBLOX     Disable U-blox GPS
+    --enable-GENERATOR  Enable Generator
+    --disable-GENERATOR
+                        Disable Generator
+    --enable-GENERATOR_IE2400
+                        Enable IntelligentEnergy 2400
+    --disable-GENERATOR_IE2400
+                        Disable IntelligentEnergy 2400
+    --enable-GENERATOR_IE650
+                        Enable IntelligentEnergy 650 and 800
+    --disable-GENERATOR_IE650
+                        Disable IntelligentEnergy 650 and 800
+    --enable-GENERATOR_LOWEHEISER
+                        Enable Loweheiser generator
+    --disable-GENERATOR_LOWEHEISER
+                        Disable Loweheiser generator
+    --enable-GENERATOR_RICHENPOWER
+                        Enable Richenpower generator
+    --disable-GENERATOR_RICHENPOWER
+                        Disable Richenpower generator
+    --enable-ALEXMOS    Enable Alexmos gimbal
+    --disable-ALEXMOS   Disable Alexmos gimbal
+    --enable-CADDX      Enable CADDX gimbal
+    --disable-CADDX     Disable CADDX gimbal
+    --enable-GREMSY     Enable Gremsy gimbal
+    --disable-GREMSY    Disable Gremsy gimbal
+    --enable-MOUNT      Enable Camera Mounts
+    --disable-MOUNT     Disable Camera Mounts
+    --enable-SERVO      Enable Servo gimbal
+    --disable-SERVO     Disable Servo gimbal
+    --enable-SIYI       Enable Siyi gimbal
+    --disable-SIYI      Disable Siyi gimbal
+    --enable-SOLOGIMBAL
+                        Enable Solo gimbal
+    --disable-SOLOGIMBAL
+                        Disable Solo gimbal
+    --enable-STORM32_MAVLINK
+                        Enable SToRM32 MAVLink gimbal
+    --disable-STORM32_MAVLINK
+                        Disable SToRM32 MAVLink gimbal
+    --enable-STORM32_SERIAL
+                        Enable SToRM32 Serial gimbal
+    --disable-STORM32_SERIAL
+                        Disable SToRM32 Serial gimbal
+    --enable-TOPOTEK    Enable Topotek gimbal
+    --disable-TOPOTEK   Disable Topotek gimbal
+    --enable-VIEWPRO    Enable Viewpro gimbal
+    --disable-VIEWPRO   Disable Viewpro gimbal
+    --enable-XACTI      Enable Xacti gimbal
+    --disable-XACTI     Disable Xacti gimbal
+    --enable-XFROBOT    Enable XFRobot gimbal
+    --disable-XFROBOT   Disable XFRobot gimbal
+    --enable-EFI        Enable EFI monitoring
+    --disable-EFI       Disable EFI monitoring
+    --enable-EFI_CURRAWONGECU
+                        Enable Currawong ECU
+    --disable-EFI_CURRAWONGECU
+                        Disable Currawong ECU
+    --enable-EFI_DRONECAN
+                        Enable DroneCAN EFI
+    --disable-EFI_DRONECAN
+                        Disable DroneCAN EFI
+    --enable-EFI_HIRTH  Enable Hirth ECU
+    --disable-EFI_HIRTH
+                        Disable Hirth ECU
+    --enable-EFI_Lutan  Enable Lutan EFI
+    --disable-EFI_Lutan
+                        Disable Lutan EFI
+    --enable-EFI_MAV    Enable MAVLink EFI
+    --disable-EFI_MAV   Disable MAVLink EFI
+    --enable-EFI_MegaSquirt
+                        Enable MegaSquirt EFI
+    --disable-EFI_MegaSquirt
+                        Disable MegaSquirt EFI
+    --enable-EFI_NMPWU  Enable NMPMU EFI
+    --disable-EFI_NMPWU
+                        Disable NMPMU EFI
+    --enable-ICE-Engine
+                        Enable Internal combustion engine support
+    --disable-ICE-Engine
+                        Disable Internal combustion engine support
+    --enable-BatchSampler
+                        Enable Batch sampler
+    --disable-BatchSampler
+                        Disable Batch sampler
+    --enable-HarmonicNotches
+                        Enable InertialSensor harmonic notch filters
+    --disable-HarmonicNotches
+                        Disable InertialSensor harmonic notch filters
+    --enable-TEMPCAL    Enable IMU Temperature calibration
+    --disable-TEMPCAL   Disable IMU Temperature calibration
+    --enable-ADSB       Enable ADSB
+    --disable-ADSB      Disable ADSB
+    --enable-ADSB_SAGETECH
+                        Enable Sagetech ADSB
+    --disable-ADSB_SAGETECH
+                        Disable Sagetech ADSB
+    --enable-ADSB_SAGETECH_MXS
+                        Enable Sagetech MXS ADSB
+    --disable-ADSB_SAGETECH_MXS
+                        Disable Sagetech MXS ADSB
+    --enable-ADSB_UAVIONIX
+                        Enable UAvionix ADSB
+    --disable-ADSB_UAVIONIX
+                        Disable UAvionix ADSB
+    --enable-ADSB_UAVIONX_UCP
+                        Enable uAvionix UCP ADSB
+    --disable-ADSB_UAVIONX_UCP
+                        Disable uAvionix UCP ADSB
+    --enable-AIS        Enable AIS
+    --disable-AIS       Disable AIS
+    --enable-OpenDroneID
+                        Enable OpenDroneID (Remote ID)
+    --disable-OpenDroneID
+                        Disable OpenDroneID (Remote ID)
+    --enable-AP_MAVLINK_FTP_ENABLED
+                        Enable MAVLink FTP protocol
+    --disable-AP_MAVLINK_FTP_ENABLED
+                        Disable MAVLink FTP protocol
+    --enable-FENCEPOINT_PROTOCOL
+                        Enable Old MAVLink fence points protocol
+    --disable-FENCEPOINT_PROTOCOL
+                        Disable Old MAVLink fence points protocol
+    --enable-HIGHLAT2   Enable HighLatency2 Support
+    --disable-HIGHLAT2  Disable HighLatency2 Support
+    --enable-MAVLINK_MSG_FLIGHT_INFORMATION
+                        Enable FLIGHT_INFORMATION MAVLink message
+    --disable-MAVLINK_MSG_FLIGHT_INFORMATION
+                        Disable FLIGHT_INFORMATION MAVLink message
+    --enable-MAVLINK_MSG_MISSION_REQUEST
+                        Enable MISSION_REQUEST MAVLink messages
+    --disable-MAVLINK_MSG_MISSION_REQUEST
+                        Disable MISSION_REQUEST MAVLink messages
+    --enable-MAVLINK_MSG_RC_CHANNELS_RAW
+                        Enable RC_CHANNELS_RAW MAVLink messages
+    --disable-MAVLINK_MSG_RC_CHANNELS_RAW
+                        Disable RC_CHANNELS_RAW MAVLink messages
+    --enable-MAVLINK_VERSION_REQUEST
+                        Enable Old AUTOPILOT_VERSION_REQUEST mesage
+    --disable-MAVLINK_VERSION_REQUEST
+                        Disable Old AUTOPILOT_VERSION_REQUEST mesage
+    --enable-MAV_CMD_SET_HAGL
+                        Enable MAVLink HAGL command
+    --disable-MAV_CMD_SET_HAGL
+                        Disable MAVLink HAGL command
+    --enable-MAV_DEVICE_OP
+                        Enable DeviceOp MAVLink messages
+    --disable-MAV_DEVICE_OP
+                        Disable DeviceOp MAVLink messages
+    --enable-MAV_MSG_RELAY_STATUS
+                        Enable Send RELAY_STATUS message
+    --disable-MAV_MSG_RELAY_STATUS
+                        Disable Send RELAY_STATUS message
+    --enable-MAV_MSG_SERIAL_CONTROL
+                        Enable Serial Control MAVLink messages
+    --disable-MAV_MSG_SERIAL_CONTROL
+                        Disable Serial Control MAVLink messages
+    --enable-MAV_SERVO_RELAY
+                        Enable ServoRelay MAVLink messages
+    --disable-MAV_SERVO_RELAY
+                        Disable ServoRelay MAVLink messages
+    --enable-RALLYPOINT_PROTOCOL
+                        Enable Old MAVLink rally points protocol
+    --disable-RALLYPOINT_PROTOCOL
+                        Disable Old MAVLink rally points protocol
+    --enable-RANGEFINDER_SENDING
+                        Enable sending of RANGEFINDER mavlink message
+    --disable-RANGEFINDER_SENDING
+                        Disable sending of RANGEFINDER mavlink message
+    --enable-REQUEST_AUTOPILOT_CAPA
+                        Enable Old REQUEST_AUTOPILOT_CAPABILITIES command
+    --disable-REQUEST_AUTOPILOT_CAPA
+                        Disable Old REQUEST_AUTOPILOT_CAPABILITIES command
+    --enable-VIDEO_STREAM_INFORMATION
+                        Enable MAVLink VIDEO_STREAM_INFORMATION message
+    --disable-VIDEO_STREAM_INFORMATION
+                        Disable MAVLink VIDEO_STREAM_INFORMATION message
+    --enable-DISPLAYPORT_INAV_FONTS
+                        Enable INAV Fonts Translation for DisplayPort
+    --disable-DISPLAYPORT_INAV_FONTS
+                        Disable INAV Fonts Translation for DisplayPort
+    --enable-MSP        Enable MSP telemetry and MSP OSD
+    --disable-MSP       Disable MSP telemetry and MSP OSD
+    --enable-MSP_COMPASS
+                        Enable MSP compass
+    --disable-MSP_COMPASS
+                        Disable MSP compass
+    --enable-MSP_DISPLAYPORT
+                        Enable MSP DisplayPort OSD (aka CANVAS MODE)
+    --disable-MSP_DISPLAYPORT
+                        Disable MSP DisplayPort OSD (aka CANVAS MODE)
+    --enable-MSP_GPS    Enable MSP GPS
+    --disable-MSP_GPS   Disable MSP GPS
+    --enable-MSP_OPTICALFLOW
+                        Enable MSP OpticalFlow
+    --disable-MSP_OPTICALFLOW
+                        Disable MSP OpticalFlow
+    --enable-MSP_RANGEFINDER
+                        Enable MSP rangefinder
+    --disable-MSP_RANGEFINDER
+                        Disable MSP rangefinder
+    --enable-MSP_SENSORS
+                        Enable MSP sensors
+    --disable-MSP_SENSORS
+                        Disable MSP sensors
+    --enable-MISSION_NAV_PAYLOAD_PLACE
+                        Enable NAV_PAYLOAD_PLACE
+    --disable-MISSION_NAV_PAYLOAD_PLACE
+                        Disable NAV_PAYLOAD_PLACE
+    --enable-CAN_MCAST  Enable CAN multicast bridge
+    --disable-CAN_MCAST
+                        Disable CAN multicast bridge
+    --enable-Networking
+                        Enable networking
+    --disable-Networking
+                        Disable networking
+    --enable-PPP        Enable PPP networking
+    --disable-PPP       Disable PPP networking
+    --enable-DISPLAY    Enable I2C Displays
+    --disable-DISPLAY   Disable I2C Displays
+    --enable-LED_CONTROL
+                        Enable MAVLink LED control
+    --disable-LED_CONTROL
+                        Disable MAVLink LED control
+    --enable-NOTIFY_NCP5623
+                        Enable NCP5623 LED
+    --disable-NOTIFY_NCP5623
+                        Disable NCP5623 LED
+    --enable-NOTIFY_NEOPIXEL
+                        Enable NeoPixel LED strings
+    --disable-NOTIFY_NEOPIXEL
+                        Disable NeoPixel LED strings
+    --enable-NOTIFY_PROFILED
+                        Enable ProfiLED
+    --disable-NOTIFY_PROFILED
+                        Disable ProfiLED
+    --enable-NOTIFY_PROFILED_SPI
+                        Enable ProfiLED (SPI)
+    --disable-NOTIFY_PROFILED_SPI
+                        Disable ProfiLED (SPI)
+    --enable-PLAY_TUNE  Enable MAVLink Play Tune command
+    --disable-PLAY_TUNE
+                        Disable MAVLink Play Tune command
+    --enable-TONEALARM  Enable PWM tone alarm
+    --disable-TONEALARM
+                        Disable PWM tone alarm
+    --enable-OSD        Enable OSD
+    --disable-OSD       Disable OSD
+    --enable-OSD_EXTENDED_LINK_STATS
+                        Enable OSD panels with extended link stats data
+    --disable-OSD_EXTENDED_LINK_STATS
+                        Disable OSD panels with extended link stats data
+    --enable-OSD_PARAM  Enable OSD param
+    --disable-OSD_PARAM
+                        Disable OSD param
+    --enable-OSD_SIDEBARS
+                        Enable Scrolling sidebars
+    --disable-OSD_SIDEBARS
+                        Disable Scrolling sidebars
+    --enable-PLUSCODE   Enable PlusCode
+    --disable-PLUSCODE  Disable PlusCode
+    --enable-AP_AVOIDANCE
+                        Enable "ADSB" Avoidance
+    --disable-AP_AVOIDANCE
+                        Disable "ADSB" Avoidance
+    --enable-AP_FOLLOW  Enable Follow library
+    --disable-AP_FOLLOW
+                        Disable Follow library
+    --enable-BOOTLOADER_FLASHING
+                        Enable Bootloader flashing
+    --disable-BOOTLOADER_FLASHING
+                        Disable Bootloader flashing
+    --enable-Buttons    Enable Buttons
+    --disable-Buttons   Disable Buttons
+    --enable-COMPASS_CAL
+                        Enable "Tumble" compass calibration
+    --disable-COMPASS_CAL
+                        Disable "Tumble" compass calibration
+    --enable-CUSTOM_ROTATIONS
+                        Enable Custom  sensor rotations
+    --disable-CUSTOM_ROTATIONS
+                        Disable Custom  sensor rotations
+    --enable-DRONECAN_SERIAL
+                        Enable DroneCAN virtual serial ports
+    --disable-DRONECAN_SERIAL
+                        Disable DroneCAN virtual serial ports
+    --enable-GyroFFT    Enable In-Flight gyro FFT calculations
+    --disable-GyroFFT   Disable In-Flight gyro FFT calculations
+    --enable-Logging    Enable Logging
+    --disable-Logging   Disable Logging
+    --enable-NMEA_OUTPUT
+                        Enable NMEA output
+    --disable-NMEA_OUTPUT
+                        Disable NMEA output
+    --enable-PID_FILTERING
+                        Enable PID filtering
+    --disable-PID_FILTERING
+                        Disable PID filtering
+    --enable-POLYFENCE_CIRCLE_INT_SUPPORT
+                        Enable Fence circle compatability
+    --disable-POLYFENCE_CIRCLE_INT_SUPPORT
+                        Disable Fence circle compatability
+    --enable-RateLoopThread
+                        Enable Rate Loop Thread
+    --disable-RateLoopThread
+                        Disable Rate Loop Thread
+    --enable-SCRIPTING  Enable Lua Scripting
+    --disable-SCRIPTING
+                        Disable Lua Scripting
+    --enable-SCRIPTING_SERIALDEVICE
+                        Enable Lua serial device simulation
+    --disable-SCRIPTING_SERIALDEVICE
+                        Disable Lua serial device simulation
+    --enable-SDCARD_FORMATTING
+                        Enable Formatting of microSD cards
+    --disable-SDCARD_FORMATTING
+                        Disable Formatting of microSD cards
+    --enable-SDCARD_MISSION
+                        Enable Storing mission on microSD cards
+    --disable-SDCARD_MISSION
+                        Disable Storing mission on microSD cards
+    --enable-SERIALDEVICE_REGISTER
+                        Enable Serial device registration
+    --disable-SERIALDEVICE_REGISTER
+                        Disable Serial device registration
+    --enable-SLCAN      Enable SLCAN serial protocol
+    --disable-SLCAN     Disable SLCAN serial protocol
+    --enable-GRIPPER    Enable Gripper
+    --disable-GRIPPER   Disable Gripper
+    --enable-LANDING_GEAR
+                        Enable Landing Gear
+    --disable-LANDING_GEAR
+                        Disable Landing Gear
+    --enable-RELAY      Enable Relays
+    --disable-RELAY     Disable Relays
+    --enable-SERVORELAY_EVENTS
+                        Enable Servo/Relay Event
+    --disable-SERVORELAY_EVENTS
+                        Disable Servo/Relay Event
+    --enable-SPRAYER    Enable Sprayer
+    --disable-SPRAYER   Disable Sprayer
+    --enable-WINCH      Enable Winch
+    --disable-WINCH     Disable Winch
+    --enable-WINCH_DAIWA
+                        Enable DAIWA Winch
+    --disable-WINCH_DAIWA
+                        Disable DAIWA Winch
+    --enable-WINCH_PWM  Enable PWM Winch
+    --disable-WINCH_PWM
+                        Disable PWM Winch
+    --enable-ADVANCED_FAILSAFE
+                        Enable Advanced Failsafe
+    --disable-ADVANCED_FAILSAFE
+                        Disable Advanced Failsafe
+    --enable-AP_TX_TUNING
+                        Enable TX-based tuning parameter adjustments
+    --disable-AP_TX_TUNING
+                        Disable TX-based tuning parameter adjustments
+    --enable-AUTOLAND_MODE
+                        Enable Fixed Wing Autolanding mode
+    --disable-AUTOLAND_MODE
+                        Disable Fixed Wing Autolanding mode
+    --enable-DEEPSTALL  Enable Deepstall landing
+    --disable-DEEPSTALL
+                        Disable Deepstall landing
+    --enable-PLANE_BLACKBOX
+                        Enable Blackbox logging
+    --disable-PLANE_BLACKBOX
+                        Disable Blackbox logging
+    --enable-PLANE_GLIDER_PULLUP
+                        Enable Glider pullup support
+    --disable-PLANE_GLIDER_PULLUP
+                        Disable Glider pullup support
+    --enable-PLANE_GUIDED_SLEW
+                        Enable Offboard-guided slew commands
+    --disable-PLANE_GUIDED_SLEW
+                        Disable Offboard-guided slew commands
+    --enable-PLANE_SYSTEMID
+                        Enable systemID support for quadplanes
+    --disable-PLANE_SYSTEMID
+                        Disable systemID support for quadplanes
+    --enable-QAUTOTUNE  Enable QuadPlane AUTOTUNE
+    --disable-QAUTOTUNE
+                        Disable QuadPlane AUTOTUNE
+    --enable-QUADPLANE  Enable QuadPlane
+    --disable-QUADPLANE
+                        Disable QuadPlane
+    --enable-QUICKTUNE  Enable VTOL quicktune
+    --disable-QUICKTUNE
+                        Disable VTOL quicktune
+    --enable-SOARING    Enable Soaring
+    --disable-SOARING   Disable Soaring
+    --enable-PrecLand   Enable Precision landing support
+    --disable-PrecLand  Disable Precision landing support
+    --enable-PrecLand---Companion
+                        Enable MAVLink precision landing support
+    --disable-PrecLand---Companion
+                        Disable MAVLink precision landing support
+    --enable-PrecLand---IRLock
+                        Enable IRLock precision landing support
+    --disable-PrecLand---IRLock
+                        Disable IRLock precision landing support
+    --enable-PROXIMITY  Enable Proximity
+    --disable-PROXIMITY
+                        Disable Proximity
+    --enable-PROXIMITY_CYGBOT
+                        Enable Cygbot D1 Proximity Sensors
+    --disable-PROXIMITY_CYGBOT
+                        Disable Cygbot D1 Proximity Sensors
+    --enable-PROXIMITY_DRONECAN
+                        Enable DroneCAN Proximity Sensors
+    --disable-PROXIMITY_DRONECAN
+                        Disable DroneCAN Proximity Sensors
+    --enable-PROXIMITY_HEXSOONRADAR_ENABLED
+                        Enable Hexsoon Radar Proximity Sensors
+    --disable-PROXIMITY_HEXSOONRADAR_ENABLED
+                        Disable Hexsoon Radar Proximity Sensors
+    --enable-PROXIMITY_LIGHTWARE_SF40C
+                        Enable LightWare SF40C Proximity Sensors
+    --disable-PROXIMITY_LIGHTWARE_SF40C
+                        Disable LightWare SF40C Proximity Sensors
+    --enable-PROXIMITY_LIGHTWARE_SF45B
+                        Enable LightWare SF45B Proximity Sensors
+    --disable-PROXIMITY_LIGHTWARE_SF45B
+                        Disable LightWare SF45B Proximity Sensors
+    --enable-PROXIMITY_MAV
+                        Enable MAVLink Proximity Sensors
+    --disable-PROXIMITY_MAV
+                        Disable MAVLink Proximity Sensors
+    --enable-PROXIMITY_MR72_ENABLED
+                        Enable NanoRadar MR72 Proximity Sensors
+    --disable-PROXIMITY_MR72_ENABLED
+                        Disable NanoRadar MR72 Proximity Sensors
+    --enable-PROXIMITY_RANGEFINDER
+                        Enable Use RangeFinders as proximity sensors
+    --disable-PROXIMITY_RANGEFINDER
+                        Disable Use RangeFinders as proximity sensors
+    --enable-PROXIMITY_RPLIDARA2
+                        Enable RPLidarA2 Proximity Sensors
+    --disable-PROXIMITY_RPLIDARA2
+                        Disable RPLidarA2 Proximity Sensors
+    --enable-PROXIMITY_TERRARANGERTOWER
+                        Enable TerraRangerTower Proximity Sensors
+    --disable-PROXIMITY_TERRARANGERTOWER
+                        Disable TerraRangerTower Proximity Sensors
+    --enable-PROXIMITY_TERRARANGERTOWEREVO
+                        Enable TerraRangerTower Evo Proximity Sensors
+    --disable-PROXIMITY_TERRARANGERTOWEREVO
+                        Disable TerraRangerTower Evo Proximity Sensors
+    --enable-RC_CRSF    Enable CRSF
+    --disable-RC_CRSF   Disable CRSF
+    --enable-RC_GHST    Enable Ghost
+    --disable-RC_GHST   Disable Ghost
+    --enable-RC_IBUS    Enable IBus
+    --disable-RC_IBUS   Disable IBus
+    --enable-RC_MAVLINK_RADIO
+                        Enable MAVLink
+    --disable-RC_MAVLINK_RADIO
+                        Disable MAVLink
+    --enable-RC_PPMSUM  Enable PPMSum
+    --disable-RC_PPMSUM
+                        Disable PPMSum
+    --enable-RC_Protocol
+                        Enable Serial RC Protocols
+    --disable-RC_Protocol
+                        Disable Serial RC Protocols
+    --enable-RC_SBUS    Enable SBUS
+    --disable-RC_SBUS   Disable SBUS
+    --enable-RC_SRXL    Enable SRXL
+    --disable-RC_SRXL   Disable SRXL
+    --enable-RC_SRXL2   Enable SRXL2
+    --disable-RC_SRXL2  Disable SRXL2
+    --enable-RC_ST24    Enable ST24
+    --disable-RC_ST24   Disable ST24
+    --enable-RC_SUMD    Enable SUMD
+    --disable-RC_SUMD   Disable SUMD
+    --enable-RSSI       Enable RSSI
+    --disable-RSSI      Disable RSSI
+    --enable-RANGEFINDER
+                        Enable Rangefinders
+    --disable-RANGEFINDER
+                        Disable Rangefinders
+    --enable-RANGEFINDER_ANALOG
+                        Enable Rangefinder - Analog
+    --disable-RANGEFINDER_ANALOG
+                        Disable Rangefinder - Analog
+    --enable-RANGEFINDER_BENEWAKE_CAN
+                        Enable Rangefinder - Benewake (CAN)
+    --disable-RANGEFINDER_BENEWAKE_CAN
+                        Disable Rangefinder - Benewake (CAN)
+    --enable-RANGEFINDER_BENEWAKE_TF02
+                        Enable Rangefinder - Benewake -TF02
+    --disable-RANGEFINDER_BENEWAKE_TF02
+                        Disable Rangefinder - Benewake -TF02
+    --enable-RANGEFINDER_BENEWAKE_TF03
+                        Enable Rangefinder - Benewake - TF03
+    --disable-RANGEFINDER_BENEWAKE_TF03
+                        Disable Rangefinder - Benewake - TF03
+    --enable-RANGEFINDER_BLPING
+                        Enable Rangefinder - BLPing
+    --disable-RANGEFINDER_BLPING
+                        Disable Rangefinder - BLPing
+    --enable-RANGEFINDER_DRONECAN
+                        Enable Rangefinder - DroneCAN
+    --disable-RANGEFINDER_DRONECAN
+                        Disable Rangefinder - DroneCAN
+    --enable-RANGEFINDER_GYUS42V2
+                        Enable Rangefinder - GYUS42V2
+    --disable-RANGEFINDER_GYUS42V2
+                        Disable Rangefinder - GYUS42V2
+    --enable-RANGEFINDER_HC_SR04
+                        Enable Rangefinder - HC_SR04
+    --disable-RANGEFINDER_HC_SR04
+                        Disable Rangefinder - HC_SR04
+    --enable-RANGEFINDER_HEXSOONRADAR
+                        Enable Rangefinder - Hexsoon Radar
+    --disable-RANGEFINDER_HEXSOONRADAR
+                        Disable Rangefinder - Hexsoon Radar
+    --enable-RANGEFINDER_JRE_SERIAL
+                        Enable Rangefinder - JRE_SERIAL
+    --disable-RANGEFINDER_JRE_SERIAL
+                        Disable Rangefinder - JRE_SERIAL
+    --enable-RANGEFINDER_LANBAO
+                        Enable Rangefinder - Lanbao
+    --disable-RANGEFINDER_LANBAO
+                        Disable Rangefinder - Lanbao
+    --enable-RANGEFINDER_LEDDARONE
+                        Enable Rangefinder - LeddarOne
+    --disable-RANGEFINDER_LEDDARONE
+                        Disable Rangefinder - LeddarOne
+    --enable-RANGEFINDER_LEDDARVU8
+                        Enable Rangefinder - LeddarVU8
+    --disable-RANGEFINDER_LEDDARVU8
+                        Disable Rangefinder - LeddarVU8
+    --enable-RANGEFINDER_LIGHTWARE_SERIAL
+                        Enable Rangefinder - Lightware (serial)
+    --disable-RANGEFINDER_LIGHTWARE_SERIAL
+                        Disable Rangefinder - Lightware (serial)
+    --enable-RANGEFINDER_LUA
+                        Enable Rangefinder - Lua Scripting
+    --disable-RANGEFINDER_LUA
+                        Disable Rangefinder - Lua Scripting
+    --enable-RANGEFINDER_LWI2C
+                        Enable Rangefinder - Lightware (i2c)
+    --disable-RANGEFINDER_LWI2C
+                        Disable Rangefinder - Lightware (i2c)
+    --enable-RANGEFINDER_MAVLINK
+                        Enable Rangefinder - MAVLink
+    --disable-RANGEFINDER_MAVLINK
+                        Disable Rangefinder - MAVLink
+    --enable-RANGEFINDER_MAXBOTIX_SERIAL
+                        Enable Rangefinder - MaxBotix (serial)
+    --disable-RANGEFINDER_MAXBOTIX_SERIAL
+                        Disable Rangefinder - MaxBotix (serial)
+    --enable-RANGEFINDER_MAXSONARI2CXL
+                        Enable Rangefinder - MaxSonarI2CXL
+    --disable-RANGEFINDER_MAXSONARI2CXL
+                        Disable Rangefinder - MaxSonarI2CXL
+    --enable-RANGEFINDER_NMEA
+                        Enable Rangefinder - NMEA
+    --disable-RANGEFINDER_NMEA
+                        Disable Rangefinder - NMEA
+    --enable-RANGEFINDER_NOOPLOOP
+                        Enable Rangefinder - Nooploop TOF P/F
+    --disable-RANGEFINDER_NOOPLOOP
+                        Disable Rangefinder - Nooploop TOF P/F
+    --enable-RANGEFINDER_NRA24_CAN
+                        Enable Rangefinder - NRA24 CAN
+    --disable-RANGEFINDER_NRA24_CAN
+                        Disable Rangefinder - NRA24 CAN
+    --enable-RANGEFINDER_PULSEDLIGHTLRF
+                        Enable Rangefinder - PulsedLightLRF
+    --disable-RANGEFINDER_PULSEDLIGHTLRF
+                        Disable Rangefinder - PulsedLightLRF
+    --enable-RANGEFINDER_PWM
+                        Enable Rangefinder - PWM
+    --disable-RANGEFINDER_PWM
+                        Disable Rangefinder - PWM
+    --enable-RANGEFINDER_RDS02UF
+                        Enable Rangefinder - RDS02UF
+    --disable-RANGEFINDER_RDS02UF
+                        Disable Rangefinder - RDS02UF
+    --enable-RANGEFINDER_TOFSF_I2C
+                        Enable Rangefinder - ToFSense-F I2C
+    --disable-RANGEFINDER_TOFSF_I2C
+                        Disable Rangefinder - ToFSense-F I2C
+    --enable-RANGEFINDER_TOFSP_CAN
+                        Enable Rangefinder - ToFSense-P CAN
+    --disable-RANGEFINDER_TOFSP_CAN
+                        Disable Rangefinder - ToFSense-P CAN
+    --enable-RANGEFINDER_TRI2C
+                        Enable Rangefinder - TeraRangerI2C
+    --disable-RANGEFINDER_TRI2C
+                        Disable Rangefinder - TeraRangerI2C
+    --enable-RANGEFINDER_TR_SERIAL
+                        Enable Rangefinder - TeraRanger Serial
+    --disable-RANGEFINDER_TR_SERIAL
+                        Disable Rangefinder - TeraRanger Serial
+    --enable-RANGEFINDER_USD1_CAN
+                        Enable Rangefinder - USD1 (CAN)
+    --disable-RANGEFINDER_USD1_CAN
+                        Disable Rangefinder - USD1 (CAN)
+    --enable-RANGEFINDER_USD1_SERIAL
+                        Enable Rangefinder - USD1 (SERIAL)
+    --disable-RANGEFINDER_USD1_SERIAL
+                        Disable Rangefinder - USD1 (SERIAL)
+    --enable-RANGEFINDER_VL53L0X
+                        Enable Rangefinder - VL53L0X
+    --disable-RANGEFINDER_VL53L0X
+                        Disable Rangefinder - VL53L0X
+    --enable-RANGEFINDER_VL53L1X
+                        Enable Rangefinder - VL53L1X
+    --disable-RANGEFINDER_VL53L1X
+                        Disable Rangefinder - VL53L1X
+    --enable-RANGEFINDER_WASP
+                        Enable Rangefinder - Wasp
+    --disable-RANGEFINDER_WASP
+                        Disable Rangefinder - Wasp
+    --enable-RFND_BENEWAKE_TFMINI
+                        Enable Rangefinder - Benewake - TFMini
+    --disable-RFND_BENEWAKE_TFMINI
+                        Disable Rangefinder - Benewake - TFMini
+    --enable-RFND_BENEWAKE_TFMINIPLUS
+                        Enable Rangefinder - Benewake - TFMiniPlus
+    --disable-RFND_BENEWAKE_TFMINIPLUS
+                        Disable Rangefinder - Benewake - TFMiniPlus
+    --enable-ROVER_ADVANCED_FAILSAFE
+                        Enable Advanced Failsafe
+    --disable-ROVER_ADVANCED_FAILSAFE
+                        Disable Advanced Failsafe
+    --enable-ROVER_AUTO_ARM_ONCE
+                        Enable Make Auto-Arm-Once functionality available
+    --disable-ROVER_AUTO_ARM_ONCE
+                        Disable Make Auto-Arm-Once functionality available
+    --enable-AC_AVOID   Enable Object Avoidance
+    --disable-AC_AVOID  Disable Object Avoidance
+    --enable-AC_OAPATHPLANNER
+                        Enable Object Avoidance Path Planner
+    --disable-AC_OAPATHPLANNER
+                        Disable Object Avoidance Path Planner
+    --enable-FENCE      Enable Geofences
+    --disable-FENCE     Disable Geofences
+    --enable-PARACHUTE  Enable Parachute
+    --disable-PARACHUTE
+                        Disable Parachute
+    --enable-RALLY      Enable Rally points
+    --disable-RALLY     Disable Rally points
+    --enable-AIRSPEED   Enable Airspeed Sensors
+    --disable-AIRSPEED  Disable Airspeed Sensors
+    --enable-BEACON     Enable Beacon
+    --disable-BEACON    Disable Beacon
+    --enable-GPS_MOVING_BASELINE
+                        Enable GPS Moving Baseline
+    --disable-GPS_MOVING_BASELINE
+                        Disable GPS Moving Baseline
+    --enable-IMU_ON_UART
+                        Enable Send raw IMU data on a serial port
+    --disable-IMU_ON_UART
+                        Disable Send raw IMU data on a serial port
+    --enable-OPTICALFLOW
+                        Enable Optical Flow
+    --disable-OPTICALFLOW
+                        Disable Optical Flow
+    --enable-OPTICALFLOW_CXOF
+                        Enable Optical flow CXOF Sensor
+    --disable-OPTICALFLOW_CXOF
+                        Disable Optical flow CXOF Sensor
+    --enable-OPTICALFLOW_HEREFLOW
+                        Enable Optical flow HereFlow Sensor
+    --disable-OPTICALFLOW_HEREFLOW
+                        Disable Optical flow HereFlow Sensor
+    --enable-OPTICALFLOW_MAV
+                        Enable Optical flow MAVLink Sensor
+    --disable-OPTICALFLOW_MAV
+                        Disable Optical flow MAVLink Sensor
+    --enable-OPTICALFLOW_ONBOARD
+                        Enable Optical flow ONBOARD Sensor
+    --disable-OPTICALFLOW_ONBOARD
+                        Disable Optical flow ONBOARD Sensor
+    --enable-OPTICALFLOW_PIXART
+                        Enable Optical flow PIXART Sensor
+    --disable-OPTICALFLOW_PIXART
+                        Disable Optical flow PIXART Sensor
+    --enable-OPTICALFLOW_PX4FLOW
+                        Enable Optical flow PX4FLOW Sensor
+    --disable-OPTICALFLOW_PX4FLOW
+                        Disable Optical flow PX4FLOW Sensor
+    --enable-OPTICALFLOW_UPFLOW
+                        Enable Optical flow UPFLOW Sensor
+    --disable-OPTICALFLOW_UPFLOW
+                        Disable Optical flow UPFLOW Sensor
+    --enable-RPM        Enable RPM sensors
+    --disable-RPM       Disable RPM sensors
+    --enable-RPM_DRONECAN
+                        Enable DroneCAN-based RPM sensors
+    --disable-RPM_DRONECAN
+                        Disable DroneCAN-based RPM sensors
+    --enable-RPM_EFI    Enable RPM EFI sensors
+    --disable-RPM_EFI   Disable RPM EFI sensors
+    --enable-RPM_ESC_TELEM
+                        Enable RPM ESC Telemetry sensors
+    --disable-RPM_ESC_TELEM
+                        Disable RPM ESC Telemetry sensors
+    --enable-RPM_GENERATOR
+                        Enable Generator RPM sensors
+    --disable-RPM_GENERATOR
+                        Disable Generator RPM sensors
+    --enable-RPM_HARMONIC_NOTCH
+                        Enable RPM Harmonic Notch sensors
+    --disable-RPM_HARMONIC_NOTCH
+                        Disable RPM Harmonic Notch sensors
+    --enable-RPM_PIN    Enable RPM Pin-based sensors
+    --disable-RPM_PIN   Disable RPM Pin-based sensors
+    --enable-TEMP       Enable Temperature Sensors
+    --disable-TEMP      Disable Temperature Sensors
+    --enable-TEMP_MCP9600
+                        Enable Temp Sensor - MCP9600
+    --disable-TEMP_MCP9600
+                        Disable Temp Sensor - MCP9600
+    --enable-TEMP_MLX90614
+                        Enable Temp Sensor - MLX90614
+    --disable-TEMP_MLX90614
+                        Disable Temp Sensor - MLX90614
+    --enable-TEMP_SHT3X
+                        Enable Temp Sensor - SHT3x
+    --disable-TEMP_SHT3X
+                        Disable Temp Sensor - SHT3x
+    --enable-TEMP_TSYS01
+                        Enable Temp Sensor - TSYS01
+    --disable-TEMP_TSYS01
+                        Disable Temp Sensor - TSYS01
+    --enable-TEMP_TSYS03
+                        Enable Temp Sensor - TSYS03
+    --disable-TEMP_TSYS03
+                        Disable Temp Sensor - TSYS03
+    --enable-AUX_FUNCTION_STRINGS
+                        Enable Auxiliary function activation text messages
+    --disable-AUX_FUNCTION_STRINGS
+                        Disable Auxiliary function activation text messages
+    --enable-Bidirectional-FrSky-Telemetry
+                        Enable bidirectional FrSky telemetry
+    --disable-Bidirectional-FrSky-Telemetry
+                        Disable bidirectional FrSky telemetry
+    --enable-CRSF       Enable CRSF telemetry
+    --disable-CRSF      Disable CRSF telemetry
+    --enable-CRSF-Scripting
+                        Enable CRSF Menu Scripting
+    --disable-CRSF-Scripting
+                        Disable CRSF Menu Scripting
+    --enable-CRSFText   Enable CRSF text param selection
+    --disable-CRSFText  Disable CRSF text param selection
+    --enable-FrSky      Enable FrSky telemetry
+    --disable-FrSky     Disable FrSky telemetry
+    --enable-FrSky-D    Enable FrSkyD telemetry
+    --disable-FrSky-D   Disable FrSkyD telemetry
+    --enable-FrSky-SPort
+                        Enable FrSkySPort telemetry
+    --disable-FrSky-SPort
+                        Disable FrSkySPort telemetry
+    --enable-FrSky-SPort-PassThrough
+                        Enable FrSkySPort pass-through telemetry
+    --disable-FrSky-SPort-PassThrough
+                        Disable FrSkySPort pass-through telemetry
+    --enable-GHST       Enable Ghost telemetry
+    --disable-GHST      Disable Ghost telemetry
+    --enable-HOTT       Enable HOTT telemetry
+    --disable-HOTT      Disable HOTT telemetry
+    --enable-LTM        Enable LTM telemetry
+    --disable-LTM       Disable LTM telemetry
+    --enable-SPEKTRUM   Enable Spektrum telemetry
+    --disable-SPEKTRUM  Disable Spektrum telemetry
+    --enable-i-BUS      Enable i-BUS telemetry
+    --disable-i-BUS     Disable i-BUS telemetry
+    --enable-DECA       Enable DECA
+    --disable-DECA      Disable DECA
+    --enable-DODECAHEXA
+                        Enable DODECAHEXA
+    --disable-DODECAHEXA
+                        Disable DODECAHEXA
+    --enable-HEXA       Enable HEXA
+    --disable-HEXA      Disable HEXA
+    --enable-OCTA       Enable OCTA
+    --disable-OCTA      Disable OCTA
+    --enable-OCTAQUAD   Enable OCTAQUAD
+    --disable-OCTAQUAD  Disable OCTAQUAD
+    --enable-QUAD       Enable QUAD
+    --disable-QUAD      Disable QUAD
+    --enable-TRI        Enable TriCopters
+    --disable-TRI       Disable TriCopters
+    --enable-Y6         Enable Y6
+    --disable-Y6        Disable Y6
+    --enable-SMARTAUDIO
+                        Enable SmartAudio VTX contol
+    --disable-SMARTAUDIO
+                        Disable SmartAudio VTX contol
+    --enable-TRAMP      Enable IRC Tramp VTX control
+    --disable-TRAMP     Disable IRC Tramp VTX control
+    --enable-VIDEO_TX   Enable VideoTX control
+    --disable-VIDEO_TX  Disable VideoTX control
+    --embed-torqeedo-torqlink
+                        Embed torqeedo-torqlink.lua in ROMFS
+    --embed-BattMon_ANX
+                        Embed BattMon_ANX.lua in ROMFS
+    --embed-LTE_modem   Embed LTE_modem.lua in ROMFS
+    --embed-EFI_Halo6000
+                        Embed EFI_Halo6000.lua in ROMFS
+    --embed-EFI_DLA     Embed EFI_DLA.lua in ROMFS
+    --embed-EFI_SkyPower
+                        Embed EFI_SkyPower.lua in ROMFS
+    --embed-INF_Inject  Embed INF_Inject.lua in ROMFS
+    --embed-Hobbywing_DataLink
+                        Embed Hobbywing_DataLink.lua in ROMFS
+    --embed-EFI_HFE     Embed EFI_HFE.lua in ROMFS
+    --embed-mount-djirs2-driver
+                        Embed mount-djirs2-driver.lua in ROMFS
+    --embed-UltraMotion
+                        Embed UltraMotion.lua in ROMFS
+    --embed-Generator_SVFFI
+                        Embed Generator_SVFFI.lua in ROMFS
+    --embed-mount-viewpro-driver
+                        Embed mount-viewpro-driver.lua in ROMFS
+    --embed-EFI_NMEA2k  Embed EFI_NMEA2k.lua in ROMFS
+    --embed-copter_terrain_brake
+                        Embed copter_terrain_brake.lua in ROMFS
+    --embed-camera-change-setting
+                        Embed camera-change-setting.lua in ROMFS
+    --embed-SmartAudio  Embed SmartAudio.lua in ROMFS
+    --embed-advance-wp  Embed advance-wp.lua in ROMFS
+    --embed-mount-poi   Embed mount-poi.lua in ROMFS
+    --embed-Param_Controller
+                        Embed Param_Controller.lua in ROMFS
+    --embed-UniversalAutoLand
+                        Embed UniversalAutoLand.lua in ROMFS
+    --embed-net_webserver
+                        Embed net_webserver.lua in ROMFS
+    --embed-rover-quicktune
+                        Embed rover-quicktune.lua in ROMFS
+    --embed-copter-deadreckon-home
+                        Embed copter-deadreckon-home.lua in ROMFS
+    --embed-Gimbal_Camera_Mode
+                        Embed Gimbal_Camera_Mode.lua in ROMFS
+    --embed-ahrs-source-extnav-optflow
+                        Embed ahrs-source-extnav-optflow.lua in ROMFS
+    --embed-BattEstimate
+                        Embed BattEstimate.lua in ROMFS
+    --embed-crsf-calibrate
+                        Embed crsf-calibrate.lua in ROMFS
+    --embed-ahrs-set-origin
+                        Embed ahrs-set-origin.lua in ROMFS
+    --embed-repl        Embed repl.lua in ROMFS
+    --embed-RockBlock   Embed RockBlock.lua in ROMFS
+    --embed-forward_flight_motor_shutdown
+                        Embed forward_flight_motor_shutdown.lua in ROMFS
+    --embed-x-quad-cg-allocation
+                        Embed x-quad-cg-allocation.lua in ROMFS
+    --embed-pelco_d_antennatracker
+                        Embed pelco_d_antennatracker.lua in ROMFS
+    --embed-ONVIF_Camera_Control
+                        Embed ONVIF_Camera_Control.lua in ROMFS
+    --embed-plane_ship_landing
+                        Embed plane_ship_landing.lua in ROMFS
+    --embed-BatteryTag  Embed BatteryTag.lua in ROMFS
+    --embed-follow-target-send
+                        Embed follow-target-send.lua in ROMFS
+    --embed-leds_on_a_switch
+                        Embed leds_on_a_switch.lua in ROMFS
+    --embed-Heli_idle_control
+                        Embed Heli_idle_control.lua in ROMFS
+    --embed-Script_Controller
+                        Embed Script_Controller.lua in ROMFS
+    --embed-copter-slung-payload
+                        Embed copter-slung-payload.lua in ROMFS
+    --embed-motor_failure_test
+                        Embed motor_failure_test.lua in ROMFS
+    --embed-param-set   Embed param-set.lua in ROMFS
+    --embed-video-stream-information
+                        Embed video-stream-information.lua in ROMFS
+    --embed-VTOL-quicktune
+                        Embed VTOL-quicktune.lua in ROMFS
+    --embed-plane_precland
+                        Embed plane_precland.lua in ROMFS
+    --embed-QuadPlane_Low_Alt_FW_mode_prevention
+                        Embed QuadPlane_Low_Alt_FW_mode_prevention.lua in ROMFS
+    --embed-Hexsoon LEDs
+                        Embed Hexsoon LEDs.lua in ROMFS
+    --embed-winch-control
+                        Embed winch-control.lua in ROMFS
+    --embed-net-ntrip   Embed net-ntrip.lua in ROMFS
+    --embed-Heli_IM_COL_Tune
+                        Embed Heli_IM_COL_Tune.lua in ROMFS
+    --embed-revert_param
+                        Embed revert_param.lua in ROMFS
+    --embed-runcam_on_arm
+                        Embed runcam_on_arm.lua in ROMFS
+    --embed-plane_package_place
+                        Embed plane_package_place.lua in ROMFS
+    --embed-MissionSelector
+                        Embed MissionSelector.lua in ROMFS
+
+  Ardupilot build options:
+    --program-group=PROGRAM_GROUP
+                        Select all programs that go in <PROGRAM_GROUP>/ for the build. Example: `waf --program-group examples`
+                        builds all examples. The special group "all" selects all programs.
+    --upload            Upload applicable targets to a connected device. Not all platforms may support this. Example: `waf
+                        copter --upload` means "build arducopter and upload it to my board".
+    --upload-port=UPLOAD_PORT
+                        Specify the port to be used with the --upload option. For example a port of /dev/ttyS10 indicates that
+                        serial port 10 should be used.
+    --upload-blueos=UPLOAD_BLUEOS
+                        Automatically upload to a BlueOS device. The argument is the url for the device. http://blueos.local for
+                        example.
+    --upload-force      Override board type check and continue loading. Same as using uploader.py --force.
+    --define=DEFINE     Add C++ define to build.
+    --summary-all       Print build summary for all targets. By default, only information about the first 20 targets will be
+                        printed.
+
+  Ardupilot check options:
+    --check-verbose     Output all test programs.
+
+  Ardupilot clean options:
+    --clean-all-sigs    Clean signatures for all tasks. By default, tasks that scan for implicit dependencies (like the
+                        compilation tasks) keep the dependency information across clean commands, so that that information is
+                        changed only when really necessary. Also, some tasks that don't really produce files persist their
+                        signature. This option avoids that behavior when cleaning the build.
+    --asan              Build using the macOS clang Address Sanitizer. In order to run with Address Sanitizer support llvm-
+                        symbolizer is required to be on the PATH. This option is only supported on macOS versions of clang.
+    --ubsan             Build using the gcc undefined behaviour sanitizer
+    --ubsan-abort       Build using the gcc undefined behaviour sanitizer and abort on error

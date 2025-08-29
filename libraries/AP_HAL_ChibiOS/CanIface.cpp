@@ -394,7 +394,7 @@ volatile int retc = 0;
         txi.pushed         = false;
 #ifdef Slow_CAN
     hal.scheduler->delay( Slow_CAN_Del );        
-    #warning ==== Slow_CAN in CANfdIface !
+    #warning ==== Slow_CAN in CANiface !
 #endif          // def Slow_CAN    
 
     retc = 1;

@@ -1,0 +1,47 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "ardupilot",
+			"configName": "BVMT_MUCan",
+			"overrideEnabled": false,
+			"group": {
+				"kind": "build"
+			},
+			"configure": "BVMT_MUCan",
+			"target": "AP_Periph",
+			"configureOptions": "",
+			"buildOptions": "",
+			"waffile": "/home/osboxes/ArduPilot/waf",
+			"nm": "arm-none-eabi-nm"
+		},
+		{
+			"type": "ardupilot",
+			"configName": "BVMT_HoWiCan-AP_Periph",
+			"overrideEnabled": false,
+			"group": {
+				"kind": "build"
+			},
+			"configure": "BVMT_HoWiCan",
+			"target": "AP_Periph",
+			"configureOptions": "",
+			"buildOptions": "",
+			"waffile": "/home/osboxes/ArduPilot/waf",
+			"nm": "arm-none-eabi-nm"
+		},
+		{
+			"type": "ardupilot",
+			"configName": "BVMT_RIO-AP_Periph",
+			"overrideEnabled": false,
+			"group": {
+				"kind": "build"
+			},
+			"configure": "BVMT_RIO",
+			"target": "AP_Periph",
+			"configureOptions": "",
+			"buildOptions": "",
+			"waffile": "/home/osboxes/ArduPilot/waf",
+			"nm": "arm-none-eabi-nm"
+		}
+	]
+}

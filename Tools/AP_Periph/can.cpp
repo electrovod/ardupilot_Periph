@@ -668,7 +668,7 @@ void AP_Periph_FW::handle_esc_rawcommand(CanardInstance* canard_instance, Canard
     }
     rcout_esc(cmd.cmd.data, cmd.cmd.len);
 
-    // Update internal copy for disabling output to ESC when CAN packets are lost
+    // Update internal copy for disabling output to ESC when CAN packets are lost 
     last_esc_num_channels = cmd.cmd.len;
     last_esc_raw_command_ms = AP_HAL::millis();
 }
@@ -1243,6 +1243,7 @@ void AP_Periph_FW::processTx(void)
 // GC_Debug by GrayCat :
 
 #ifdef Slow_CAN
+    #warning ==== Slow_CAN in CAN  !
     if ( canardPeekTxQueue(&dronecan.canard) != NULL )                              // Still non-empty queue?...
         hal.scheduler->delay(  Slow_CAN_Del * 3  );
 #else  // Fast_CAN:
@@ -1429,8 +1430,9 @@ void AP_Periph_FW::node_status_send(void)
     {
         uint8_t buffer[UAVCAN_PROTOCOL_NODESTATUS_MAX_SIZE];
         node_status.uptime_sec = AP_HAL::millis() / 1000U;
-
-        node_status.vendor_specific_status_code = MIN(hal.util->available_memory(), unsigned(UINT16_MAX));
+// GC_Debug:
+        node_status.vendor_specific_status_code = GC_Version;    // UINT16
+        // node_status.vendor_specific_status_code = MIN(hal.util->available_memory(), unsigned(UINT16_MAX));
 
         uint32_t len = uavcan_protocol_NodeStatus_encode(&node_status, buffer, !canfdout());
 
@@ -1819,6 +1821,7 @@ void ReadTelem_N(int Uart_N )
     {
     auto                   *uartN = hal.serial( Uart_N+1 );
     static int32_t          LastPackTS[NUM_Telems]; 
+    const float             nan = nanf("");
     
     int32_t                 now_ms = AP_HAL::millis();
     AP_ESC_Telem_Backend::TelemetryData tdata {};
@@ -1895,10 +1898,16 @@ void ReadTelem_N(int Uart_N )
                     {       // +++++++++++++++ Too long timeout, no data...                    
                     if ( Telem_Errs[Uart_N] < 200 )                               // Wrap errors' counter
                         Telem_Errs[Uart_N]++;
-                    AP::esc_telem().update_rpm( Uart_N,  0.0f , Telem_Errs[Uart_N] * 0.3 );                                  // No rotation, ....
+                        else
+                            Telem_Errs[Uart_N] = 1;
+                    AP::esc_telem().update_rpm( Uart_N,  /* 0.0f */ nan , Telem_Errs[Uart_N] * 0.3 );                                  // No rotation, ....
 
-                    // Free-Running :  tdata.motor_temp_cdeg  =  ( ( (now_ms/500 ) & 0x1F) + 12+ Uart_N*8) * 50.0f;    // centi-degrees C : keepalive                                        
-                    tdata.motor_temp_cdeg  = ( hal.analogin->mcu_temperature() + Uart_N - 1) * 100.0f;                                  // MCU Temperature
+#if not defined HAL_WITH_MCU_MONITORING                             // AP_HAL::
+                    // Free-Running :  
+                    tdata.motor_temp_cdeg  =  ( ( (now_ms/500 ) & 0x1F) + 12+ Uart_N*8) * 50.0f;    // centi-degrees C : keepalive                                        
+#else
+                    tdata.motor_temp_cdeg  = ( hal.analogin->mcu_temperature() + Uart_N - 1 + (Telem_Errs[Uart_N] % 8) ) * 1.0f;                                  // MCU Temperature
+#endif
 
                     tdata.output_duty = SRV_Channels::srv_channel(Uart_N)->get_output_pwm() / 1024.0f;                    
                     AP::esc_telem().update_telem_data( Uart_N, tdata, /* AP_ESC_Telem_Backend::TelemetryType::VOLTAGE |  */
