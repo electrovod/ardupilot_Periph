@@ -1894,7 +1894,7 @@ void ReadTelem_N(int Uart_N )
                 if ( (now_ms - LastPackTS[Uart_N]) > HW_FOC_INTER_PACKET_TO )                       // Too long timeout?...
                     BufIdx[Uart_N] = 0;                                                             //...restart buffer
 
-                if ( (now_ms - LastPackTS[Uart_N]) > 1000 )                       // Too long timeout?...
+                if ( (now_ms - LastPackTS[Uart_N]) > 2000 )                       // Too long timeout?...
                     {       // +++++++++++++++ Too long timeout, no data...                    
                     if ( Telem_Errs[Uart_N] < 200 )                               // Wrap errors' counter
                         Telem_Errs[Uart_N]++;
@@ -1902,7 +1902,7 @@ void ReadTelem_N(int Uart_N )
                             Telem_Errs[Uart_N] = 1;
                     AP::esc_telem().update_rpm( Uart_N,  /* 0.0f */ nan , Telem_Errs[Uart_N] * 0.3 );                                  // No rotation, ....
 
-#if not defined HAL_WITH_MCU_MONITORING                             // AP_HAL::
+#if 1 //  not defined HAL_WITH_MCU_MONITORING                             // AP_HAL::
                     // Free-Running :  
                     tdata.motor_temp_cdeg  =  ( ( (now_ms/500 ) & 0x1F) + 12+ Uart_N*8) * 50.0f;    // centi-degrees C : keepalive                                        
 #else

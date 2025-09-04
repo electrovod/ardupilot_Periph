@@ -17,3 +17,4 @@ arm-none-eabi-gdb -x Debug_RIO_bl.gdb  ~/ArduPilot/Tools/bootloaders/BVMT_RIO_bl
 # Also, use:
 # 		/build/BVMT_RIO/openocd.cfg
 
+sleep 1

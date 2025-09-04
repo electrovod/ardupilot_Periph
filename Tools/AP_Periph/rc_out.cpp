@@ -186,44 +186,56 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     rcout_has_new_data_to_update = true;
 };      // ---------------------------------- rcout_esc() --------------------------
 
+int8_t      Channel_PreSet = -1;
+
 void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_value)
 {
 #if HAL_PWM_COUNT > 0
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
-    SRV_Channels::set_output_norm(function, command_value);
+// GC_Debug:
+    if ( actuator_id < HAL_PWM_COUNT )
+        {       // +++++++++++++++++++ Default output:        
+        SRV_Channels::set_output_norm(function, command_value);
+        }       // ------------------- Default output:
+        else
+            {       // +++++++++++++++++++ GrayCat Extended : remapped Output
+            int  RemapCh = actuator_id - RC_RemapOfs;                                            // Do remap;
+            const SRV_Channel::Function function_rm = SRV_Channel::Function(SRV_Channel::k_rcin1 + RemapCh - 1);
+            SRV_Channels::set_output_norm( function_rm, command_value);
+            };      // ------------------- GrayCat Extended : remapped Output
 
 // GC_Debug:
-if ( 15 == actuator_id )
-        {        
-        auto    *uart_dbg = hal.serial(7);                // Serial 8
-        
-        // GC_Debug:
-        if ( uart_dbg->get_baud_rate() != 19200 )
-            {
-            uart_dbg->end();
-            uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
-            };
-        // int16_t CmdVal = command_value * 0x7FFF;
+    if ( 15 == actuator_id )
+        {       // ............. Process channel_16 as Shifter:
         uint8_t ControlVal  = ( (command_value+1.0) * 127.9) ;                                   // Extract controlling value (byte)...
         uint8_t IndirectCh = ControlVal / (256/8);
 
-        if ( /* (IndirectCh >= 0 ) && */ ( IndirectCh < 8) )                         // First channel:
-            {
-            const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + IndirectCh /* - 1 */ );
-            SRV_Channels::set_output_norm( function_indir, /* command_value */ (ControlVal % (256/8) ) / (32.0 / 2.0) - 0.99 );
-                // .... Add to mask of channels that will be cleared if no commands are received
-            actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );
-            }
-#if 0
-        HW_FOC_Telem.iThrot_H = CmdVal & 0xFF;
-        HW_FOC_Telem.iThrot_L = CmdVal >> 8;            
-        uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
-#else
-        HW_FOC_Telem.Head = IndirectCh;            
-        uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ 1 );
+        if ( /*  ( command_value > -1.0 )  && */ ( IndirectCh < 7) )                                     // Got valid channel:
+            {       // ++++++++++++++ One of Indirect Channels pre-selected:
+#if 1
+            if ( (-1 != Channel_PreSet) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )                    // Was selected another?...
+                {       // ++++++++++++++ Clear previously selected  Channel;
+                const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet /* - 1 */ );
+                SRV_Channels::set_output_norm( function_indir, /* command_value */ -1.0 );
+                };      // -------------- Clear previously selected  Channel;
 #endif
-        HW_FOC_Telem.PktNum_L++;
-        };
+            Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                           // Store selection
+            
+            }       // ------------- One of Indirect Channels pre-selected:
+            else
+                {
+                if ( ( IndirectCh >= 6) && (-1 != Channel_PreSet) )                             // Action command! 
+                    {
+                    const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet /* - 1 */ );
+                    // SRV_Channels::set_output_norm( function_indir, /* command_value */ (ControlVal % (256/8) ) / (32.0 / 2.0) - 0.99 );
+                    SRV_Channels::set_output_norm( function_indir, /* command_value */ 0.92 );
+                        // .... Add to mask of channels that will be cleared if no commands are received
+                    actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );
+                    }
+                    else
+                        Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
+                }
+        };      // ------------- Process channel_16 as Shifter:
 
     // Add to mask of channels that will be cleared if no commands are received
     actuator.mask |= SRV_Channels::get_output_channel_mask(function);

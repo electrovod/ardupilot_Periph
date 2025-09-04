@@ -11,9 +11,9 @@ sleep 2
 # --vs-launch
 
 # BootLoader:
-# echo ==== BootLoader: ====
-# Tools/scripts/build_bootloaders.py BVMT_RIO
-# exit
+echo ==== BootLoader: ====
+Tools/scripts/build_bootloaders.py BVMT_RIO
+exit
 
 # ./waf clean                                                                                                                   
 # ./waf bootloader

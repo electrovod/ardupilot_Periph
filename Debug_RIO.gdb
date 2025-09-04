@@ -1,5 +1,5 @@
 target extended-remote /dev/ttyACM0
-monitor frequency 200k
+monitor frequency 1200k
 set mem inaccessible-by-default off
 monitor swdp_scan
 attach 1

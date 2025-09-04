@@ -45,7 +45,7 @@
 #include <cassert>
 #include <cstring>
 #include <AP_Math/AP_Math.h>
-# include <hal.h>
+#include <hal.h>
 #include <AP_CANManager/AP_CANManager.h>
 #include <AP_Common/ExpandingString.h>
 
@@ -799,6 +799,16 @@ bool CANIface::init(const uint32_t bitrate, const uint32_t fdbitrate, const Oper
         //initialised
         initialised_ = true;
     }
+// GC_Debug:
+// Force "Silent CAN"  pin to Low :
+#ifdef HAL_GPIO_PIN_GPIO_CAN1_SILENT
+    palSetLineMode( HAL_GPIO_PIN_GPIO_CAN1_SILENT, PAL_MODE_OUTPUT_PUSHPULL);
+    // palWriteLine( HAL_GPIO_PIN_GPIO_CAN1_SILENT , 0 );
+    palClearLine( HAL_GPIO_PIN_GPIO_CAN1_SILENT );
+#else 
+    #warning ==== No CAN1_SILENT pin defined! ====
+#endif  // def HAL_GPIO_PIN_GPIO_CAN1_SILENT
+
     return true;
 }
 

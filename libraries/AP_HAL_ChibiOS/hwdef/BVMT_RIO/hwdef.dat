@@ -1,3 +1,4 @@
+# include ../MatekH743-periph/hwdef.dat
 include ../MatekH743/hwdef.dat
 
 # Default: AP_HW_MatekL431
@@ -13,9 +14,20 @@ undef BOOTLOADER_DEV_LIST
 undef HAL_OS_FATFS_IO
 undef OSD_ENABLED
 undef SDMMC1
+undef AP_PERIPH_GPS_ENABLED
+undef AP_PERIPH_MAG_ENABLED 
+# undef AP_PERIPH_BARO_ENABLED 
+undef AP_PERIPH_AIRSPEED_ENABLED 
+undef AP_PERIPH_ADSB_ENABLED 
+undef AP_PERIPH_RANGEFINDER_ENABLED 
+# define AP_PERIPH_RC_OUT_ENABLED 
+undef AP_PERIPH_BATTERY_ENABLED 
 
 define HAL_CAN_DRIVER_DEFAULT 1
+undef PD3
+PD3 GPIO_CAN1_SILENT OUTPUT PUSHPULL SPEED_HIGH LOW GPIO(70)
 env BUILD_ABIN False
+define HAL_USE_ADC TRUE 
 define HAL_WITH_MCU_MONITORING 1
 define STM32_ADC_USE_ADC3 TRUE
 
@@ -31,11 +43,10 @@ define HAL_USE_SERIAL TRUE
 undef AP_PERIPH_MAG_ENABLED 
 undef AP_PERIPH_NOTIFY_ENABLED 
 undef AP_SERIALLED_ENABLED 
-define HAL_USE_ADC TRUE 
 
-# blue LED1 marked as ACT                                                                                           
-undef PE4 
-PE4 LED OUTPUT HIGH                                                                                               
+# blue LED1 marked as ACT
+undef PE4
+PE4 LED OUTPUT HIGH
 define HAL_LED_ON 1
 
 # order of UARTs (and USB)
@@ -122,13 +133,15 @@ DEFAULT_SERIAL8_PROTOCOL  SerialProtocol_Scripting
 SERIAL8_PROTOCOL SerialProtocol_Scripting
 define SERIAL8_PROTOCOL SerialProtocol_Scripting
 
-
 define AP_PERIPH_RC_OUT_ENABLED 1
+AP_PERIPH_RC_OUT_ENABLED 1
 # define AP_PERIPH_NOTIFY_ENABLED 1
 AP_EXTENDED_ESC_TELEM_ENABLED 1
 define AP_EXTENDED_ESC_TELEM_ENABLED 1
 
 # ................. PWMs: .....................
-define ESC_TELEM_MAX_ESCS 5
-BRD_SAFETY_MASK 15
-OUT_BLH_BDMASK 15
+define ESC_TELEM_MAX_ESCS 4
+BRD_SAFETY_MASK 255
+OUT_BLH_BDMASK 255
+define NUM_SERVO_CHANNELS 32
+

@@ -11,8 +11,8 @@
     #define ESC_TELEM_MAX_ESCS NUM_SERVO_CHANNELS
 #endif
 
-#define Slow_CAN                    1                               ///< Flag whether to slow down CAN packets' transmission
-#define Slow_CAN_Del                2                               ///< Base Delay for slowed-down CAN, in ms
+// #define Slow_CAN                    1                               ///< Flag whether to slow down CAN packets' transmission
+#define Slow_CAN_Del                1                               ///< Base Delay for slowed-down CAN, in ms
 
 #define HW_FOC_Val_HEAD             ( (uint8_t)0x9B)                ///< Header
 #define HW_FOC_Val_Len              0x16                            ///< Data frame length, from "Head", excluding CRC
@@ -21,7 +21,6 @@
 
 // Example:  9B 16 01 02 33 3B 00 87 00 87 04 10 01 CB 00 03 00 23 D2 D2 00 00 DA 04
 
-// MAVPACKED(
     typedef struct HW_FOC_ESC_Telem_s 
         {
         uint8_t     Head;                                           ///< Header
@@ -50,7 +49,7 @@
         uint8_t     CRC_H;                                          ///< HIGH byte of CRC -- Little-Endian here!
         }   HW_FOC_ESC_Telem_t __attribute__((packed)) ;
 
-    typedef struct ADC_2_Temp_s
+typedef struct ADC_2_Temp_s
     {
         uint8_t     ADC_Val;
         uint8_t     Temp_Val;
@@ -69,9 +68,12 @@ typedef union Bytes2int_u
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA06              ///< GrayCat local version
+#define                 GC_Version                  0xAA15              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
+
+#define                 RC_IndirCh1                 9                   ///< Number of the first Indirect Channel
+#define                 RC_RemapOfs                 10                  ///< Quantity of channels to shift Servos 9...12 to
 
 #define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
 #define                 HW_FOC_INTER_PACKET_TO      2                  ///< TimeOut between HW_FOC packets

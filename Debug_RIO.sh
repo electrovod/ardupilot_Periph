@@ -10,8 +10,9 @@ echo -
 # echo load ~/ArduPilot/build/$Target_Brd/bin/AP_Periph
 # echo -
 
-arm-none-eabi-gdb -q -x Debug_RIO.gdb  ~/ArduPilot/build/$Target_Brd/bin/AP_Periph
+arm-none-eabi-gdb  -x Debug_RIO.gdb  ~/ArduPilot/build/$Target_Brd/bin/AP_Periph
 
+# -q
 # Debug_RIO_bl.gdb
 # 
 # Also, use:
