@@ -36,7 +36,7 @@ AP_RPM_Backend::AP_RPM_Backend(AP_RPM &_ap_rpm, uint8_t instance, AP_RPM::RPM_St
 #if AP_RPM_ESC_TELEM_OUTBOUND_ENABLED
 void AP_RPM_Backend::update_esc_telem_outbound()
 {
-    const uint8_t esc_index;
+    uint8_t esc_index;
 #if 0
     esc_index = ap_rpm._params[state.instance].esc_telem_outbound_index;
     if (esc_index == 0) {

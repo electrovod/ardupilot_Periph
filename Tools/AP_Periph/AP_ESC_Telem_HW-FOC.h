@@ -68,9 +68,12 @@ typedef union Bytes2int_u
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA15              ///< GrayCat local version
+#define                 GC_Version                  0xAA1F              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
+
+#define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
+#define                 GC_Remap19                  1                   ///< Flag whether to use Ch19...22 => Ch9...12 remap
 
 #define                 RC_IndirCh1                 9                   ///< Number of the first Indirect Channel
 #define                 RC_RemapOfs                 10                  ///< Quantity of channels to shift Servos 9...12 to

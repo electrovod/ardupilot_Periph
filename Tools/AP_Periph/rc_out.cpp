@@ -186,13 +186,16 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     rcout_has_new_data_to_update = true;
 };      // ---------------------------------- rcout_esc() --------------------------
 
-int8_t      Channel_PreSet = -1;
+int8_t      Channel_PreSet = -1;                                ///< Index of Servo Channel preselected by Ch16
+int8_t      Remap19_en = 0;                                     ///< Flag whether Remap Ch19...22 => Ch9...12 is enabled
 
 void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_value)
 {
 #if HAL_PWM_COUNT > 0
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
+
 // GC_Debug:
+#ifdef Use_ExtRC_UnitLess
     if ( actuator_id < HAL_PWM_COUNT )
         {       // +++++++++++++++++++ Default output:        
         SRV_Channels::set_output_norm(function, command_value);
@@ -236,6 +239,7 @@ void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_v
                         Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
                 }
         };      // ------------- Process channel_16 as Shifter:
+#endif      // -----  Use_ExtRC_UnitLess
 
     // Add to mask of channels that will be cleared if no commands are received
     actuator.mask |= SRV_Channels::get_output_channel_mask(function);
@@ -245,7 +249,7 @@ void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_v
     sim_update_actuator(actuator_id);
 #endif
 #endif
-}
+};      // --------------------------- rcout_srv_unitless() -----------------------------------
 
 void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
 {
@@ -253,6 +257,65 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
     SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
 
+#ifdef Use_ExtRC
+
+// GC_Debug: Output to the pre-selected channel:
+    if ( actuator_id < HAL_PWM_COUNT )
+        {       // +++++++++++++++++++ Default output:        
+        SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
+        }       // ------------------- Default output:
+        else
+            {       // +++++++++++++++++++ GrayCat Extended : remapped Output
+#ifdef GC_Remap19
+            int  RemapCh = actuator_id - RC_RemapOfs;                                            // Do remap;
+            if ( Remap19_en && (RemapCh >= 9) && (RemapCh <= 12) )
+                {
+                const SRV_Channel::Function function_rm = SRV_Channel::Function(SRV_Channel::k_rcin1 + RemapCh - 1);            
+                SRV_Channels::set_output_pwm(function_rm,  uint16_t(command_value+0.5) );        // Remapped
+                };
+#endif      //  GC_Remap19
+            };      // ------------------- GrayCat Extended : remapped Output
+
+// GC_Debug:   Pre-Select channel from RCIn16
+    if ( 16 == actuator_id )
+        {       // ............. Process channel_16 as Shifter:
+            // .... Debug copy value to Out13
+        const SRV_Channel::Function function13 = SRV_Channel::Function(SRV_Channel::k_rcin1 + 13 - 1);
+        SRV_Channels::set_output_pwm(function13, uint16_t(command_value+0.5));
+        actuator.mask |= SRV_Channels::get_output_channel_mask(function13);
+
+        if ( command_value >= 2099.0 )                                                          // PWM higher-then-High?...
+            Remap19_en = 1;
+            else
+                Remap19_en = 0;
+
+        uint32_t ControlVal  = ( int(command_value+0.5) ) ;                                     // Extract controlling value (byte)...
+        uint8_t IndirectCh = (ControlVal - 1100) / 100 ;                                             // Every 100 "1"-s...
+
+        if (  ( command_value >= 1100.0 )  &&  ( IndirectCh < 7) )                                     // Got valid channel:
+            {       // ++++++++++++++ One of Indirect Channels pre-selected:
+            if ( (-1 != Channel_PreSet) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )                    // Was selected another?...
+                {       // ++++++++++++++ Clear previously selected  Channel;
+                const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet /* - 1 */ );
+                SRV_Channels::set_output_norm( function_indir, /* command_value */ -1.0 );
+                };      // -------------- Clear previously selected  Channel;
+            Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                           // Store selection
+            }       // ------------- One of Indirect Channels pre-selected:
+            else
+                {
+                if ( ( IndirectCh >= 6) && (-1 != Channel_PreSet) )                             // Action command! 
+                    {
+                    const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet /* - 1 */ );                    
+                    SRV_Channels::set_output_norm( function_indir, /* command_value */ 0.98 );
+                        // .... Add to mask of channels that will be cleared if no commands are received
+                    actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );
+                    }
+                    else
+                        Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
+                }
+        };      // ------------- Process channel_16 as Shifter:
+#endif     // Use_ExtRC
+
     // Add to mask of channels that will be cleared if no commands are received
     actuator.mask |= SRV_Channels::get_output_channel_mask(function);
 
@@ -261,7 +324,7 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
     sim_update_actuator(actuator_id);
 #endif
 #endif
-}
+};      // ------------------------------- rcout_srv_PWM() -------------------------------------
 
 void AP_Periph_FW::rcout_handle_safety_state(uint8_t safety_state)
 {
