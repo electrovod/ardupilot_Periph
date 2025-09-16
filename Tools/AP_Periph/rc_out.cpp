@@ -296,8 +296,9 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
             {       // ++++++++++++++ One of Indirect Channels pre-selected:
             if ( (-1 != Channel_PreSet) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )                    // Was selected another?...
                 {       // ++++++++++++++ Clear previously selected  Channel;
-                const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet /* - 1 */ );
-                SRV_Channels::set_output_norm( function_indir, /* command_value */ -1.0 );
+                const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
+                // Old var: SRV_Channels::set_output_norm( function_indir, /* command_value */ -1.0 );
+                SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
                 };      // -------------- Clear previously selected  Channel;
             Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                           // Store selection
             }       // ------------- One of Indirect Channels pre-selected:
@@ -306,7 +307,8 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
                 if ( ( IndirectCh >= 6) && (-1 != Channel_PreSet) )                             // Action command! 
                     {
                     const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet /* - 1 */ );                    
-                    SRV_Channels::set_output_norm( function_indir, /* command_value */ 0.98 );
+                    // Old: SRV_Channels::set_output_norm( function_indir, /* command_value */ 0.98 );
+                    SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );
                         // .... Add to mask of channels that will be cleared if no commands are received
                     actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );
                     }

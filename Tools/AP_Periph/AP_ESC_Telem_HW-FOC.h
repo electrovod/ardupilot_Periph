@@ -68,7 +68,7 @@ typedef union Bytes2int_u
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA1F              ///< GrayCat local version
+#define                 GC_Version                  0xAA20              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
