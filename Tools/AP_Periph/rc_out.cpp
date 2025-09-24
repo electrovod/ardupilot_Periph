@@ -268,7 +268,7 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
             {       // +++++++++++++++++++ GrayCat Extended : remapped Output
 #ifdef GC_Remap19
             int  RemapCh = actuator_id - RC_RemapOfs;                                            // Do remap;
-            if ( Remap19_en && (RemapCh >= 9) && (RemapCh <= 12) )
+            if ( Remap19_en && (RemapCh >= RC_IndirCh1) && (RemapCh <= 13) )
                 {
                 const SRV_Channel::Function function_rm = SRV_Channel::Function(SRV_Channel::k_rcin1 + RemapCh - 1);            
                 SRV_Channels::set_output_pwm(function_rm,  uint16_t(command_value+0.5) );        // Remapped
@@ -278,43 +278,70 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
 
 // GC_Debug:   Pre-Select channel from RCIn16
     if ( 16 == actuator_id )
-        {       // ............. Process channel_16 as Shifter:
-            // .... Debug copy value to Out13
-        const SRV_Channel::Function function13 = SRV_Channel::Function(SRV_Channel::k_rcin1 + 13 - 1);
-        SRV_Channels::set_output_pwm(function13, uint16_t(command_value+0.5));
-        actuator.mask |= SRV_Channels::get_output_channel_mask(function13);
+        {       // ............. Process channel_16 as Shifter:            
 
-        if ( command_value >= 2099.0 )                                                          // PWM higher-then-High?...
+            // ..... ReMap: .....
+        if ( command_value >= 2199.0 )                                                          // PWM higher-then-High?...
             Remap19_en = 1;
             else
+                {       // +++++++++++++++++++ Finished Remap19 state, zero-down
+                if ( Remap19_en )
+                    {       // ++++++++++++++++++++ Was ReMapped, Undo!
+                    for ( int ccnt=5; ccnt<=13 ; ccnt++)
+                        {       // +++++++++++++++++++++++ Zero-down Outputs 
+                        const SRV_Channel::Function function_z = SRV_Channel::Function(SRV_Channel::k_rcin1 + ccnt-1 );
+                        SRV_Channels::set_output_limit( function_z, SRV_Channel::Limit::MIN );
+                        };      // ----------------------- Zero-down Outputs
+                    Channel_PreSet = -1;                                                              //  clear Pre-Select
+                    };      // ------------------- Was ReMapped, Undo!
                 Remap19_en = 0;
+                };      // ------------------- Finished Remap19 state, zero-down
 
         uint32_t ControlVal  = ( int(command_value+0.5) ) ;                                     // Extract controlling value (byte)...
-        uint8_t IndirectCh = (ControlVal - 1100) / 100 ;                                             // Every 100 "1"-s...
+        int8_t IndirectCh = (ControlVal - int(RC_IndirStartPWM) ) / 100 ;             // Every 100 "1"-s...
 
-        if (  ( command_value >= 1100.0 )  &&  ( IndirectCh < 7) )                                     // Got valid channel:
+        if (  ( command_value >= RC_IndirStartPWM )  && ( command_value < 1890.0 ) )                                     // Got valid channel:
             {       // ++++++++++++++ One of Indirect Channels pre-selected:
-            if ( (-1 != Channel_PreSet) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )                    // Was selected another?...
+             if  (       ( (Channel_PreSet >= 0) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )   // Was selected another?...
+#if 1
+                    ||  ( (ControlVal > RC_DisArmedVal-5) &&  (ControlVal < RC_DisArmedVal+5) &&  (Channel_PreSet >= 0) )   // DisArmed by Thumbler?...
+#endif
+                )
                 {       // ++++++++++++++ Clear previously selected  Channel;
                 const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
-                // Old var: SRV_Channels::set_output_norm( function_indir, /* command_value */ -1.0 );
                 SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
                 };      // -------------- Clear previously selected  Channel;
             Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                           // Store selection
             }       // ------------- One of Indirect Channels pre-selected:
             else
-                {
-                if ( ( IndirectCh >= 6) && (-1 != Channel_PreSet) )                             // Action command! 
+                {       // +++++++++++++++++++ Outside the Indirect Channels range
+// Debug2:
+#if 0
+// .... Debug copy value to Out13
+        const SRV_Channel::Function function13 = SRV_Channel::Function(SRV_Channel::k_rcin1 + 13 - 1);
+        if ( Channel_PreSet >= 8)
+            SRV_Channels::set_output_pwm(function13, (Channel_PreSet-9+1)*100 + 2  );
+            else
+                SRV_Channels::set_output_pwm(function13,  20  );
+        actuator.mask |= SRV_Channels::get_output_channel_mask(function13);
+#endif
+
+                if ( ( command_value >= 1910.0 ) && ( Channel_PreSet >= 0)  )                             // Action command! 
                     {
-                    const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet /* - 1 */ );                    
-                    // Old: SRV_Channels::set_output_norm( function_indir, /* command_value */ 0.98 );
-                    SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );
-                        // .... Add to mask of channels that will be cleared if no commands are received
-                    actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );
+                    const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );                    
+                    SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
+                    actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );             // Add to mask of channels that will be cleared if no commands are received
                     }
                     else
+                        {
+                        if (Channel_PreSet >= 0)                                                            // DisArmed by Thumbler?...
+                            {       // ++++++++++++++ Clear previously selected  Channel;
+                            const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
+                            SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
+                            };      // -------------- Clear previously selected  Channel;
                         Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
-                }
+                        };
+                };      // ------------------ Outside the Indirect Channels range
         };      // ------------- Process channel_16 as Shifter:
 #endif     // Use_ExtRC
 

@@ -68,14 +68,16 @@ typedef union Bytes2int_u
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA20              ///< GrayCat local version
+#define                 GC_Version                  0xAA34              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
 #define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
 #define                 GC_Remap19                  1                   ///< Flag whether to use Ch19...22 => Ch9...12 remap
+#define                 RC_IndirStartPWM            900.0               ///< Starting "PWM-setting" from which RC-remapping begins
+#define                 RC_DisArmedVal              1495                ///< Value for "DisArmed" thumbler
 
-#define                 RC_IndirCh1                 9                   ///< Number of the first Indirect Channel
+#define                 RC_IndirCh1                 5                   ///< Number of the first Indirect Channel
 #define                 RC_RemapOfs                 10                  ///< Quantity of channels to shift Servos 9...12 to
 
 #define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
