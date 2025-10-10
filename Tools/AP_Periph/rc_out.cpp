@@ -187,7 +187,12 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 };      // ---------------------------------- rcout_esc() --------------------------
 
 int8_t      Channel_PreSet = -1;                                ///< Index of Servo Channel preselected by Ch16
-int8_t      Remap19_en = 0;                                     ///< Flag whether Remap Ch19...22 => Ch9...12 is enabled
+int8_t      Remap19_en = 1;                                     ///< Flag whether Remap Ch19...22 => Ch9...12 is enabled
+MultiSkid_t Skid_Mode = msk_Single;                             ///< Skid mode
+
+int         MultiSkid_TS = 0;                                   ///< TimeStamp for TimeOuting of Multi-Skid mode
+uint16_t    SkidsMask = 0;                                      ///< Mask of Enabled Multi-Skid channels
+bool        Firing = false;
 
 void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_value)
 {
@@ -251,8 +256,109 @@ void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_v
 #endif
 };      // --------------------------- rcout_srv_unitless() -----------------------------------
 
+
+#ifdef Use_ExtRC
+void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
+    {
+    int16_t IndirectCh = (ControlVal - int(RC_IndirStartPWM) ) / 100 ;             // Every 100 "1"-s...
+
+    if (  ( ControlVal >= RC_IndirStartPWM )  && ( ControlVal < 1899 ) )                                     // Got valid channel:
+        {       // ++++++++++++++ One of Indirect Channels pre-selected:
+            if  (       ( (Channel_PreSet >= 0) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )   // Was selected another?...
+#if 1
+                ||  ( (ControlVal > RC_DisArmedVal-5) &&  (ControlVal < RC_DisArmedVal+5) &&  (Channel_PreSet >= 0) )   // DisArmed by Thumbler?...
+#endif
+            )
+            {       // ++++++++++++++ Clear previously selected  Channel;
+            const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
+            SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
+            };      // -------------- Clear previously selected  Channel;
+        Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                           // Store selection
+        }       // ------------- One of Indirect Channels pre-selected:
+        else
+            {       // +++++++++++++++++++ Outside the Indirect Channels range
+            if ( ( ControlVal >= 1910 ) && ( Channel_PreSet >= 0)  )                             // Action command! 
+                {
+                const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );                    
+                SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
+                actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );             // Add to mask of channels that will be cleared if no commands are received
+                }
+                else
+                    {       // +++++++++++++++++++ Non-Valid  Control Val and Preset channel
+                    if (Channel_PreSet >= 0)                                                            // DisArmed by Thumbler?...
+                        {       // ++++++++++++++ Clear previously selected  Channel;
+                        const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
+                        SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
+                        };      // -------------- Clear previously selected  Channel;
+                    Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
+                    };      // ------------------ Non-Valid  Control Val and Preset channel
+            };      // ------------------ Outside the Indirect Channels range
+    };      // ------------------------ ProcessSingleSkid() --------------------------------------
+
+void FireSkidsMask( uint8_t Mask )
+    {
+    for ( uint8_t ocnt=0; ocnt<8 ; ocnt++ )
+        {       // ++++++++++++++++++++++++ Outputs setting loop
+        const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + RC_IndirCh1 -1 + ocnt );
+        SRV_Channels::set_output_limit( function_indir, ( Mask & ( 1 << ocnt ) ) ?  SRV_Channel::Limit::MAX : SRV_Channel::Limit::MIN  );
+        };      // ------------------------ Outputs setting loop
+// GC_Debug2:
+    AP::esc_telem().update_rpm( 9-1, (1000+Mask) * 1.0f , 0.0);                                     // Feedback through Telemetry
+
+    }
+
+void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_value )
+    {
+    if (    ( ControlVal < RC_IndirStartPWM )                                                 // receiving Syndrome,...    
+        ||  ( ( ControlVal >= RC_DisArmedVal-5) && ( ControlVal <= RC_DisArmedVal+5) )               // receiving Neutral
+        )
+        {
+        if ( Firing )
+            FireSkidsMask( 0 );                                                               // Release all!
+        Firing = false;
+        return;
+        }    
+
+    if (  ( ControlVal >= RC_IndirStartPWM )  && ( ControlVal < 2099 ) )                      // Got valid channel:
+        {       // ++++++++++++++ One of Indirect Channels pre-selected:
+        
+        if ( Firing )
+            FireSkidsMask( 0 );                                                               // Release all!
+        Firing = false;
+
+        if ( command_value < (RC_DisArmedVal*1.0) )
+            {
+            uint16_t IndirectCh = ( ( command_value -  (RC_IndirStartPWM*1.0)  ) / 4.5  );             // Every 4.5 "1"-s... ; Try: round( 
+            SkidsMask = IndirectCh;
+            }
+            else
+                {
+                uint16_t IndirectCh = ( ( command_value - 1512.0 ) / 4.5  );             // Every 4.5 "1"-s... ; Try: round( 
+                SkidsMask = IndirectCh + 128;
+                };
+
+// GC_Debug2:
+    AP::esc_telem().update_rpm( 9-1, SkidsMask * 1.0f , 0.0);                                // Feedback through Telemetry
+        }       // -------------- One of Indirect Channels pre-selected:
+        else
+            {       // ++++++++++++++ check for "Fire" command
+            if (  ( ControlVal >= 2100 )  && ( ControlVal < 2199 ) )                      // Got valid "Fire" command"
+                {       // ++++++++++++++++++ Execute "Fire" command!
+
+                // if ( (SkidsMask >=0 ) && (SkidsMask<=255) )                                 // Valid mask?...
+                    {       // +++++++++++++++++++ Process Array of Outputs 
+                    FireSkidsMask( SkidsMask );
+                    Firing = true;
+                    };      // ------------------- Process Array of Outputs                 
+                };      // ------------------ Execute "Fire" command!
+            };      // -------------- check for "Fire" command
+
+    };      // ---------------------------- ProcessMultiSkids() ----------------------------
+#endif          // ----  Use_ExtRC
+
 void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
 {
+    int32_t                 now_ms = AP_HAL::millis();
 #if HAL_PWM_COUNT > 0
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
     SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
@@ -279,9 +385,11 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
 // GC_Debug:   Pre-Select channel from RCIn16
     if ( 16 == actuator_id )
         {       // ............. Process channel_16 as Shifter:            
-
+        int32_t ControlVal  = ( int(command_value) ) ;                                     // Extract controlling value (byte)...
+// GC_Debug2:
+        AP::esc_telem().update_rpm( 10-1, command_value , 0.0);                                // Feedback through Telemetry
             // ..... ReMap: .....
-        if ( command_value >= 2199.0 )                                                          // PWM higher-then-High?...
+        if ( ControlVal >= 2299 )                                                          // PWM higher-then-High?...
             Remap19_en = 1;
             else
                 {       // +++++++++++++++++++ Finished Remap19 state, zero-down
@@ -294,54 +402,31 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
                         };      // ----------------------- Zero-down Outputs
                     Channel_PreSet = -1;                                                              //  clear Pre-Select
                     };      // ------------------- Was ReMapped, Undo!
+                // try without: 
                 Remap19_en = 0;
-                };      // ------------------- Finished Remap19 state, zero-down
 
-        uint32_t ControlVal  = ( int(command_value+0.5) ) ;                                     // Extract controlling value (byte)...
-        int8_t IndirectCh = (ControlVal - int(RC_IndirStartPWM) ) / 100 ;             // Every 100 "1"-s...
-
-        if (  ( command_value >= RC_IndirStartPWM )  && ( command_value < 1890.0 ) )                                     // Got valid channel:
-            {       // ++++++++++++++ One of Indirect Channels pre-selected:
-             if  (       ( (Channel_PreSet >= 0) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )   // Was selected another?...
-#if 1
-                    ||  ( (ControlVal > RC_DisArmedVal-5) &&  (ControlVal < RC_DisArmedVal+5) &&  (Channel_PreSet >= 0) )   // DisArmed by Thumbler?...
-#endif
-                )
-                {       // ++++++++++++++ Clear previously selected  Channel;
-                const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
-                SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
-                };      // -------------- Clear previously selected  Channel;
-            Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                           // Store selection
-            }       // ------------- One of Indirect Channels pre-selected:
-            else
-                {       // +++++++++++++++++++ Outside the Indirect Channels range
-// Debug2:
-#if 0
-// .... Debug copy value to Out13
-        const SRV_Channel::Function function13 = SRV_Channel::Function(SRV_Channel::k_rcin1 + 13 - 1);
-        if ( Channel_PreSet >= 8)
-            SRV_Channels::set_output_pwm(function13, (Channel_PreSet-9+1)*100 + 2  );
-            else
-                SRV_Channels::set_output_pwm(function13,  20  );
-        actuator.mask |= SRV_Channels::get_output_channel_mask(function13);
-#endif
-
-                if ( ( command_value >= 1910.0 ) && ( Channel_PreSet >= 0)  )                             // Action command! 
-                    {
-                    const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );                    
-                    SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
-                    actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );             // Add to mask of channels that will be cleared if no commands are received
-                    }
+                if ( ControlVal < 900 )                                                          // PWM lower-then-min-SBUS ?...
+                    {       // ++++++++++++++++++ Got Syndrome, Initiate Multi-Skid mode!
+                    Skid_Mode = msk_Multi;                                                      // Start MultiSkid mode!
+                    MultiSkid_TS = now_ms;                                                      // ReArm timeout;
+                    }       // ------------------ Initiate Multi-Skid mode!
                     else
-                        {
-                        if (Channel_PreSet >= 0)                                                            // DisArmed by Thumbler?...
-                            {       // ++++++++++++++ Clear previously selected  Channel;
-                            const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
-                            SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
-                            };      // -------------- Clear previously selected  Channel;
-                        Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
-                        };
-                };      // ------------------ Outside the Indirect Channels range
+                        {       // +++++++++++++++++++ No Multi-Skid mode syndrome....
+                        if ( (now_ms - MultiSkid_TS) > MultiSkidMode_TO )                           // TimeOut of MultiSkid mode expired?...
+                            {       // +++++++++++++++++++ Finalize Multi-Skid mode!
+                            Skid_Mode = msk_Single;                                                     // Start SingleSkid mode!
+                            MultiSkid_TS = 0;
+                            };      // ------------------- Finalize Multi-Skid mode!
+                        }       // ------------------- No Multi-Skid mode syndrome....
+
+                };      // ------------------- Finished Remap19 state, zero-down        
+
+        switch (Skid_Mode) 
+            {
+            case msk_Single : ProcessSingleSkid( ControlVal ); break;
+            case msk_Multi :  ProcessMultiSkids( ControlVal,   command_value ); break;
+            default: break;
+            };      // -------------------- switch Skid_Mode         
         };      // ------------- Process channel_16 as Shifter:
 #endif     // Use_ExtRC
 

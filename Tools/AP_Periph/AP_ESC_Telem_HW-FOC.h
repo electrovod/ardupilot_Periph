@@ -66,19 +66,28 @@ typedef union Bytes2int_u
         }       Int8s;
     } Bytes2int_t;
 
+/// Modes of MultiSkid operation:
+typedef enum MultiSkid_e
+    {
+    msk_Single,                                                         ///< Single-Shot mode, compatible
+    msk_Multi,                                                          ///< Multi-Skid mode, by Mask
+                                                                        ///< ...possible: 2-first, intervaled-next.
+    } MultiSkid_t;
+
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA34              ///< GrayCat local version
+#define                 GC_Version                  0xAA48              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
 #define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
-#define                 GC_Remap19                  1                   ///< Flag whether to use Ch19...22 => Ch9...12 remap
-#define                 RC_IndirStartPWM            900.0               ///< Starting "PWM-setting" from which RC-remapping begins
+#define                 GC_Remap19                  0                   ///< Flag whether to use Ch19...22 => Ch9...12 remap
+#define                 RC_IndirStartPWM            900                 ///< Starting "PWM-setting" from which RC-remapping begins
 #define                 RC_DisArmedVal              1495                ///< Value for "DisArmed" thumbler
+#define                 MultiSkidMode_TO            500                 ///< Milliseconds for MultiSkid mode timeout after Syndrome appearance
 
 #define                 RC_IndirCh1                 5                   ///< Number of the first Indirect Channel
-#define                 RC_RemapOfs                 10                  ///< Quantity of channels to shift Servos 9...12 to
+#define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
 
 #define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
 #define                 HW_FOC_INTER_PACKET_TO      2                  ///< TimeOut between HW_FOC packets
@@ -93,5 +102,7 @@ int16_t Convert_FOC2Int( uint8_t RegLow, uint8_t RegHi   );
 
 /// Procedure to read, convert and put into internal structures of HW FOC packets:
 void ReadTelem_N(int Uart_N );
+
+void FireSkidsMask( uint8_t Mask );
 
 #endif // HAL_WITH_ESC_TELEM

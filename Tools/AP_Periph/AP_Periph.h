@@ -49,6 +49,9 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_DAC/AP_DAC.h>
 
+// GC_Debug:
+#include "AP_ESC_Telem_HW-FOC.h"
+
 #if AP_PERIPH_RELAY_ENABLED
 #if AP_PERIPH_PWM_HARDPOINT_ENABLED
     #error "Relay and PWM_HARDPOINT both use hardpoint message"
@@ -375,6 +378,14 @@ public:
     void rcout_init_1Hz();
     void rcout_esc(int16_t *rc, uint8_t num_channels);
     void rcout_srv_unitless(const uint8_t actuator_id, const float command_value);
+// GC_Debug:
+#ifdef Use_ExtRC
+/// Process setting and firing of 1 skid
+void ProcessSingleSkid( int32_t ControlVal );
+/// Process setting and firing of MultiSkids
+void ProcessMultiSkids( int32_t ControlVal ,  const float command_value);
+#endif      // ----  Use_ExtRC
+
     void rcout_srv_PWM(const uint8_t actuator_id, const float command_value);
     void rcout_update();
     void rcout_handle_safety_state(uint8_t safety_state);
