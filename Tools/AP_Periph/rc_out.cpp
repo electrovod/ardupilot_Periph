@@ -194,6 +194,12 @@ int         MultiSkid_TS = 0;                                   ///< TimeStamp f
 uint16_t    SkidsMask = 0;                                      ///< Mask of Enabled Multi-Skid channels
 bool        Firing = false;
 
+    // .......... MultiSkid mode detection by Syndrome:
+#define     ContrValsBufSize            8                       ///< Size of the Buffer
+float       ContrHistory[ ContrValsBufSize ]    = {0.0};          ///< History of Control Vals
+uint        ContrHist_Idx = 0;                                  ///< Index into History of Control Vals
+float       AvgContrVal = 0.0;                                  ///< Average calculated
+
 void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_value)
 {
 #if HAL_PWM_COUNT > 0
@@ -258,6 +264,35 @@ void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_v
 
 
 #ifdef Use_ExtRC
+
+/// Insert a New ContrValue, and calculate Tremor
+int CalcDiff_ContrVals( float NewContrVal )
+    {
+    float       ArMin=3000.0, ArMax = 0.0;
+
+    if ( NewContrVal < 899.0)                                                       // Lower than low?....
+        return(1);                                                                  // .... "Fire!" value
+
+    ContrHistory[ ContrHist_Idx++ ] = NewContrVal;                                  // Put new val into array;
+    ContrHist_Idx %= ContrValsBufSize;                                              // Wrap index
+
+    AvgContrVal = 0.0;                                                              // Init filter
+    for ( int acnt=0; acnt<ContrValsBufSize; acnt++ )
+        {       // +++++++++++++++++++++ Walk all buffer loop
+        float NextVal = ContrHistory[ acnt ];
+
+        if ( NextVal < ArMin )
+            ArMin = NextVal;
+        if ( NextVal > ArMax )
+            ArMax = NextVal;
+        AvgContrVal += NextVal;                                                     // Accumulate filter
+        };      // --------------------- Walk all buffer loop
+    AvgContrVal /= ContrValsBufSize;                                                // Get average
+    if ( ( (ArMax - ArMin) >= 1.0 ) && ( (ArMax - ArMin) < 5.0  ) && ( ArMin >= 899.0 ) && (ArMax < 2099.0 ) )
+        return 1;
+    return 0;
+    };      // ---------------------------------- CalcDiff_ContrVals() --------------------------
+
 void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
     {
     int16_t IndirectCh = (ControlVal - int(RC_IndirStartPWM) ) / 100 ;             // Every 100 "1"-s...
@@ -309,8 +344,8 @@ void FireSkidsMask( uint8_t Mask )
 
 void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_value )
     {
-    if (    ( ControlVal < RC_IndirStartPWM )                                                 // receiving Syndrome,...    
-        ||  ( ( ControlVal >= RC_DisArmedVal-5) && ( ControlVal <= RC_DisArmedVal+5) )               // receiving Neutral
+    if (    
+          ( ( ControlVal >= RC_DisArmedVal-5) && ( ControlVal <= RC_DisArmedVal+5) )               // receiving Neutral
         )
         {
         if ( Firing )
@@ -320,32 +355,31 @@ void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_va
         }    
 
     if (  ( ControlVal >= RC_IndirStartPWM )  && ( ControlVal < 2099 ) )                      // Got valid channel:
-        {       // ++++++++++++++ One of Indirect Channels pre-selected:
-        
+        {       // ++++++++++++++ One of Indirect Channels pre-selected:        
         if ( Firing )
             FireSkidsMask( 0 );                                                               // Release all!
         Firing = false;
 
         if ( command_value < (RC_DisArmedVal*1.0) )
-            {
+            {       // ++++++++++++++++ First half of PWM Range
             uint16_t IndirectCh = ( ( command_value -  (RC_IndirStartPWM*1.0)  ) / 4.5  );             // Every 4.5 "1"-s... ; Try: round( 
             SkidsMask = IndirectCh;
-            }
+            }       // ---------------- First half of PWM Range
             else
-                {
-                uint16_t IndirectCh = ( ( command_value - 1512.0 ) / 4.5  );             // Every 4.5 "1"-s... ; Try: round( 
+                {       // ++++++++++++++++ Second half of PWM Range
+                uint16_t IndirectCh = ( ( command_value - 1511.0 ) / 4.5  );             // Every 4.5 "1"-s... ; Try: round( 
                 SkidsMask = IndirectCh + 128;
-                };
+                };      // ---------------- Second half of PWM Range
 
 // GC_Debug2:
     AP::esc_telem().update_rpm( 9-1, SkidsMask * 1.0f , 0.0);                                // Feedback through Telemetry
         }       // -------------- One of Indirect Channels pre-selected:
         else
             {       // ++++++++++++++ check for "Fire" command
-            if (  ( ControlVal >= 2100 )  && ( ControlVal < 2199 ) )                      // Got valid "Fire" command"
+            if (  ( ControlVal >= 800 )  && ( ControlVal < 990 ) )                      // Got valid "Fire" command"
                 {       // ++++++++++++++++++ Execute "Fire" command!
 
-                // if ( (SkidsMask >=0 ) && (SkidsMask<=255) )                                 // Valid mask?...
+                if ( (SkidsMask<=255u) )                                 // Valid mask?...
                     {       // +++++++++++++++++++ Process Array of Outputs 
                     FireSkidsMask( SkidsMask );
                     Firing = true;
@@ -388,11 +422,13 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
         int32_t ControlVal  = ( int(command_value) ) ;                                     // Extract controlling value (byte)...
 // GC_Debug2:
         AP::esc_telem().update_rpm( 10-1, command_value , 0.0);                                // Feedback through Telemetry
+
             // ..... ReMap: .....
         if ( ControlVal >= 2299 )                                                          // PWM higher-then-High?...
             Remap19_en = 1;
             else
                 {       // +++++++++++++++++++ Finished Remap19 state, zero-down
+#ifndef GC_AlwaysRemap
                 if ( Remap19_en )
                     {       // ++++++++++++++++++++ Was ReMapped, Undo!
                     for ( int ccnt=5; ccnt<=13 ; ccnt++)
@@ -404,8 +440,9 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
                     };      // ------------------- Was ReMapped, Undo!
                 // try without: 
                 Remap19_en = 0;
+#endif          // --  ndef GC_AlwaysRemap
 
-                if ( ControlVal < 900 )                                                          // PWM lower-then-min-SBUS ?...
+                if ( CalcDiff_ContrVals( ControlVal ) )                                                          // PWM lower-then-min-SBUS ?...
                     {       // ++++++++++++++++++ Got Syndrome, Initiate Multi-Skid mode!
                     Skid_Mode = msk_Multi;                                                      // Start MultiSkid mode!
                     MultiSkid_TS = now_ms;                                                      // ReArm timeout;
@@ -416,6 +453,9 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
                             {       // +++++++++++++++++++ Finalize Multi-Skid mode!
                             Skid_Mode = msk_Single;                                                     // Start SingleSkid mode!
                             MultiSkid_TS = 0;
+                            if ( Firing )
+                                FireSkidsMask( 0 );                                                               // Release all!
+                            Firing = false;
                             };      // ------------------- Finalize Multi-Skid mode!
                         }       // ------------------- No Multi-Skid mode syndrome....
 
@@ -424,7 +464,7 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
         switch (Skid_Mode) 
             {
             case msk_Single : ProcessSingleSkid( ControlVal ); break;
-            case msk_Multi :  ProcessMultiSkids( ControlVal,   command_value ); break;
+            case msk_Multi :  ProcessMultiSkids( ControlVal,  /* command_value */ AvgContrVal ); break;
             default: break;
             };      // -------------------- switch Skid_Mode         
         };      // ------------- Process channel_16 as Shifter:

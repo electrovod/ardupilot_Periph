@@ -76,12 +76,15 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA48              ///< GrayCat local version
+#define                 GC_Version                  0xAA4C              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
 #define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
-#define                 GC_Remap19                  0                   ///< Flag whether to use Ch19...22 => Ch9...12 remap
+
+// #define                 GC_AlwaysRemap              1                   ///< Flag whether to Always Do Channels Remapping
+#define                 GC_Remap19                  1                   ///< Flag whether to use Ch20...27 => S5...S12 remap
+
 #define                 RC_IndirStartPWM            900                 ///< Starting "PWM-setting" from which RC-remapping begins
 #define                 RC_DisArmedVal              1495                ///< Value for "DisArmed" thumbler
 #define                 MultiSkidMode_TO            500                 ///< Milliseconds for MultiSkid mode timeout after Syndrome appearance
@@ -104,5 +107,8 @@ int16_t Convert_FOC2Int( uint8_t RegLow, uint8_t RegHi   );
 void ReadTelem_N(int Uart_N );
 
 void FireSkidsMask( uint8_t Mask );
+
+/// Insert a New ContrValue, and calculate Tremor
+int CalcDiff_ContrVals( float NewContrVal );
 
 #endif // HAL_WITH_ESC_TELEM
