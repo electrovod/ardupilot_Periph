@@ -200,6 +200,8 @@ float       ContrHistory[ ContrValsBufSize ]    = {0.0};          ///< History o
 uint        ContrHist_Idx = 0;                                  ///< Index into History of Control Vals
 float       AvgContrVal = 0.0;                                  ///< Average calculated
 
+int         Fired_TS;                                           ///< "Fired" state timeStamp, for auto-release
+
 void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_value)
 {
 #if HAL_PWM_COUNT > 0
@@ -345,20 +347,31 @@ void FireSkidsMask( uint8_t Mask )
 void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_value )
     {
     if (    
-          ( ( ControlVal >= RC_DisArmedVal-5) && ( ControlVal <= RC_DisArmedVal+5) )               // receiving Neutral
+          ( ( ControlVal >= RC_DisArmedVal-5) && ( ControlVal <= RC_DisArmedVal+5) )            // receiving Neutral
         )
         {
         if ( Firing )
-            FireSkidsMask( 0 );                                                               // Release all!
+            {
+            FireSkidsMask( 0 );                                                                 // Release all!
+            Fired_TS =  0;                                                                      // No firing
+            };
         Firing = false;
         return;
         }    
 
-    if (  ( ControlVal >= RC_IndirStartPWM )  && ( ControlVal < 2099 ) )                      // Got valid channel:
+    if (  ( ControlVal >= RC_IndirStartPWM )  && ( ControlVal < 2099 ) )                        // Got valid channel:
         {       // ++++++++++++++ One of Indirect Channels pre-selected:        
         if ( Firing )
-            FireSkidsMask( 0 );                                                               // Release all!
-        Firing = false;
+            {
+            if  ( ( AP_HAL::millis() - Fired_TS ) > 1000 )                                      // Enough time firing?...
+                {
+                FireSkidsMask( 0 );                                                                 // Release all!
+                Fired_TS =  0;                                                                      // No firing
+                Firing = false;
+                }
+                else
+                    return;
+            };
 
         if ( command_value < (RC_DisArmedVal*1.0) )
             {       // ++++++++++++++++ First half of PWM Range
@@ -376,14 +389,20 @@ void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_va
         }       // -------------- One of Indirect Channels pre-selected:
         else
             {       // ++++++++++++++ check for "Fire" command
-            if (  ( ControlVal >= 800 )  && ( ControlVal < 990 ) )                      // Got valid "Fire" command"
+            if (  ( ControlVal >= 800 )  && ( ControlVal < 900 ) )                      // Got valid "Fire" command"
                 {       // ++++++++++++++++++ Execute "Fire" command!
 
-                if ( (SkidsMask<=255u) )                                 // Valid mask?...
+                if ( !Firing && (SkidsMask<=255u) )                                 // Valid mask?...
                     {       // +++++++++++++++++++ Process Array of Outputs 
                     FireSkidsMask( SkidsMask );
                     Firing = true;
-                    };      // ------------------- Process Array of Outputs                 
+                    Fired_TS =  AP_HAL::millis();                                       // Start count of "Fired" state time
+                    }      // ------------------- Process Array of Outputs                 
+                    else
+                        {       // ++++++++++++++++ Already firing?...
+                        if  ( ( AP_HAL::millis() - Fired_TS ) > 2000 )                     // TimeOut firing?...
+                            FireSkidsMask( 0 );                                            // Release all!
+                        };      // ---------------- Already firing?...
                 };      // ------------------ Execute "Fire" command!
             };      // -------------- check for "Fire" command
 
