@@ -72,11 +72,12 @@ typedef enum MultiSkid_e
     msk_Single,                                                         ///< Single-Shot mode, compatible
     msk_Multi,                                                          ///< Multi-Skid mode, by Mask
                                                                         ///< ...possible: 2-first, intervaled-next.
+    msk_Transit,                                                        ///< Unknown by now, transiting
     } MultiSkid_t;
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA4D              ///< GrayCat local version
+#define                 GC_Version                  0xAA57              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 

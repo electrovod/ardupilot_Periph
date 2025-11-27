@@ -187,6 +187,8 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 };      // ---------------------------------- rcout_esc() --------------------------
 
 int8_t      Channel_PreSet = -1;                                ///< Index of Servo Channel preselected by Ch16
+int8_t      PrevSelChannel = -1;                                ///< Previous Index of preselected Servo Channel, for auto-down
+int32_t     PrevContrValue = -1;                                ///< Previous Control value, for "Fire" command debounce
 int8_t      Remap19_en = 1;                                     ///< Flag whether Remap Ch19...22 => Ch9...12 is enabled
 MultiSkid_t Skid_Mode = msk_Single;                             ///< Skid mode
 
@@ -268,6 +270,9 @@ void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_v
 #ifdef Use_ExtRC
 
 /// Insert a New ContrValue, and calculate Tremor
+/**
+    \result ==1 if Tremor detected, or ==0 if stable (== Single-Skid mode)
+**/
 int CalcDiff_ContrVals( float NewContrVal )
     {
     float       ArMin=3000.0, ArMax = 0.0;
@@ -290,7 +295,7 @@ int CalcDiff_ContrVals( float NewContrVal )
         AvgContrVal += NextVal;                                                     // Accumulate filter
         };      // --------------------- Walk all buffer loop
     AvgContrVal /= ContrValsBufSize;                                                // Get average
-    if ( ( (ArMax - ArMin) >= 1.0 ) && ( (ArMax - ArMin) < 5.0  ) && ( ArMin >= 899.0 ) && (ArMax < 2099.0 ) )
+    if ( ( (ArMax - ArMin) >= 1.0 ) && ( (ArMax - ArMin) < 5.0  )  && ( ArMin >= 899.0 ) && (ArMax < 2099.0 ) )        // Criteria for stable Tremor?...
         return 1;
     return 0;
     };      // ---------------------------------- CalcDiff_ContrVals() --------------------------
@@ -298,26 +303,52 @@ int CalcDiff_ContrVals( float NewContrVal )
 void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
     {
     int16_t IndirectCh = (ControlVal - int(RC_IndirStartPWM) ) / 100 ;             // Every 100 "1"-s...
+    SkidsMask = 0;                                                                  // No MultiSkid!
 
     if (  ( ControlVal >= RC_IndirStartPWM )  && ( ControlVal < 1899 ) )                                     // Got valid channel:
-        {       // ++++++++++++++ One of Indirect Channels pre-selected:
-            if  (       ( (Channel_PreSet >= 0) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )   // Was selected another?...
+        {       // ++++++++++++++ One of Indirect Channels pre-selected:        
+        PrevSelChannel = Channel_PreSet;                                                         // Store for Comparison
+        if  (       ( (Channel_PreSet >= 0) && ( Channel_PreSet != (IndirectCh+ RC_IndirCh1 -1 ) ) )   // Was selected another?...
 #if 1
                 ||  ( (ControlVal > RC_DisArmedVal-5) &&  (ControlVal < RC_DisArmedVal+5) &&  (Channel_PreSet >= 0) )   // DisArmed by Thumbler?...
 #endif
             )
             {       // ++++++++++++++ Clear previously selected  Channel;
-            const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
-            SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
+            if  ( Firing )     // TimeOut after Releasing Fire
+                {       // +++++++++++++++++ Release previous channel
+                FireSkidsMask( 0 );                                                                 // Release all!
+                Fired_TS =  0;
+                Firing = false;
+                };      // ----------------  Release previous channel
             };      // -------------- Clear previously selected  Channel;
-        Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                           // Store selection
+        if  ( Firing && ( ( AP_HAL::millis() - Fired_TS ) > 500 ) )     // TimeOut after Releasing Fire
+            {       // +++++++++++++++++ Release previous channel
+            FireSkidsMask( 0 );                                                                 // Release all!
+            Fired_TS =  0;
+            Firing = false;
+            };      // ----------------  Release previous channel
+        if  ( (ControlVal > RC_DisArmedVal-5) &&  (ControlVal < RC_DisArmedVal+5) )              // DisArmed?...
+            Channel_PreSet = -1;
+            else                                                                                 // Normal channel
+                Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                   // Store selection
         }       // ------------- One of Indirect Channels pre-selected:
         else
             {       // +++++++++++++++++++ Outside the Indirect Channels range
             if ( ( ControlVal >= 1910 ) && ( Channel_PreSet >= 0)  )                             // Action command! 
                 {
+                
                 const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );                    
-                SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
+                if ( !Firing  && ( AvgContrVal > 1950.0 ) && (PrevContrValue == ControlVal) )                                 // Valid mask?...
+                    {       // +++++++++++++++++++ Process Output
+                    SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
+                    Firing = true;
+                    Fired_TS =  AP_HAL::millis();                                       // Start count of "Fired" state time
+                    }      // ------------------- Process Output                
+                    else
+                        {       // ++++++++++++++++ Already firing?...
+                        if  ( ( AP_HAL::millis() - Fired_TS ) > 3000 )                     // TimeOut firing?...
+                            SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );                        
+                        };      // ---------------- Already firing?...                                
                 actuator.mask |= SRV_Channels::get_output_channel_mask( function_indir );             // Add to mask of channels that will be cleared if no commands are received
                 }
                 else
@@ -326,10 +357,13 @@ void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
                         {       // ++++++++++++++ Clear previously selected  Channel;
                         const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );
                         SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MIN );
+                        Firing = false;
+                        Fired_TS =  0;
                         };      // -------------- Clear previously selected  Channel;
                     Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
                     };      // ------------------ Non-Valid  Control Val and Preset channel
             };      // ------------------ Outside the Indirect Channels range
+    PrevContrValue = ControlVal;
     };      // ------------------------ ProcessSingleSkid() --------------------------------------
 
 void FireSkidsMask( uint8_t Mask )
@@ -346,10 +380,11 @@ void FireSkidsMask( uint8_t Mask )
 
 void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_value )
     {
+    Channel_PreSet = -1;                                                                        // Reset Single-Skid index
     if (    
           ( ( ControlVal >= RC_DisArmedVal-5) && ( ControlVal <= RC_DisArmedVal+5) )            // receiving Neutral
         )
-        {
+        {       // +++++++++++++++++++++++++ Release on Neutral
         if ( Firing )
             {
             FireSkidsMask( 0 );                                                                 // Release all!
@@ -357,7 +392,7 @@ void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_va
             };
         Firing = false;
         return;
-        }    
+        };      // ---------------------- Release on Neutral    
 
     if (  ( ControlVal >= RC_IndirStartPWM )  && ( ControlVal < 2099 ) )                        // Got valid channel:
         {       // ++++++++++++++ One of Indirect Channels pre-selected:        
@@ -461,28 +496,31 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
                 Remap19_en = 0;
 #endif          // --  ndef GC_AlwaysRemap
 
-                if ( CalcDiff_ContrVals( ControlVal ) )                                                          // PWM lower-then-min-SBUS ?...
+                if ( CalcDiff_ContrVals( command_value ) )                                                          // PWM lower-then-min-SBUS ?...
                     {       // ++++++++++++++++++ Got Syndrome, Initiate Multi-Skid mode!
                     Skid_Mode = msk_Multi;                                                      // Start MultiSkid mode!
                     MultiSkid_TS = now_ms;                                                      // ReArm timeout;
                     }       // ------------------ Initiate Multi-Skid mode!
                     else
                         {       // +++++++++++++++++++ No Multi-Skid mode syndrome....
-                        if ( (now_ms - MultiSkid_TS) > MultiSkidMode_TO )                           // TimeOut of MultiSkid mode expired?...
-                            {       // +++++++++++++++++++ Finalize Multi-Skid mode!
-                            Skid_Mode = msk_Single;                                                     // Start SingleSkid mode!
-                            MultiSkid_TS = 0;
+                        if ( ( (now_ms - MultiSkid_TS) > MultiSkidMode_TO )  && (msk_Single != Skid_Mode ) )      // TimeOut of MultiSkid mode expired?...
+                            {       // +++++++++++++++++++ Finalize Multi-Skid mode after Time-Out!
+                            MultiSkid_TS = 0;                            
                             if ( Firing )
                                 FireSkidsMask( 0 );                                                               // Release all!
                             Firing = false;
-                            };      // ------------------- Finalize Multi-Skid mode!
+                            Skid_Mode = msk_Single;                                                     // Start SingleSkid mode!
+                            };      // ------------------- Finalize Multi-Skid mode after Time-Out!
                         }       // ------------------- No Multi-Skid mode syndrome....
 
                 };      // ------------------- Finished Remap19 state, zero-down        
 
         switch (Skid_Mode) 
             {
-            case msk_Single : ProcessSingleSkid( ControlVal ); break;
+            case msk_Single : 
+                        if ( (command_value - AvgContrVal) < 190.0 )                                     // Filter stabilized?
+                            ProcessSingleSkid( ControlVal ); 
+                        break;
             case msk_Multi :  ProcessMultiSkids( ControlVal,  /* command_value */ AvgContrVal ); break;
             default: break;
             };      // -------------------- switch Skid_Mode         

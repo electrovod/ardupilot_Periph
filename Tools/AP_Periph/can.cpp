@@ -1846,11 +1846,16 @@ void ReadTelem_N(int Uart_N )
 
             for (uint8_t index=0; index < nbytes; index++) 
                 {       // +++++++++ byte-by-byte Read loop
-                read_buffer[Uart_N][BufIdx[Uart_N]++] = uartN->read();
-                BufIdx[Uart_N] %=  ReadBufSize;                                              // wrap read-buffer
+                if ( index < ReadBufSize)
+                    {
+                    read_buffer[Uart_N][BufIdx[Uart_N]++] = uartN->read();
+                    BufIdx[Uart_N] %=  ReadBufSize;                                              // wrap read-buffer
+                    }
+                    else
+                        uartN->read();
                 };      // --------- byte-by-byte Read loop
             
-            if (    (nbytes <= sizeof(UART_Telem_In) ) 
+            if (    (nbytes <= sizeof(UART_Telem_In)+72 ) 
                 &&  ( BufIdx[Uart_N] >= 20 )                                                 // Packet Long enough?...
                 &&  (HW_FOC_Val_HEAD==read_buffer[Uart_N][0] )                               // Check Head-of-Packet
                 &&  (HW_FOC_Val_Len ==read_buffer[Uart_N][1] ) 
@@ -1887,7 +1892,16 @@ void ReadTelem_N(int Uart_N )
                             );
                 
                 LastPackTS[Uart_N] = now_ms;                                                            // Store TimeStamp for comparison
-                };      // ---------------- Valid FOC Telemetry packet received, decode it!
+                }      // ---------------- Valid FOC Telemetry packet received, decode it!
+
+// GC_Debug2:
+else
+    {
+    // AP::esc_telem().update_rpm( Uart_N, ( nbytes &0xFFFF) * 1.0f , 0.0);
+    };
+
+            // LastPackTS[Uart_N] = now_ms;
+            
             }       // ----------------------------- Got bytes to receive!
             else
                 {       // ++++++++++ UART empty, do Fake-fake if needed:
@@ -1919,7 +1933,7 @@ void ReadTelem_N(int Uart_N )
                     
                     // memcpy( wr_buffer+2, LastPackTS, 4 );
                     // uartN->write( (const uint8_t*) wr_buffer, /* len */ 6 );
-                    LastPackTS[Uart_N] = now_ms;                                                            // Store TimeStamp for comparison
+                    LastPackTS[Uart_N] = now_ms - 500;                                                            // Store TimeStamp for comparison
                     };      // ---------------- Too long timeout, no data...
                 };      // ---------- UART empty, do Fake-fake if needed:
         };      // -------------------- UART_N OK
