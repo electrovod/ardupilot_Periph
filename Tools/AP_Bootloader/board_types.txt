@@ -519,6 +519,7 @@ AP_HW_CUBEORANGEPLUS_ODID           11063
 # do not allocate board IDs above 19,999 in this file.
 
 # GrayCat addition: Motor-Uart CAN translator:
+AP_HW_BVMT_CanEx                    3995
 AP_HW_BVMT_RIO                      3996
 AP_HW_MUCAN                         3998
 AP_HW_HoWiCan                       3997

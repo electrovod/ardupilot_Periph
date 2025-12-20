@@ -77,7 +77,7 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA57              ///< GrayCat local version
+#define                 GC_Version                  0xAA5B              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
@@ -90,7 +90,12 @@ typedef enum MultiSkid_e
 #define                 RC_DisArmedVal              1495                ///< Value for "DisArmed" thumbler
 #define                 MultiSkidMode_TO            500                 ///< Milliseconds for MultiSkid mode timeout after Syndrome appearance
 
-#define                 RC_IndirCh1                 5                   ///< Number of the first Indirect Channel
+#if ( 3995 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "BVMT_CanEx") 
+    #define                 RC_IndirCh1                 1                   ///< Number of the first Indirect Channel
+#else       // testbed from Lastivka:
+    #define                 RC_IndirCh1                 5                   ///< Number of the first Indirect Channel
+#endif        // --------- CHIBIOS_BOARD_NAME 
+
 #define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
 
 #define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
@@ -108,6 +113,9 @@ int16_t Convert_FOC2Int( uint8_t RegLow, uint8_t RegHi   );
 void ReadTelem_N(int Uart_N );
 
 void FireSkidsMask( uint8_t Mask );
+
+/// Save Min/Max limits from Servo31
+void SaveLimits( float ch_val );
 
 /// Insert a New ContrValue, and calculate Tremor
 int CalcDiff_ContrVals( float NewContrVal );

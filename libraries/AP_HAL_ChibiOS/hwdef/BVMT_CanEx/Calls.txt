@@ -1,0 +1,29 @@
+can.cpp 	: can_update()
+		    |
+		    V
+rc_out.cpp	:   rcout_update() 
+			|
+			V
+			rcout_esc();
+			if HAL_PWM_COUNT > 0
+			    set_output_pwm_chan(i);
+			esc_telem_update();
+
+			(?) : rcout_srv_PWM();
+			(?) : rcout_srv_unitless();
+
+can.cpp		: onTransferReceived();
+		    |
+		    V
+		    handle_act_command();
+		        |
+		        V
+rc_out.cpp	:	rcout_srv_unitless();   --> set_output_norm(); --> SRV_Channel_aux.cpp:channels[i].set_output_norm();  
+			rcout_srv_PWM();        --> set_output_pwm();  --> SRV_Channel_aux.cpp:channels[i].set_output_pwm();
+													    |
+SRV_Channel.cpp												    +--> SRV_Channel::set_output_pwm()
+														    |
+														    V
+SRV_Channel_aux.cpp : 												    hal.rcout->write(ch_num, output_pwm);
+
+

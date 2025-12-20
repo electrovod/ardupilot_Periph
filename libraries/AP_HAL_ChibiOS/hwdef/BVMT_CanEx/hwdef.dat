@@ -1,0 +1,177 @@
+# include ../MatekH743-periph/hwdef.dat
+include ../MatekH743/hwdef.dat
+
+# Default: AP_HW_MatekL431
+undef APJ_BOARD_ID
+APJ_BOARD_ID AP_HW_BVMT_CanEx
+
+env AP_PERIPH 1
+
+# undef ROMFS
+undef HAL_HAVE_SAFETY_SWITCH
+undef IMU
+undef BOOTLOADER_DEV_LIST
+undef HAL_OS_FATFS_IO
+undef OSD_ENABLED
+undef SDMMC1
+undef AP_PERIPH_GPS_ENABLED
+undef AP_PERIPH_MAG_ENABLED 
+# undef AP_PERIPH_BARO_ENABLED 
+undef AP_PERIPH_AIRSPEED_ENABLED 
+undef AP_PERIPH_ADSB_ENABLED 
+undef AP_PERIPH_RANGEFINDER_ENABLED 
+# define AP_PERIPH_RC_OUT_ENABLED 
+undef AP_PERIPH_BATTERY_ENABLED 
+
+define HAL_CAN_DRIVER_DEFAULT 1
+undef PD3
+PD3 GPIO_CAN1_SILENT OUTPUT PUSHPULL SPEED_HIGH LOW GPIO(70)
+env BUILD_ABIN False
+define HAL_USE_ADC TRUE 
+define HAL_WITH_MCU_MONITORING 1
+define STM32_ADC_USE_ADC3 TRUE
+
+# ................... Serials: ...................................
+
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0
+
+# We need UART1 for Telemetry input
+undef STDOUT_SERIAL
+define HAL_USE_SERIAL TRUE
+
+undef AP_PERIPH_MAG_ENABLED 
+undef AP_PERIPH_NOTIFY_ENABLED 
+undef AP_SERIALLED_ENABLED 
+
+# blue LED1 marked as ACT
+undef PE4
+PE4 LED OUTPUT HIGH
+define HAL_LED_ON 1
+
+# order of UARTs (and USB)
+undef SERIAL_ORDER
+SERIAL_ORDER OTG1 USART1 USART2 USART3 UART4 USART6 UART7 UART8 OTG2
+                                                                                                                    
+# USART1 (telem2) : match
+# Default: PA10 USART1_RX USART1
+# Default: PA9  USART1_TX USART1
+
+# USART2 (GPS1) : match
+# Default: PD5 USART2_TX USART2
+# Default: PD6 USART2_RX USART2
+
+# USART3 (GPS2) : match
+# Default: PD9 USART3_RX USART3
+# Default: PD8 USART3_TX USART3
+
+# UART4 (spare) : match
+# Default: PB9 UART4_TX UART4
+# Default: PB8 UART4_RX UART4
+
+# ======== by GrayCat: ================
+undef DEFAULT_SERIAL2_PROTOCOL
+
+define BOOTLOADER_BAUDRATE 19200
+
+# enable ESC control
+define HAL_SERIAL_ESC_COMM_ENABLED 1
+define HAL_SUPPORT_RCOUT_SERIAL 1
+define HAL_WITH_ESC_TELEM 1
+HAL_WITH_ESC_TELEM 1
+                                                                                                                    
+define AP_PERIPH_SERIAL_OPTIONS_ENABLED 1
+    # .......... Ser 1 settings:
+define DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
+SERIAL1_PROTOCOL SerialProtocol_Scripting
+define SERIAL1_PROTOCOL SerialProtocol_Scripting
+define DEFAULT_SERIAL1_BAUD 19200
+define SERIAL1_BAUD 19200
+SERIAL1_BAUD 19200
+    # .......... Ser 2 settings:
+define DEFAULT_SERIAL2_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL2_PROTOCOL  SerialProtocol_Scripting
+SERIAL2_PROTOCOL SerialProtocol_Scripting
+define SERIAL2_PROTOCOL SerialProtocol_Scripting
+define DEFAULT_SERIAL2_BAUD 19200
+define SERIAL2_BAUD 19200
+SERIAL2_BAUD 19200
+    # .......... Ser 3 settings:
+define DEFAULT_SERIAL3_BAUD 19200
+SERIAL3_BAUD 19200
+define DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
+SERIAL3_PROTOCOL SerialProtocol_Scripting
+define SERIAL3_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 4 settings:
+define DEFAULT_SERIAL4_BAUD 19200
+SERIAL4_BAUD 19200
+define DEFAULT_SERIAL4_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL4_PROTOCOL  SerialProtocol_Scripting
+SERIAL4_PROTOCOL SerialProtocol_Scripting
+define SERIAL4_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 6 settings:
+define DEFAULT_SERIAL6_BAUD 19200
+SERIAL6_BAUD 19200
+define DEFAULT_SERIAL6_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL6_PROTOCOL  SerialProtocol_Scripting
+SERIAL6_PROTOCOL SerialProtocol_Scripting
+define SERIAL6_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 7 settings:
+define DEFAULT_SERIAL7_BAUD 19200
+SERIAL7_BAUD 19200
+define DEFAULT_SERIAL7_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL7_PROTOCOL  SerialProtocol_Scripting
+SERIAL7_PROTOCOL SerialProtocol_Scripting
+define SERIAL7_PROTOCOL SerialProtocol_Scripting
+    # .......... Ser 8 settings:
+define DEFAULT_SERIAL8_BAUD 19200
+SERIAL8_BAUD 19200
+define DEFAULT_SERIAL8_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL8_PROTOCOL  SerialProtocol_Scripting
+SERIAL8_PROTOCOL SerialProtocol_Scripting
+define SERIAL8_PROTOCOL SerialProtocol_Scripting
+
+define AP_PERIPH_RC_OUT_ENABLED 1
+AP_PERIPH_RC_OUT_ENABLED 1
+# define AP_PERIPH_NOTIFY_ENABLED 1
+AP_EXTENDED_ESC_TELEM_ENABLED 1
+define AP_EXTENDED_ESC_TELEM_ENABLED 1
+
+# ................. PWMs: .....................
+define ESC_TELEM_MAX_ESCS 10
+BRD_SAFETY_MASK 32767
+OUT_BLH_BDMASK 255
+define NUM_SERVO_CHANNELS 32
+
+# Motors
+# ----- UnDefine:
+undef PB0  
+undef PB1  
+undef PA0  
+undef PA1  
+undef PA2  
+undef PA3  
+undef PD12
+undef PD13
+undef PD14
+undef PD15
+undef PE5 
+undef PE6 
+undef PA8 
+
+# ReDefine:
+PB0  TIM8_CH2N TIM8  PWM(5)  
+PB1  TIM8_CH3N TIM8  PWM(6)  
+PA0  TIM5_CH1  TIM5  PWM(1)  
+PA1  TIM5_CH2  TIM5  PWM(2)  
+PA2  TIM5_CH3  TIM5  PWM(4)  
+PA3  TIM5_CH4  TIM5  PWM(3)  
+PD12 TIM4_CH1 TIM4 PWM(7) 
+PD13 TIM4_CH2 TIM4 PWM(8) 
+PD14 TIM4_CH3 TIM4 PWM(9) 
+PD15 TIM4_CH4 TIM4 PWM(10) 
+PE5  TIM15_CH1 TIM15 PWM(11) 
+PE6  TIM15_CH2 TIM15 PWM(12) 
+PA8 TIM1_CH1 TIM1 PWM(13) 

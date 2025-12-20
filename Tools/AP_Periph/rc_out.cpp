@@ -169,7 +169,7 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 #endif      //  GC_Debug_UART2
         };      // --------- for (uint8_t i=0;)
     
-    if ( 0 &&  !AllZeros )
+    if ( 0==( AP_HAL::millis() & 0x0F) /* &&  !AllZeros */  )
         {
         auto    *uart_dbg = hal.serial(7);                // Serial 8
         
@@ -180,8 +180,11 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
             uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
             };
 
+        uint16_t FOC_CRC = crc16_ccitt( (const uint8_t *) &HW_FOC_Telem, /* len */ 22, /*  crc_init */ 0 );
+        HW_FOC_Telem.CRC_L = FOC_CRC & 0xFF;
+        HW_FOC_Telem.CRC_H = FOC_CRC >> 8;
         uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
-        HW_FOC_Telem.PktNum_L++;
+        HW_FOC_Telem.PktNum_L += 1 + 0*AllZeros;
         };
     rcout_has_new_data_to_update = true;
 };      // ---------------------------------- rcout_esc() --------------------------
@@ -338,7 +341,7 @@ void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
                 {
                 
                 const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );                    
-                if ( !Firing  && ( AvgContrVal > 1950.0 ) && (PrevContrValue == ControlVal) )                                 // Valid mask?...
+                if ( !Firing  && ( AvgContrVal > 1900.0 ) && (PrevContrValue == ControlVal) && !((ControlVal > RC_DisArmedVal-5) && (ControlVal < RC_DisArmedVal+5) ) )                                 // Valid mask?...
                     {       // +++++++++++++++++++ Process Output
                     SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
                     Firing = true;
@@ -376,7 +379,23 @@ void FireSkidsMask( uint8_t Mask )
 // GC_Debug2:
     AP::esc_telem().update_rpm( 9-1, (1000+Mask) * 1.0f , 0.0);                                     // Feedback through Telemetry
 
-    }
+    };
+
+/// Save Min/Max limits from Servo31
+void SaveLimits( float ch_val )
+    {
+    char buf[12];                                                                                              
+    int  IntVal = ch_val;
+    int  ChNum = ((IntVal >> 9) & 0x7)  + RC_IndirCh1;                                                // Get Out Channel number
+
+    AP::esc_telem().update_rpm( 8-1, (IntVal & 0xFF)*4.0 + 1000.0 , 0.0);                                // Feedback through Telemetry        
+    
+    if ( IntVal & 0x100 )                                                           // Syndrome bit for ON-state?...
+        hal.util->snprintf( buf, sizeof(buf), "OUT%d_MAX" , ChNum);  
+        else
+            hal.util->snprintf( buf, sizeof(buf), "OUT%d_MIN" , ChNum);  
+    AP_Param::set_and_save_by_name( /* *name */   buf, /* float value */ (IntVal & 0xFF)*4.0 + 1000.0  );
+    };      // -------------------------- SaveLimits() -------------------------
 
 void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_value )
     {
@@ -525,6 +544,11 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
             default: break;
             };      // -------------------- switch Skid_Mode         
         };      // ------------- Process channel_16 as Shifter:
+
+    if ( 31 == actuator_id )
+        {       // +++++++++ Process channel_31 as Limits Setter:            
+        SaveLimits( command_value );        
+        };      // --------- Process channel_31 as Limits Setter:            
 #endif     // Use_ExtRC
 
     // Add to mask of channels that will be cleared if no commands are received
