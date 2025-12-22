@@ -1866,6 +1866,20 @@ void ReadTelem_N(int Uart_N )
                 memcpy( UART_Telem_Ptr, read_buffer[Uart_N], sizeof(UART_Telem_In) );               // Copy to local buffer to parse...
                 // uartN->write( UART_Telem_Ptr, /* len */ sizeof(UART_Telem_In) );                    // Mirror back!
 
+                    // ...... Check CRC:
+                uint16_t FOC_CRC = crc16_ccitt( UART_Telem_Ptr, /* len */ 22, /*  crc_init */ 0 );
+                if  (   ( UART_Telem_In.CRC_L != (FOC_CRC & 0xFF) ) 
+                    ||  ( UART_Telem_In.CRC_H != (FOC_CRC >> 8 ) )
+                    )
+                    {       // ++++++++++++++++ Bad CRC!
+                    if ( Telem_Errs[Uart_N] < 200 )                               // Wrap errors' counter
+                        Telem_Errs[Uart_N]++;
+                        else
+                            Telem_Errs[Uart_N] = 1;
+                    tdata.motor_temp_cdeg  =  ( (  Telem_Errs[Uart_N]/100.0 )  + 1.0 + Uart_N*8.0) * 50.0f;    // centi-degrees C : keepalive                                        
+                    AP::esc_telem().update_telem_data( Uart_N, tdata, AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE );
+                    return;
+                    };      // ---------------- Bad CRC!
                 AP::esc_telem().update_rpm( Uart_N, ( ( Convert_FOC2Int( UART_Telem_In.eRPM_L, UART_Telem_In.eRPM_H )*10) / /* motor_poles */  20 ) * 1.0f , 0.0);
                 Telem_Errs[Uart_N] = 0;                                                             // Reset err counter;
                 tdata.input_duty  = ( UART_Telem_In.iThrot_L +( (uint16_t)UART_Telem_In.iThrot_H << 8)) * 100.0f / 1024.0f;

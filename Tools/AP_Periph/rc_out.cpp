@@ -22,6 +22,17 @@
 #include "../../libraries/AP_ESC_Telem/AP_ESC_Telem.h"
 #include "AP_ESC_Telem_HW-FOC.h"
 
+HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packet of HW_FOC Telemetry
+    {
+    HW_FOC_Val_HEAD,                                                // Header
+    HW_FOC_Val_Len,                                                 // Data frame length, from here, excluding CRC
+    HW_FOC_Val_Ver,                                                 // Version of the Protocol
+    HW_FOC_Val_Cmd,                                                 // Command: "Real-time data"        
+    0,
+    0
+    };                                       
+
+
 // magic value from UAVCAN driver packet
 // dsdl/uavcan/equipment/esc/1030.RawCommand.uavcan
 // Raw ESC command normalized into [-8192, 8191]
@@ -96,17 +107,27 @@ void AP_Periph_FW::rcout_init_1Hz()
     for (uint8_t i=0; i<SERVO_OUT_MOTOR_MAX; i++) {
         servo_channels.set_esc_scaling_for(SRV_Channels::get_motor_function(i));
     }
-}
 
-HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packet of HW_FOC Telemetry
+// GC_Debug:
+{       // ++++++++++++++++++++++++ 1-second task to transmit fake FOC Telemetry over UART
+auto    *uart_dbg = hal.serial(7);                // Serial 8
+
+// GC_Debug:
+if ( uart_dbg->get_baud_rate() != 19200 )
     {
-    HW_FOC_Val_HEAD,                                                // Header
-    HW_FOC_Val_Len,                                                 // Data frame length, from here, excluding CRC
-    HW_FOC_Val_Ver,                                                 // Version of the Protocol
-    HW_FOC_Val_Cmd,                                                 // Command: "Real-time data"        
-    0,
-    0
-    };                                       
+    uart_dbg->end();
+    uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
+    };
+HW_FOC_Telem.PktNum_L++;
+HW_FOC_Telem.eRPM_L += 13;
+HW_FOC_Telem.cTemp = 231 + ( (AP_HAL::millis()/256) & 0x07);
+uint16_t FOC_CRC = crc16_ccitt( (const uint8_t *) &HW_FOC_Telem, /* len */ 22, /*  crc_init */ 0 );
+HW_FOC_Telem.CRC_L = FOC_CRC & 0xFF;
+HW_FOC_Telem.CRC_H = FOC_CRC >> 8;
+uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
+};      // ---------------------- 1-second task to transmit fake FOC Telemetry over UART
+
+}
 
 /// ::  Called from rcout_update() 
 void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
@@ -169,7 +190,7 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 #endif      //  GC_Debug_UART2
         };      // --------- for (uint8_t i=0;)
     
-    if ( 0==( AP_HAL::millis() & 0x0F) /* &&  !AllZeros */  )
+    if (0 && ( 0==( AP_HAL::millis() & 0x1F) /* &&  !AllZeros */  ) )
         {
         auto    *uart_dbg = hal.serial(7);                // Serial 8
         
