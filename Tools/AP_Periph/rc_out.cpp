@@ -82,6 +82,9 @@ void AP_Periph_FW::rcout_init()
     // run this once and at 1Hz to configure aux and esc ranges
     rcout_init_1Hz();
 
+// GC_Debug:
+    hal.scheduler->register_io_process(FUNCTOR_BIND_MEMBER(&AP_Periph_FW::tick_rc, void));
+
 #if HAL_DSHOT_ENABLED
     hal.rcout->set_dshot_esc_type(SRV_Channels::get_dshot_esc_type());
 #endif
@@ -99,6 +102,37 @@ void AP_Periph_FW::rcout_init()
 #endif
 };      // ---------------------------- rcout_init() ---------------------------
 
+// GC_Debug:
+#ifdef Use_FOCgen
+void AP_Periph_FW::tick_rc(void)                                                                          
+    {                                                                                                       
+    uint32_t now = AP_HAL::millis();                                                                    
+                                                                                                        
+    if (now - last_UART_pkt_ms > 40) 
+        {                                                                  
+        last_UART_pkt_ms = now;                                                                           
+            {       // ++++++++++++++++++++++++ 1-second task to transmit fake FOC Telemetry over UART
+            auto    *uart_dbg = hal.serial(7);                // Serial 8
+
+            // GC_Debug:
+            if ( uart_dbg->get_baud_rate() != 19200 )
+                {
+                uart_dbg->end();
+                uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
+                };
+            HW_FOC_Telem.PktNum_L++;
+            HW_FOC_Telem.eRPM_H = 3;
+            HW_FOC_Telem.eRPM_L += 3;
+            HW_FOC_Telem.cTemp = 223 + ( (AP_HAL::millis()/512) & 0x07);
+            uint16_t FOC_CRC = calc_crc_modbus( (const uint8_t *) &HW_FOC_Telem, /* len */ 22 );
+            HW_FOC_Telem.CRC_L = FOC_CRC & 0xFF;
+            HW_FOC_Telem.CRC_H = FOC_CRC >> 8;
+            uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
+            };      // ---------------------- 1-second task to transmit fake FOC Telemetry over UART
+        }                                                                                                   
+    }  
+#endif  //  def Use_FOCgen
+
 void AP_Periph_FW::rcout_init_1Hz()
 {
     // this runs at 1Hz to allow for run-time param changes
@@ -107,26 +141,6 @@ void AP_Periph_FW::rcout_init_1Hz()
     for (uint8_t i=0; i<SERVO_OUT_MOTOR_MAX; i++) {
         servo_channels.set_esc_scaling_for(SRV_Channels::get_motor_function(i));
     }
-
-// GC_Debug:
-{       // ++++++++++++++++++++++++ 1-second task to transmit fake FOC Telemetry over UART
-auto    *uart_dbg = hal.serial(7);                // Serial 8
-
-// GC_Debug:
-if ( uart_dbg->get_baud_rate() != 19200 )
-    {
-    uart_dbg->end();
-    uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
-    };
-HW_FOC_Telem.PktNum_L++;
-HW_FOC_Telem.eRPM_L += 13;
-HW_FOC_Telem.cTemp = 231 + ( (AP_HAL::millis()/256) & 0x07);
-uint16_t FOC_CRC = crc16_ccitt( (const uint8_t *) &HW_FOC_Telem, /* len */ 22, /*  crc_init */ 0 );
-HW_FOC_Telem.CRC_L = FOC_CRC & 0xFF;
-HW_FOC_Telem.CRC_H = FOC_CRC >> 8;
-uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
-};      // ---------------------- 1-second task to transmit fake FOC Telemetry over UART
-
 }
 
 /// ::  Called from rcout_update() 

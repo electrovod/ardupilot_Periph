@@ -375,6 +375,11 @@ public:
     } actuator;
 
     void rcout_init();
+#ifdef Use_FOCgen
+// GC_Debug:
+    int32_t last_UART_pkt_ms;
+    void tick_rc();
+#endif      //   def Use_FOCgen
     void rcout_init_1Hz();
     void rcout_esc(int16_t *rc, uint8_t num_channels);
     void rcout_srv_unitless(const uint8_t actuator_id, const float command_value);

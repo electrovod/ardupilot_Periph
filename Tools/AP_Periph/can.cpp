@@ -1797,7 +1797,7 @@ int FOC_temp_decode(int temp_raw)
     };      // ----------------------------- FOC_temp_decode() -------------------------------
 
 HW_FOC_ESC_Telem_t      UART_Telem_In;                                  // Must be the Packet of HW_FOC Telemetry
-uint8_t          *const UART_Telem_Ptr = (uint8_t *) &UART_Telem_In;
+uint8_t                *UART_Telem_Ptr = (uint8_t *) &UART_Telem_In;
 static int              BufIdx[NUM_Telems];    
 
 static int              Telem_Errs[NUM_Telems] = {0};
@@ -1855,8 +1855,8 @@ void ReadTelem_N(int Uart_N )
                         uartN->read();
                 };      // --------- byte-by-byte Read loop
             
-            if (    (nbytes <= sizeof(UART_Telem_In)+72 ) 
-                &&  ( BufIdx[Uart_N] >= 20 )                                                 // Packet Long enough?...
+            if (    (nbytes <= sizeof(UART_Telem_In)+2 ) 
+                &&  ( BufIdx[Uart_N] == 24 )                                                 // Packet Long enough?...
                 &&  (HW_FOC_Val_HEAD==read_buffer[Uart_N][0] )                               // Check Head-of-Packet
                 &&  (HW_FOC_Val_Len ==read_buffer[Uart_N][1] ) 
                 &&  (HW_FOC_Val_Ver ==read_buffer[Uart_N][2] ) 
@@ -1867,17 +1867,19 @@ void ReadTelem_N(int Uart_N )
                 // uartN->write( UART_Telem_Ptr, /* len */ sizeof(UART_Telem_In) );                    // Mirror back!
 
                     // ...... Check CRC:
-                uint16_t FOC_CRC = crc16_ccitt( UART_Telem_Ptr, /* len */ 22, /*  crc_init */ 0 );
+                uint16_t FOC_CRC = calc_crc_modbus( UART_Telem_Ptr, /* len */ 22 );
                 if  (   ( UART_Telem_In.CRC_L != (FOC_CRC & 0xFF) ) 
-                    ||  ( UART_Telem_In.CRC_H != (FOC_CRC >> 8 ) )
+                     || ( UART_Telem_In.CRC_H != ( ( FOC_CRC >> 8  ) & 0xFF ) )
                     )
                     {       // ++++++++++++++++ Bad CRC!
                     if ( Telem_Errs[Uart_N] < 200 )                               // Wrap errors' counter
                         Telem_Errs[Uart_N]++;
                         else
                             Telem_Errs[Uart_N] = 1;
-                    tdata.motor_temp_cdeg  =  ( (  Telem_Errs[Uart_N]/100.0 )  + 1.0 + Uart_N*8.0) * 50.0f;    // centi-degrees C : keepalive                                        
+#ifdef Use_BadCRC_Marker
+                    tdata.motor_temp_cdeg  = -500 - 100*Uart_N; //     // centi-degrees C : keepalive                                        
                     AP::esc_telem().update_telem_data( Uart_N, tdata, AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE );
+#endif      // --- def Use_BadCRC_Marker
                     return;
                     };      // ---------------- Bad CRC!
                 AP::esc_telem().update_rpm( Uart_N, ( ( Convert_FOC2Int( UART_Telem_In.eRPM_L, UART_Telem_In.eRPM_H )*10) / /* motor_poles */  20 ) * 1.0f , 0.0);

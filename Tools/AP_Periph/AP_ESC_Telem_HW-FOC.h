@@ -77,11 +77,13 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA5B              ///< GrayCat local version
+#define                 GC_Version                  0xAA5D              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
 #define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
+#define                 Use_FOCgen                  1                   ///< Flag whether to use FOC UART Telemetry Generator
+#define                 Use_BadCRC_Marker           1
 
 // #define                 GC_AlwaysRemap              1                   ///< Flag whether to Always Do Channels Remapping
 #define                 GC_Remap19                  1                   ///< Flag whether to use Ch20...27 => S5...S12 remap
