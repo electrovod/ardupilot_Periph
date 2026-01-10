@@ -77,13 +77,13 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA5D              ///< GrayCat local version
+#define                 GC_Version                  0xAA62              ///< GrayCat local version
 
 #define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
 
 #define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
 #define                 Use_FOCgen                  1                   ///< Flag whether to use FOC UART Telemetry Generator
-#define                 Use_BadCRC_Marker           1
+// #define                 Use_BadCRC_Marker           1                    ///< Flag whether to use Fake Temperatures to indicate CRC errors
 
 // #define                 GC_AlwaysRemap              1                   ///< Flag whether to Always Do Channels Remapping
 #define                 GC_Remap19                  1                   ///< Flag whether to use Ch20...27 => S5...S12 remap
@@ -94,11 +94,11 @@ typedef enum MultiSkid_e
 
 #if ( 3995 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "BVMT_CanEx") 
     #define                 RC_IndirCh1                 1                   ///< Number of the first Indirect Channel
+    #define                 RC_RemapOfs                 20                  ///< Quantity of channels to shift Servos 1...8 to: #21-#1 = 20
 #else       // testbed from Lastivka:
     #define                 RC_IndirCh1                 5                   ///< Number of the first Indirect Channel
+    #define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
 #endif        // --------- CHIBIOS_BOARD_NAME 
-
-#define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
 
 #define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
 #define                 HW_FOC_INTER_PACKET_TO      2                  ///< TimeOut between HW_FOC packets

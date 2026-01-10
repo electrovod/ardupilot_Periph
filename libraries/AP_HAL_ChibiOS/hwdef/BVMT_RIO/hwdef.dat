@@ -21,7 +21,7 @@ undef AP_PERIPH_AIRSPEED_ENABLED
 undef AP_PERIPH_ADSB_ENABLED 
 undef AP_PERIPH_RANGEFINDER_ENABLED 
 # define AP_PERIPH_RC_OUT_ENABLED 
-undef AP_PERIPH_BATTERY_ENABLED 
+# undef AP_PERIPH_BATTERY_ENABLED 
 
 define HAL_CAN_DRIVER_DEFAULT 1
 undef PD3
@@ -30,6 +30,27 @@ env BUILD_ABIN False
 define HAL_USE_ADC TRUE 
 define HAL_WITH_MCU_MONITORING 1
 define STM32_ADC_USE_ADC3 TRUE
+
+# ....  ADC : ..........................................................
+# ------------------ BATTERY Monitor -----------------------
+define AP_PERIPH_BATTERY_ENABLED 1
+
+define HAL_USE_ADC TRUE
+define STM32_ADC_USE_ADC1 TRUE
+
+undef PC0
+PC0 BATT_VOLTAGE_SENS  ADC1 SCALE(1)
+
+undef HAL_BATT_MONITOR_DEFAULT
+define HAL_BATT_MONITOR_DEFAULT  0
+
+undef  HAL_BATT_VOLT_PIN
+define HAL_BATT_VOLT_PIN 10
+
+undef HAL_BATT_VOLT_SCALE
+define HAL_BATT_VOLT_SCALE 4
+# -- -- -- -- -- -- --.
+
 
 # ................... Serials: ...................................
 
