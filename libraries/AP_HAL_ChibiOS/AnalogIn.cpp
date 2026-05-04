@@ -521,10 +521,10 @@ void AnalogIn::setup_adc(uint8_t index)
 
     adcStart(adcp, NULL);
 #if HAL_WITH_MCU_MONITORING
-    if (index == 2) {
-        adcSTM32EnableVREF(&ADCD3);
-        adcSTM32EnableTS(&ADCD3);
-        adcSTM32EnableVBAT(&ADCD3);
+    if (index == 0) {
+        adcSTM32EnableVREF(&ADCD1);
+        adcSTM32EnableTS(&ADCD1);
+        adcSTM32EnableVBAT(&ADCD1);
     }
 #endif
     memset(&adcgrpcfg[index], 0, sizeof(adcgrpcfg[index]));
@@ -636,7 +636,7 @@ void AnalogIn::read_adc(uint8_t index, uint32_t *val)
     memset(sample_sum[index], 0, sizeof(uint32_t) * num_grp_channels);
     sample_count[index] = 0;
 #if HAL_WITH_MCU_MONITORING
-    if (index == 2) {
+    if (index == 0) {
         // copy the min/max values of vrefint if we are reading ADC3
         if (_mcu_vrefint_min == 0 ||
             _mcu_vrefint_min > min_vrefint) {
@@ -650,8 +650,8 @@ void AnalogIn::read_adc(uint8_t index, uint32_t *val)
         min_vrefint = 0;
         max_vrefint = 0;
         // accumulate temperature and Vcc readings
-        _mcu_monitor_temperature_accum += val[num_grp_channels - 2];
-        _mcu_monitor_voltage_accum += val[num_grp_channels - 1];
+        _mcu_monitor_temperature_accum += val[num_grp_channels -1 /* - 2 */ ];
+        _mcu_monitor_voltage_accum += val[ 0 /* num_grp_channels - 1 */ ];
         _mcu_monitor_sample_count++;
     }
 #endif
@@ -747,6 +747,33 @@ void AnalogIn::_timer_tick(void)
         hal.scheduler->is_system_initialized()) {
         last_mcu_temp_us = now;
 
+#if ( 3998 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_MUCAN") 
+// GC_Debug:
+            // factory calibration values
+        // const float TS_CAL1 = *((const volatile uint16_t *)0x1FFF75A8);
+        // const float TS_CAL2 = *((const volatile uint16_t *)0x1FFF75CA);
+        const float VREFINT_CAL = *(const volatile uint16_t *)0x1FFF75AA;
+        const float DividerV = ( _mcu_monitor_voltage_accum > 2000) ?  ( VREFINT_CAL/ float( _mcu_monitor_voltage_accum/_mcu_monitor_sample_count) ) : 1.0;
+        const float TS_CAL1 = *((const volatile uint16_t *)0x1FFF75A8) / DividerV;
+        const float TS_CAL2 = *((const volatile uint16_t *)0x1FFF75CA) / DividerV;
+
+        
+        // Default:  _mcu_temperature = ((130 - 30) / (TS_CAL2 - TS_CAL1)) * (float(_mcu_monitor_temperature_accum/_mcu_monitor_sample_count) - TS_CAL1) + 30;
+// GC_Debug:
+// _mcu_temperature = TS_CAL2 - TS_CAL1;
+float Sens_Temp = ( ( float( _mcu_monitor_temperature_accum/_mcu_monitor_sample_count ) - TS_CAL1 ) * ( /* TS_CAL2_TEMP */ 130.0 - /* TS_CAL1_TEMP */ 30.0 )) / ( TS_CAL2 - TS_CAL1 ) + /* TS_CAL1_TEMP */ 30.0;
+_mcu_temperature = Sens_Temp;      // Float!
+
+        // _mcu_voltage = 3.3 * VREFINT_CAL / float((_mcu_monitor_voltage_accum/_mcu_monitor_sample_count)+0.001);
+        _mcu_voltage = 3.0f * VREFINT_CAL/ float( (_mcu_monitor_voltage_accum/_mcu_monitor_sample_count) );
+        _mcu_monitor_voltage_accum = 0;
+        _mcu_monitor_temperature_accum = 0;
+        _mcu_monitor_sample_count = 0;
+
+        // note min/max swap due to inversion
+        _mcu_voltage_min = 3.3 * VREFINT_CAL / float(_mcu_vrefint_max+0.001);
+        _mcu_voltage_max = 3.3 * VREFINT_CAL / float(_mcu_vrefint_min+0.001);
+#else           // Other boards
         // factory calibration values
         const float TS_CAL1 = *(const volatile uint16_t *)0x1FF1E820;
         const float TS_CAL2 = *(const volatile uint16_t *)0x1FF1E840;
@@ -761,7 +788,7 @@ void AnalogIn::_timer_tick(void)
         // note min/max swap due to inversion
         _mcu_voltage_min = 3.3 * VREFINT_CAL / float(_mcu_vrefint_max+0.001);
         _mcu_voltage_max = 3.3 * VREFINT_CAL / float(_mcu_vrefint_min+0.001);
-        
+#endif          // ----  :: (CHIBIOS_BOARD_NAME == "AP_HW_MUCAN")         
         // reset min and max
         _mcu_vrefint_max = 0;
         _mcu_vrefint_min = 0;

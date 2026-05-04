@@ -57,6 +57,7 @@ public:
     virtual float mcu_voltage(void) { return 0; }
     virtual float mcu_voltage_max(void) { return 0; }
     virtual float mcu_voltage_min(void) { return 0; }
+    virtual void read_adc_(uint8_t index, uint32_t *val)  {return;}
 #endif
 };
 

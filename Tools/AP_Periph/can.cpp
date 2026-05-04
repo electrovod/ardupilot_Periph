@@ -1924,25 +1924,48 @@ else
                 if ( (now_ms - LastPackTS[Uart_N]) > HW_FOC_INTER_PACKET_TO )                       // Too long timeout?...
                     BufIdx[Uart_N] = 0;                                                             //...restart buffer
 
-                if ( (now_ms - LastPackTS[Uart_N]) > 2000 )                       // Too long timeout?...
+                if ( (now_ms - LastPackTS[Uart_N]) > /* was: 2000 */ 800 )                       // Too long timeout?...
                     {       // +++++++++++++++ Too long timeout, no data...                    
                     if ( Telem_Errs[Uart_N] < 200 )                               // Wrap errors' counter
                         Telem_Errs[Uart_N]++;
                         else
                             Telem_Errs[Uart_N] = 1;
-                    AP::esc_telem().update_rpm( Uart_N,  /* 0.0f */ nan , Telem_Errs[Uart_N] * 0.3 );                                  // No rotation, ....
+                    
 
-#if 1 //  not defined HAL_WITH_MCU_MONITORING                             // AP_HAL::
+#if  not defined HAL_WITH_MCU_MONITORING                             // AP_HAL::
                     // Free-Running :  
                     tdata.motor_temp_cdeg  =  ( ( (now_ms/500 ) & 0x1F) + 12+ Uart_N*8) * 50.0f;    // centi-degrees C : keepalive                                        
 #else
-                    tdata.motor_temp_cdeg  = ( hal.analogin->mcu_temperature() + Uart_N - 1 + (Telem_Errs[Uart_N] % 8) ) * 1.0f;                                  // MCU Temperature
+                    {
+#if ( 3998 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_MUCAN")                     
+                        // ............ Relay MCU Temperature and Vdd:
+                    // Working: 
+                    tdata.motor_temp_cdeg  =  hal.analogin->mcu_temperature()   * 100.0f;                                   // MCU Temperature
+                    tdata.temperature_cdeg = tdata.motor_temp_cdeg;                                                         // centi-degrees C, negative values allowed
+                    tdata.voltage =  hal.analogin->mcu_voltage()  ;                
+                    
+                    AP::esc_telem().update_rpm( 9,  /* 0.0f */ nan , Telem_Errs[Uart_N] * 0.3 );                                  // No rotation, ....
+                    AP::esc_telem().update_telem_data( 9 , tdata, AP_ESC_Telem_Backend::TelemetryType::VOLTAGE |  
+                                                            /* AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY | */
+                                                            AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE  |
+                                                            AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE 
+                                                        );
+
+#else
+                    AP::esc_telem().update_rpm( Uart_N,  /* 0.0f */ nan , Telem_Errs[Uart_N] * 0.3 );                                  // No rotation, ....
+                    AP::esc_telem().update_telem_data( Uart_N , tdata, AP_ESC_Telem_Backend::TelemetryType::VOLTAGE |  
+                                                            /* AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY | */
+                                                            AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE  |
+                                                            AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE |
+                                                        );
+
+#endif  //  #if ( 3998 == APJ_BOARD_ID   )
+
+                    };
+                    
 #endif
 
-                    tdata.output_duty = SRV_Channels::srv_channel(Uart_N)->get_output_pwm() / 1024.0f;                    
-                    AP::esc_telem().update_telem_data( Uart_N, tdata, /* AP_ESC_Telem_Backend::TelemetryType::VOLTAGE |  */
-                                                            AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY |
-                                                            AP_ESC_Telem_Backend::TelemetryType::MOTOR_TEMPERATURE );
+                    // tdata.output_duty = SRV_Channels::srv_channel(Uart_N)->get_output_pwm() / 1024.0f;                    
 
                     wr_buffer[0] = Uart_N+1;
                     // wr_buffer[1] = now_ms / 1000;
@@ -1974,9 +1997,11 @@ void AP_Periph_FW::esc_telem_update()
 
     // GC_Debug by GrayCat:    
     ReadTelem_N( 0 );
+#if ( 3998 != APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_MUCAN")                     
     ReadTelem_N( 1 );
     ReadTelem_N( 2 );
     ReadTelem_N( 3 );
+#endif      //   #if ( 3998 != APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_MUCAN")                     
 
 #ifdef GC_Debug_DirectFake
 int32_t             now_ms = AP_HAL::millis();

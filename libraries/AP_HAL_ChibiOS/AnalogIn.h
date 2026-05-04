@@ -20,7 +20,9 @@
 #include "AP_HAL_ChibiOS.h"
 
 // available ADC channels for allocation
-#define ANALOG_MAX_CHANNELS 16
+// GC:Debug:
+// Default: #define ANALOG_MAX_CHANNELS 16
+#define ANALOG_MAX_CHANNELS 19
 
 // physical ADC channels per ADC HAL driver
 // This is MCU dependent, currently STM32H7 has the highest number of ADC_INs i.e. 20
@@ -84,6 +86,7 @@ public:
     float mcu_voltage(void) override { return _mcu_voltage; }
     float mcu_voltage_max(void) override { return _mcu_voltage_max; }
     float mcu_voltage_min(void) override { return _mcu_voltage_min; }
+    void read_adc_(uint8_t index, uint32_t *val) override { read_adc(index, val);  };
 #endif
 
 private:
