@@ -773,6 +773,23 @@ _mcu_temperature = Sens_Temp;      // Float!
         // note min/max swap due to inversion
         _mcu_voltage_min = 3.3 * VREFINT_CAL / float(_mcu_vrefint_max+0.001);
         _mcu_voltage_max = 3.3 * VREFINT_CAL / float(_mcu_vrefint_min+0.001);
+
+            // ..................... Dallas DS1820 read:
+        hal.gpio->write( 2, 0 );
+        hal.scheduler->delay_microseconds_boost( /* wait_usec */ 50u );
+        hal.gpio->write( 2, 1 );
+
+        hal.gpio->pinMode( 1, HAL_GPIO_OUTPUT );        
+        if ( AP_HAL::millis()  & 0x08)  // --  hal.gpio->read(1) )
+            {            
+            hal.gpio->write( 1, 0 );
+            }
+            else
+                {                
+                hal.gpio->write( 1, 1 );
+                };
+
+
 #else           // Other boards
         // factory calibration values
         const float TS_CAL1 = *(const volatile uint16_t *)0x1FF1E820;
