@@ -520,7 +520,7 @@ void AnalogIn::setup_adc(uint8_t index)
 #endif
 
     adcStart(adcp, NULL);
-#if HAL_WITH_MCU_MONITORING
+#if HAL_WITH_MCU_MONITORING && defined ADCD3
     if (index == 2) {
         adcSTM32EnableVREF(&ADCD3);
         adcSTM32EnableTS(&ADCD3);

@@ -1,0 +1,1017 @@
+==== Configure : BVMT_PDBex ====
+[0mSetting top to                           :[0m [32m/home/osboxes/ArduPilot[0m 
+[0mSetting out to                           :[0m [32m/home/osboxes/ArduPilot/build[0m 
+[0mAutoconfiguration                        :[0m [32menabled[0m 
+[0mChecking for program 'python'            :[0m [32m/usr/bin/python3[0m 
+[0mChecking for python version >= 3.8.0     :[0m [32m3.13.3[0m 
+[0mSetting board to                         :[0m [32mBVMT_PDBex[0m 
+[0mUsing toolchain                          :[0m [32marm-none-eabi[0m 
+[0mChecking for 'g++' (C++ compiler)        :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-g++[0m 
+[0mChecking for 'gcc' (C compiler)          :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc[0m 
+[0mChecking for program 'arm-none-eabi-nm'  :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-nm[0m 
+[0mChecking for c flags '-MMD'              :[0m [32myes[0m 
+[0mChecking for cxx flags '-MMD'            :[0m [32myes[0m 
+[0mCXX Compiler                             :[0m [32mg++ 10.2.1[0m 
+[0mChecking for program 'make'              :[0m [32m/usr/bin/make[0m 
+[0mChecking for program 'arm-none-eabi-objcopy' :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-objcopy[0m 
+Adding environment AP_PERIPH 1
+Setup for MCU STM32F412Rx
+No default parameter file found
+Writing hwdef setup in /home/osboxes/ArduPilot/build/BVMT_PDBex/hwdef.h
+Writing DMA map
+Setting up as AP_Periph
+Generating ldscript.ld
+Checking for env.py
+env set AP_PERIPH=1
+env set ENABLE_DFU_BOOT=0
+env set PROCESS_STACK=0x1C00
+env set MAIN_STACK=0x600
+env set IOMCU_FW=0
+env set IOMCU_FW_WITH_HEATER=0
+env set PERIPH_FW=0
+env set HAL_NUM_CAN_IFACES=2
+env set HAL_CANFD_SUPPORTED=0
+env set BOARD_FLASH_SIZE=512
+env set EXT_FLASH_SIZE_MB=0
+env set INT_FLASH_PRIMARY=False
+env set ENABLE_CRASHDUMP=False
+env set CPU_FLAGS=['-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard', '-DARM_MATH_CM4', '-u_printf_float']
+env set CORTEX=cortex-m4
+env set APJ_BOARD_ID=3994
+env set APJ_BOARD_TYPE=STM32F412Rx
+env set USBID=0x1209/0x5741
+env set FLASH_RESERVE_START_KB=16
+env set EXT_FLASH_RESERVE_START_KB=0
+env set FLASH_TOTAL=16384
+env set HAS_EXTERNAL_FLASH_SECTIONS=0
+env set CHIBIOS_BUILD_FLAGS=USE_FATFS=no CHIBIOS_STARTUP_MK=os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk CHIBIOS_PLATFORM_MK=os/hal/ports/STM32/STM32F4xx/platform.mk MCU=cortex-m4 ENV_UDEFS=-DCHPRINTF_USE_FLOAT=1
+[0mEnabling ChibiOS asserts                     :[0m [32mno[0m 
+[0mDisabling Watchdog                           :[0m [32mno[0m 
+[0mEnabling malloc guard                        :[0m [32mno[0m 
+[0mEnabling ChibiOS thread statistics           :[0m [32mno[0m 
+[0mEnabling -Werror                             :[0m [32myes[0m 
+[0mChecking for intelhex module:                :[0m [32mOK[0m 
+[0mEnabled OpenDroneID                          :[0m [33mno[0m 
+[0mEnabled firmware ID checking                 :[0m [33mno[0m 
+[0mGPS Debug Logging                            :[0m [33mno[0m 
+[0mEnabled custom controller                    :[0m [33mno[0m 
+[0mChecking for HAVE_CMATH_ISFINITE             :[0m [32myes[0m 
+[0mChecking for HAVE_CMATH_ISINF                :[0m [32myes[0m 
+[0mChecking for HAVE_CMATH_ISNAN                :[0m [32myes[0m 
+[0mChecking for NEED_CMATH_ISFINITE_STD_NAMESPACE :[0m [32myes[0m 
+[0mChecking for NEED_CMATH_ISINF_STD_NAMESPACE    :[0m [32myes[0m 
+[0mChecking for NEED_CMATH_ISNAN_STD_NAMESPACE    :[0m [32myes[0m 
+[0mChecking for header endian.h                   :[0m [33mnot found[0m 
+[0mChecking for header byteswap.h                 :[0m [33mnot found[0m 
+[0mChecking for HAVE_MEMRCHR                      :[0m [33mno[0m 
+[0mConfigured VSCode Intellisense                 :[0m [32myes[0m 
+[0mDC_DSDL compiler in                            :[0m [32m/home/osboxes/ArduPilot/modules/DroneCAN/dronecan_dsdlc[0m 
+[0mSource is git repository                       :[0m [32myes[0m 
+[0mUpdate submodules                              :[0m [32myes[0m 
+[0mChecking for program 'git'                     :[0m [32m/usr/bin/git[0m 
+[0mGtest                                          :[0m [33mSTM32 boards currently don't support compiling gtest[0m 
+[0mChecking for program 'arm-none-eabi-size'      :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-size[0m 
+[0mBenchmarks                                     :[0m [33mdisabled[0m 
+[0mUnit tests                                     :[0m [33mdisabled[0m 
+[0mScripting                                      :[0m [32mmaybe[0m 
+[0mScripting runtime checks                       :[0m [32menabled[0m 
+[0mDebug build                                    :[0m [32menabled[0m 
+[0mVS Code launch                                 :[0m [33mdisabled[0m 
+[0mCoverage build                                 :[0m [33mdisabled[0m 
+[0mForce 32-bit build                             :[0m [33mdisabled[0m 
+[0mChecking for program 'rsync'                   :[0m [32m/usr/bin/rsync[0m 
+Removing target_list file /home/osboxes/ArduPilot/build/BVMT_PDBex/target_list
+'configure' finished successfully (1.004s)
+==== BootLoader: ====
+[0mSetting top to                           :[0m [32m/home/osboxes/ArduPilot[0m 
+[0mSetting out to                           :[0m [32m/home/osboxes/ArduPilot/build[0m 
+[0mAutoconfiguration                        :[0m [32menabled[0m 
+[0mChecking for program 'python'            :[0m [32m/usr/bin/python3[0m 
+[0mChecking for python version >= 3.8.0     :[0m [32m3.13.3[0m 
+[0mSetting board to                         :[0m [32mBVMT_PDBex[0m 
+[0mUsing toolchain                          :[0m [32marm-none-eabi[0m 
+[0mChecking for 'g++' (C++ compiler)        :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-g++[0m 
+[0mChecking for 'gcc' (C compiler)          :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc[0m 
+[0mChecking for program 'arm-none-eabi-nm'  :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-nm[0m 
+[0mChecking for c flags '-MMD'              :[0m [32myes[0m 
+[0mChecking for cxx flags '-MMD'            :[0m [32myes[0m 
+[0mCXX Compiler                             :[0m [32mg++ 10.2.1[0m 
+[0mChecking for program 'make'              :[0m [32m/usr/bin/make[0m 
+[0mChecking for program 'arm-none-eabi-objcopy' :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-objcopy[0m 
+Adding environment AP_PERIPH 1
+Setup for MCU STM32F412Rx
+Writing hwdef setup in /home/osboxes/ArduPilot/build/BVMT_PDBex/hwdef.h
+Writing DMA map
+Setting up as AP_Periph
+Setting up as bootloader
+Generating ldscript.ld
+Checking for env.py
+env set AP_PERIPH=1
+env set ENABLE_DFU_BOOT=0
+env set PROCESS_STACK=0x1C00
+env set MAIN_STACK=0x600
+env set IOMCU_FW=0
+env set IOMCU_FW_WITH_HEATER=0
+env set PERIPH_FW=0
+env set HAL_NUM_CAN_IFACES=2
+env set HAL_CANFD_SUPPORTED=0
+env set BOARD_FLASH_SIZE=512
+env set EXT_FLASH_SIZE_MB=0
+env set INT_FLASH_PRIMARY=False
+env set ENABLE_CRASHDUMP=False
+env set CPU_FLAGS=['-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard']
+env set CORTEX=cortex-m4
+env set APJ_BOARD_ID=3994
+env set APJ_BOARD_TYPE=STM32F412Rx
+env set USBID=0x1209/0x5741
+env set FLASH_RESERVE_START_KB=0
+env set EXT_FLASH_RESERVE_START_KB=0
+env set FLASH_TOTAL=32768
+env set HAS_EXTERNAL_FLASH_SECTIONS=0
+env set CHIBIOS_BUILD_FLAGS=USE_FATFS=no CHIBIOS_STARTUP_MK=os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk CHIBIOS_PLATFORM_MK=os/hal/ports/STM32/STM32F4xx/platform.mk MCU=cortex-m4
+[0mEnabling ChibiOS asserts                     :[0m [32mno[0m 
+[0mDisabling Watchdog                           :[0m [32mno[0m 
+[0mEnabling malloc guard                        :[0m [32mno[0m 
+[0mEnabling ChibiOS thread statistics           :[0m [32mno[0m 
+[0mEnabling -Werror                             :[0m [32myes[0m 
+[0mChecking for intelhex module:                :[0m [32mOK[0m 
+[0mEnabled OpenDroneID                          :[0m [33mno[0m 
+[0mEnabled firmware ID checking                 :[0m [33mno[0m 
+[0mGPS Debug Logging                            :[0m [33mno[0m 
+[0mEnabled custom controller                    :[0m [33mno[0m 
+[0mChecking for HAVE_CMATH_ISFINITE             :[0m [32myes[0m 
+[0mChecking for HAVE_CMATH_ISINF                :[0m [32myes[0m 
+[0mChecking for HAVE_CMATH_ISNAN                :[0m [32myes[0m 
+[0mChecking for NEED_CMATH_ISFINITE_STD_NAMESPACE :[0m [32myes[0m 
+[0mChecking for NEED_CMATH_ISINF_STD_NAMESPACE    :[0m [32myes[0m 
+[0mChecking for NEED_CMATH_ISNAN_STD_NAMESPACE    :[0m [32myes[0m 
+[0mChecking for header endian.h                   :[0m [33mnot found[0m 
+[0mChecking for header byteswap.h                 :[0m [33mnot found[0m 
+[0mChecking for HAVE_MEMRCHR                      :[0m [33mno[0m 
+[0mConfigured VSCode Intellisense                 :[0m [32myes[0m 
+[0mDC_DSDL compiler in                            :[0m [32m/home/osboxes/ArduPilot/modules/DroneCAN/dronecan_dsdlc[0m 
+[0mSource is git repository                       :[0m [32myes[0m 
+[0mUpdate submodules                              :[0m [32mno[0m 
+[0mChecking for program 'git'                     :[0m [32m/usr/bin/git[0m 
+[0mGtest                                          :[0m [33mSTM32 boards currently don't support compiling gtest[0m 
+[0mChecking for program 'arm-none-eabi-size'      :[0m [32m/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-size[0m 
+[0mBenchmarks                                     :[0m [33mdisabled[0m 
+[0mUnit tests                                     :[0m [33mdisabled[0m 
+[0mScripting                                      :[0m [33mdisabled[0m 
+[0mScripting runtime checks                       :[0m [32menabled[0m 
+[0mDebug build                                    :[0m [33mdisabled[0m 
+[0mCoverage build                                 :[0m [33mdisabled[0m 
+[0mForce 32-bit build                             :[0m [33mdisabled[0m 
+[0mChecking for program 'rsync'                   :[0m [32m/usr/bin/rsync[0m 
+Removing target_list file /home/osboxes/ArduPilot/build/BVMT_PDBex/target_list
+'configure' finished successfully (0.958s)
+'clean' finished successfully (1.133s)
+Waf: Entering directory `/home/osboxes/ArduPilot/build/BVMT_PDBex'
+Checking for env.py
+No env.py found
+Generating hwdef.h
+Adding environment AP_PERIPH 1
+Setup for MCU STM32F412Rx
+Writing hwdef setup in /home/osboxes/ArduPilot/build/BVMT_PDBex/hwdef.h
+Writing DMA map
+Setting up as AP_Periph
+Setting up as bootloader
+Generating ldscript.ld
+[1/8] Creating build/BVMT_PDBex/hwdef.h
+[2/8] Creating build/BVMT_PDBex/modules/ChibiOS/include_dirs
+[3/8] Compiling libraries/AP_Scripting/generator/src/main.c
+[4/8] Processing dronecangen: modules/DroneCAN/DSDL/.github modules/DroneCAN/DSDL/ardupilot modules/DroneCAN/DSDL/com modules/DroneCAN/DSDL/cuav modules/DroneCAN/DSDL/dronecan modules/DroneCAN/DSDL/mppt modules/DroneCAN/DSDL/tests modules/DroneCAN/DSDL/uavcan
+[5/8] Creating build/BVMT_PDBex/ap_version.h
+[6/8] Creating build/BVMT_PDBex/chibios_flags.h
+Adding environment AP_PERIPH 1
+Setup for MCU STM32F412Rx
+Writing hwdef setup in /home/osboxes/ArduPilot/build/BVMT_PDBex/hwdef.h
+Writing DMA map
+Setting up as AP_Periph
+Setting up as bootloader
+No change in hwdef.h
+Generating ldscript.ld
+
+[7/8] Linking build/BVMT_PDBex/modules/ChibiOS/libch.a
+[8/8] Processing /home/osboxes/ArduPilot/build/BVMT_PDBex/libraries/AP_Scripting/lua_generated_bindings.cpp,/home/osboxes/ArduPilot/build/BVMT_PDBex/libraries/AP_Scripting/lua_generated_bindings.h: libraries/AP_Scripting/generator/description/bindings.desc build/BVMT_PDBex/gen-bindings -> build/BVMT_PDBex/libraries/AP_Scripting/lua_generated_bindings.cpp build/BVMT_PDBex/libraries/AP_Scripting/lua_generated_bindings.h
+expanding ardupilot.equipment.power.BatteryCells
+expanding ardupilot.equipment.power.BatteryPeriodic
+expanding ardupilot.equipment.power.BatteryInfoAux
+expanding ardupilot.equipment.power.BatteryTag
+expanding ardupilot.equipment.power.BatteryContinuous
+expanding ardupilot.equipment.proximity_sensor.Proximity
+expanding ardupilot.equipment.trafficmonitor.TrafficReport
+expanding ardupilot.gnss.MovingBaselineData
+expanding ardupilot.gnss.Heading
+expanding ardupilot.gnss.RelPosHeading
+expanding ardupilot.gnss.Status
+expanding ardupilot.indication.Button
+expanding ardupilot.indication.NotifyState
+expanding com.hobbywing.esc.RawCommand
+expanding ardupilot.indication.SafetyState
+expanding com.hobbywing.esc.StatusMsg2
+expanding com.hobbywing.esc.SetThrottleSource
+expanding com.hobbywing.esc.GetEscID
+expanding com.hobbywing.esc.GetMaintenanceInformation
+expanding com.hobbywing.esc.SetID
+expanding com.hobbywing.esc.SetDirection
+expanding com.hobbywing.esc.StatusMsg3
+expanding com.hobbywing.esc.SelfTest
+expanding com.hobbywing.esc.SetReportingFrequency
+expanding com.hobbywing.esc.SetAngle
+expanding com.hobbywing.esc.GetMajorConfig
+expanding com.hobbywing.esc.SetBaud
+expanding com.hobbywing.esc.SetLED
+expanding com.hobbywing.esc.StatusMsg1
+expanding com.himark.servo.ServoInfo
+expanding com.himark.servo.ServoCmd
+expanding com.hex.equipment.flow.Measurement
+expanding com.tmotor.esc.FocCtrl
+expanding com.tmotor.esc.PUSHSCI
+expanding com.tmotor.esc.PUSHCAN
+expanding com.tmotor.esc.ParamGet
+expanding com.tmotor.esc.ParamCfg
+expanding com.volz.servo.ActuatorStatus
+expanding com.xacti.GimbalAttitudeStatus
+expanding com.xacti.GimbalControlData
+expanding com.xacti.GnssStatusReq
+expanding com.xacti.GnssStatus
+expanding com.xacti.CopterAttStatus
+expanding cuav.equipment.power.CBAT
+expanding dronecan.sensors.magnetometer.MagneticFieldStrengthHiRes
+expanding dronecan.sensors.hygrometer.Hygrometer
+expanding dronecan.sensors.rpm.RPM
+expanding dronecan.sensors.rc.RCInput
+expanding dronecan.remoteid.System
+expanding dronecan.remoteid.SelfID
+expanding dronecan.remoteid.BasicID
+expanding dronecan.remoteid.SecureCommand
+expanding dronecan.remoteid.ArmStatus
+expanding dronecan.remoteid.Location
+expanding dronecan.remoteid.OperatorID
+expanding dronecan.protocol.FlexDebug
+expanding dronecan.protocol.Stats
+expanding dronecan.protocol.GlobalTime
+expanding dronecan.protocol.CanStats
+expanding mppt.OutputEnable
+expanding mppt.Stream
+expanding uavcan.Timestamp
+expanding uavcan.CoarseOrientation
+expanding uavcan.tunnel.Protocol
+expanding uavcan.tunnel.Targetted
+expanding uavcan.tunnel.Call
+expanding uavcan.tunnel.Broadcast
+expanding uavcan.tunnel.SerialConfig
+expanding uavcan.equipment.air_data.StaticTemperature
+expanding uavcan.equipment.air_data.TrueAirspeed
+expanding uavcan.equipment.air_data.IndicatedAirspeed
+expanding uavcan.equipment.air_data.Sideslip
+expanding uavcan.equipment.air_data.AngleOfAttack
+expanding uavcan.equipment.air_data.RawAirData
+expanding uavcan.equipment.air_data.StaticPressure
+expanding uavcan.equipment.actuator.ArrayCommand
+expanding uavcan.equipment.actuator.Status
+expanding uavcan.equipment.actuator.Command
+expanding uavcan.equipment.power.BatteryInfo
+expanding uavcan.equipment.power.CircuitStatus
+expanding uavcan.equipment.power.PrimaryPowerSupplyStatus
+expanding uavcan.equipment.ice.FuelTankStatus
+expanding uavcan.equipment.ice.reciprocating.CylinderStatus
+expanding uavcan.equipment.ice.reciprocating.Status
+expanding uavcan.equipment.esc.StatusExtended
+expanding uavcan.equipment.esc.RPMCommand
+expanding uavcan.equipment.esc.Status
+expanding uavcan.equipment.esc.RawCommand
+expanding uavcan.equipment.hardpoint.Status
+expanding uavcan.equipment.hardpoint.Command
+expanding uavcan.equipment.camera_gimbal.Mode
+expanding uavcan.equipment.camera_gimbal.AngularCommand
+expanding uavcan.equipment.camera_gimbal.GEOPOICommand
+expanding uavcan.equipment.camera_gimbal.Status
+expanding uavcan.equipment.gnss.ECEFPositionVelocity
+expanding uavcan.equipment.gnss.Fix
+expanding uavcan.equipment.gnss.RTCMStream
+expanding uavcan.equipment.gnss.Fix2
+expanding uavcan.equipment.gnss.Auxiliary
+expanding uavcan.equipment.ahrs.RawIMU
+expanding uavcan.equipment.ahrs.Solution
+expanding uavcan.equipment.ahrs.MagneticFieldStrength2
+expanding uavcan.equipment.ahrs.MagneticFieldStrength
+expanding uavcan.equipment.indication.RGB565
+expanding uavcan.equipment.indication.BeepCommand
+expanding uavcan.equipment.indication.SingleLightCommand
+expanding uavcan.equipment.indication.LightsCommand
+expanding uavcan.equipment.safety.ArmingStatus
+expanding uavcan.equipment.device.Temperature
+expanding uavcan.equipment.range_sensor.Measurement
+expanding uavcan.protocol.GetTransportStats
+expanding uavcan.protocol.GetDataTypeInfo
+expanding uavcan.protocol.Panic
+expanding uavcan.protocol.GetNodeInfo
+expanding uavcan.protocol.DataTypeKind
+expanding uavcan.protocol.RestartNode
+expanding uavcan.protocol.NodeStatus
+expanding uavcan.protocol.SoftwareVersion
+expanding uavcan.protocol.GlobalTimeSync
+expanding uavcan.protocol.AccessCommandShell
+expanding uavcan.protocol.CANIfaceStats
+expanding uavcan.protocol.HardwareVersion
+expanding uavcan.protocol.debug.LogMessage
+expanding uavcan.protocol.debug.LogLevel
+expanding uavcan.protocol.debug.KeyValue
+expanding uavcan.protocol.param.ExecuteOpcode
+expanding uavcan.protocol.param.Empty
+expanding uavcan.protocol.param.GetSet
+expanding uavcan.protocol.param.NumericValue
+expanding uavcan.protocol.param.Value
+expanding uavcan.protocol.file.Read
+expanding uavcan.protocol.file.Error
+expanding uavcan.protocol.file.GetDirectoryEntryInfo
+expanding uavcan.protocol.file.GetInfo
+expanding uavcan.protocol.file.Delete
+expanding uavcan.protocol.file.BeginFirmwareUpdate
+expanding uavcan.protocol.file.Path
+expanding uavcan.protocol.file.Write
+expanding uavcan.protocol.file.EntryType
+expanding uavcan.protocol.dynamic_node_id.Allocation
+expanding uavcan.protocol.dynamic_node_id.server.AppendEntries
+expanding uavcan.protocol.dynamic_node_id.server.Discovery
+expanding uavcan.protocol.dynamic_node_id.server.Entry
+expanding uavcan.protocol.dynamic_node_id.server.RequestVote
+expanding uavcan.protocol.enumeration.Indication
+expanding uavcan.protocol.enumeration.Begin
+expanding uavcan.navigation.GlobalNavigationSolution
+
+[1/107] ChibiOS: Compiling crt0_v7m.S
+[2/107] ChibiOS: Compiling vectors.S
+[3/107] ChibiOS: Compiling chcoreasm.S
+[4/107] ChibiOS: Compiling chcore.c
+[5/107] ChibiOS: Compiling crt1.c
+[6/107] ChibiOS: Compiling bufstreams.c
+[7/107] ChibiOS: Compiling chprintf.c
+[8/107] ChibiOS: Compiling chscanf.c
+[9/107] ChibiOS: Compiling memstreams.c
+[10/107] ChibiOS: Compiling nullstreams.c
+[11/107] ChibiOS: Compiling osal.c
+[12/107] ChibiOS: Compiling hal_adc_lld.c
+[13/107] ChibiOS: Compiling hal_can_lld.c
+[14/107] ChibiOS: Compiling hal_crypto_lld.c
+[15/107] ChibiOS: Compiling hal_dac_lld.c
+[16/107] ChibiOS: Compiling stm32_dma.c
+[17/107] ChibiOS: Compiling stm32_exti.c
+[18/107] ChibiOS: Compiling hal_pal_lld.c
+[19/107] ChibiOS: Compiling hal_i2c_lld.c
+[20/107] ChibiOS: Compiling hal_mac_lld.c
+[21/107] ChibiOS: Compiling hal_usb_lld.c
+[22/107] ChibiOS: Compiling hal_wspi_lld.c
+[23/107] ChibiOS: Compiling hal_rtc_lld.c
+[24/107] ChibiOS: Compiling hal_sdc_lld.c
+[25/107] ChibiOS: Compiling hal_i2s_lld.c
+[26/107] ChibiOS: Compiling hal_spi_lld.c
+[27/107] ChibiOS: Compiling hal_st_lld.c
+[28/107] ChibiOS: Compiling hal_eicu_lld.c
+[29/107] ChibiOS: Compiling hal_gpt_lld.c
+[30/107] ChibiOS: Compiling hal_icu_lld.c
+[31/107] ChibiOS: Compiling hal_pwm_lld.c
+[32/107] ChibiOS: Compiling hal_serial_lld.c
+[33/107] ChibiOS: Compiling hal_uart_lld.c
+[34/107] ChibiOS: Compiling hal_wdg_lld.c
+[35/107] ChibiOS: Compiling hal_efl_lld.c
+[36/107] ChibiOS: Compiling hal_lld.c
+[37/107] ChibiOS: Compiling stm32_isr.c
+[38/107] ChibiOS: Compiling nvic.c
+[39/107] ChibiOS: Compiling hal.c
+[40/107] ChibiOS: Compiling hal_adc.c
+[41/107] ChibiOS: Compiling hal_buffers.c
+[42/107] ChibiOS: Compiling hal_can.c
+[43/107] ChibiOS: Compiling hal_crypto.c
+[44/107] ChibiOS: Compiling hal_dac.c
+[45/107] ChibiOS: Compiling hal_efl.c
+[46/107] ChibiOS: Compiling hal_eicu.c
+[47/107] ChibiOS: Compiling hal_flash.c
+[48/107] ChibiOS: Compiling hal_gpt.c
+[49/107] ChibiOS: Compiling hal_i2c.c
+[50/107] ChibiOS: Compiling hal_i2s.c
+[51/107] ChibiOS: Compiling hal_icu.c
+[52/107] ChibiOS: Compiling hal_mac.c
+[53/107] ChibiOS: Compiling hal_mmc_spi.c
+[54/107] ChibiOS: Compiling hal_mmcsd.c
+[55/107] ChibiOS: Compiling hal_pal.c
+[56/107] ChibiOS: Compiling hal_pwm.c
+[57/107] ChibiOS: Compiling hal_queues.c
+[58/107] ChibiOS: Compiling hal_rtc.c
+[59/107] ChibiOS: Compiling hal_sdc.c
+[60/107] ChibiOS: Compiling hal_serial.c
+[61/107] ChibiOS: Compiling hal_serial_usb.c
+[62/107] ChibiOS: Compiling hal_sio.c
+[63/107] ChibiOS: Compiling hal_spi.c
+[64/107] ChibiOS: Compiling hal_st.c
+[65/107] ChibiOS: Compiling hal_trng.c
+[66/107] ChibiOS: Compiling hal_uart.c
+[67/107] ChibiOS: Compiling hal_usb.c
+[68/107] ChibiOS: Compiling hal_wdg.c
+[69/107] ChibiOS: Compiling hal_wspi.c
+[70/107] ChibiOS: Compiling chdelegates.c
+[71/107] ChibiOS: Compiling chfactory.c
+[72/107] ChibiOS: Compiling chmboxes.c
+[73/107] ChibiOS: Compiling chmemcore.c
+[74/107] ChibiOS: Compiling chmemheaps.c
+[75/107] ChibiOS: Compiling chmempools.c
+[76/107] ChibiOS: Compiling chobjcaches.c
+[77/107] ChibiOS: Compiling chpipes.c
+[78/107] ChibiOS: Compiling chcond.c
+[79/107] ChibiOS: Compiling chdebug.c
+[80/107] ChibiOS: Compiling chdynamic.c
+[81/107] ChibiOS: Compiling chevents.c
+[82/107] ChibiOS: Compiling chinstances.c
+[83/107] ChibiOS: Compiling chmsg.c
+[84/107] ChibiOS: Compiling chmtx.c
+[85/107] ChibiOS: Compiling chregistry.c
+[86/107] ChibiOS: Compiling chrfcu.c
+[87/107] ChibiOS: Compiling chschd.c
+[88/107] ChibiOS: Compiling chsem.c
+[89/107] ChibiOS: Compiling chstats.c
+[90/107] ChibiOS: Compiling chsys.c
+[91/107] ChibiOS: Compiling chthreads.c
+[92/107] ChibiOS: Compiling chtm.c
+[93/107] ChibiOS: Compiling chtrace.c
+[94/107] ChibiOS: Compiling chvt.c
+[95/107] ChibiOS: Compiling syscalls.c
+[96/107] ChibiOS: Compiling stubs.c
+[97/107] ChibiOS: Compiling board.c
+[98/107] ChibiOS: Compiling usbcfg.c
+[99/107] ChibiOS: Compiling usbcfg_dualcdc.c
+[100/107] ChibiOS: Compiling usbcfg_common.c
+[101/107] ChibiOS: Compiling flash.c
+[102/107] ChibiOS: Compiling malloc.c
+[103/107] ChibiOS: Compiling hrt.c
+[104/107] ChibiOS: Compiling stm32_util.c
+[105/107] ChibiOS: Compiling bouncebuffer.c
+[106/107] ChibiOS: Compiling watchdog.c
+[107/107] ChibiOS: Compiling ch.cpp
+
+ChibiOS: Done!
+
+Not embedding bootloader; /home/osboxes/ArduPilot/Tools/bootloaders/BVMT_PDBex_bl.bin does not exist
+No target_list file found, creating
+Generating compile_commands.json
+Build commands will be stored in build/BVMT_PDBex/compile_commands.json
+Generating compile_commands.json
+Build commands will be stored in build/BVMT_PDBex/compile_commands.json
+[  9/417] Compiling libraries/AP_HAL/utility/RCOutput_Tap.cpp
+[ 10/417] Compiling libraries/AP_HAL/Scheduler.cpp
+[ 11/417] Compiling libraries/AP_HAL/Device.cpp
+[ 12/417] Compiling libraries/AP_HAL/CANIface.cpp
+[ 13/417] Compiling libraries/AP_HAL/utility/DataRateLimit.cpp
+[ 14/417] Compiling libraries/AP_HAL/utility/utoa_invert.cpp
+[ 15/417] Compiling libraries/AP_HAL/utility/sumd.cpp
+[ 16/417] Compiling libraries/AP_HAL/utility/st24.cpp
+[ 17/417] Compiling libraries/AP_HAL/RCOutput.cpp
+[ 18/417] Compiling libraries/AP_HAL/utility/print_vprintf.cpp
+[ 19/417] Compiling libraries/AP_HAL/utility/dsm.cpp
+[ 20/417] Compiling libraries/AP_HAL/UARTDriver.cpp
+[ 21/417] Compiling libraries/AP_HAL/system.cpp
+[ 22/417] Compiling libraries/AP_HAL/utility/ftoa_engine.cpp
+[ 23/417] Compiling libraries/AP_HAL/utility/getopt_cpp.cpp
+[ 24/417] Compiling libraries/AP_HAL/utility/BetterStream.cpp
+[ 25/417] Compiling libraries/AP_HAL/utility/replace.cpp
+[ 26/417] Compiling libraries/AP_HAL/DSP.cpp
+[ 27/417] Compiling libraries/AP_HAL/utility/RCOutput_Tap_Linux.cpp
+[ 28/417] Compiling libraries/AP_HAL/HAL.cpp
+[ 29/417] Compiling libraries/AP_HAL/Semaphores.cpp
+[ 30/417] Compiling libraries/AP_HAL/utility/RingBuffer.cpp
+[ 31/417] Compiling libraries/AP_HAL/utility/srxl.cpp
+[ 32/417] Compiling libraries/AP_HAL/Util.cpp
+[ 33/417] Compiling libraries/AP_HAL/utility/Socket.cpp
+[ 34/417] Compiling libraries/AP_HAL/GPIO.cpp
+[ 35/417] Compiling libraries/AP_HAL/utility/packetise.cpp
+[ 36/417] Compiling libraries/AP_HAL/Storage.cpp
+[ 37/417] Compiling libraries/AP_HAL/utility/Socket_native.cpp
+[ 38/417] Compiling libraries/AP_HAL_ChibiOS/AnalogIn.cpp
+[ 39/417] Compiling libraries/AP_HAL_ChibiOS/sdcard.cpp
+[ 40/417] Compiling libraries/AP_HAL_ChibiOS/SoftSigReaderInt.cpp
+[ 41/417] Compiling libraries/AP_HAL_ChibiOS/stdio.cpp
+[ 42/417] Compiling libraries/AP_HAL_ChibiOS/shared_dma.cpp
+[ 43/417] Compiling libraries/AP_HAL_ChibiOS/UARTDriver.cpp
+[ 44/417] Compiling libraries/AP_HAL_ChibiOS/Util.cpp
+[ 45/417] Compiling libraries/AP_HAL_ChibiOS/CANFDIface.cpp
+[ 46/417] Compiling libraries/AP_HAL_ChibiOS/WSPIDevice.cpp
+[ 47/417] Compiling libraries/AP_HAL_ChibiOS/RCOutput_iofirmware.cpp
+[ 48/417] Compiling libraries/AP_HAL_ChibiOS/DSP.cpp
+[ 49/417] Compiling libraries/AP_HAL_ChibiOS/SoftSigReader.cpp
+[ 50/417] Compiling libraries/AP_HAL_ChibiOS/Semaphores.cpp
+[ 51/417] Compiling libraries/AP_HAL_ChibiOS/SPIDevice.cpp
+[ 52/417] Compiling libraries/AP_HAL_ChibiOS/Scheduler.cpp
+[ 53/417] Compiling libraries/AP_HAL_ChibiOS/RCOutput_serial.cpp
+[ 54/417] Compiling libraries/AP_HAL_ChibiOS/RCOutput_bdshot.cpp
+[ 55/417] Compiling libraries/AP_HAL_ChibiOS/CanIface.cpp
+[ 56/417] Compiling libraries/AP_HAL_ChibiOS/RCOutput.cpp
+[ 57/417] Compiling libraries/AP_HAL_ChibiOS/RCInput.cpp
+[ 58/417] Compiling libraries/AP_HAL_ChibiOS/Device.cpp
+[ 59/417] Compiling libraries/AP_HAL_ChibiOS/I2CDevice.cpp
+[ 60/417] Compiling libraries/AP_Scripting/AP_Scripting_SerialDevice.cpp
+[ 61/417] Compiling libraries/AP_Scripting/AP_Scripting_CANSensor.cpp
+[ 62/417] Compiling libraries/AP_Scripting/AP_Scripting_SerialAccess.cpp
+[ 63/417] Compiling libraries/AP_Scripting/AP_Scripting.cpp
+[ 64/417] Compiling libraries/AP_Scripting/lua/src/lcorolib.c
+[ 65/417] Compiling libraries/AP_Scripting/lua/src/lparser.c
+[ 66/417] Compiling libraries/AP_Scripting/lua/src/lopcodes.c
+[ 67/417] Compiling libraries/AP_Scripting/lua/src/lobject.c
+[ 68/417] Compiling libraries/AP_Scripting/lua/src/lstring.c
+[ 69/417] Compiling libraries/AP_Scripting/lua/src/lmem.c
+[ 70/417] Compiling libraries/AP_Scripting/lua/src/loadlib.c
+[ 71/417] Compiling libraries/AP_Scripting/lua/src/lmathlib.c
+[ 72/417] Compiling libraries/AP_Scripting/lua/src/llex.c
+[ 73/417] Compiling libraries/AP_Scripting/lua/src/liolib.c
+[ 74/417] Compiling libraries/AP_Scripting/lua/src/linit.c
+[ 75/417] Compiling libraries/AP_Scripting/lua/src/ldump.c
+[ 76/417] Compiling libraries/AP_Scripting/lua/src/lfunc.c
+[ 77/417] Compiling libraries/AP_Scripting/lua/src/ldo.c
+[ 78/417] Compiling libraries/AP_Scripting/lua/src/ldebug.c
+[ 79/417] Compiling libraries/AP_Scripting/lua/src/lstate.c
+[ 80/417] Compiling libraries/AP_Scripting/lua/src/ldblib.c
+[ 81/417] Compiling libraries/AP_Scripting/lua/src/loslib.c
+[ 82/417] Compiling libraries/AP_Scripting/lua/src/lgc.c
+[ 83/417] Compiling libraries/AP_Scripting/lua/src/lctype.c
+[ 84/417] Compiling libraries/AP_Scripting/lua/src/lcode.c
+[ 85/417] Compiling libraries/AP_Scripting/lua/src/lbitlib.c
+[ 86/417] Compiling libraries/AP_Scripting/lua/src/lutf8lib.c
+[ 87/417] Compiling libraries/AP_Scripting/lua/src/lstrlib.c
+[ 88/417] Compiling libraries/AP_Scripting/lua/src/lbaselib.c
+[ 89/417] Compiling libraries/AP_Scripting/lua/src/lapi.c
+[ 90/417] Compiling libraries/AP_Scripting/lua/src/lvm.c
+[ 91/417] Compiling libraries/AP_Scripting/lua/src/lauxlib.c
+[ 92/417] Compiling libraries/AP_Scripting/lua/src/lundump.c
+[ 93/417] Compiling libraries/AP_Scripting/lua/src/lua.c
+[ 94/417] Compiling libraries/AP_Scripting/lua/src/ltable.c
+[ 95/417] Compiling libraries/AP_Scripting/lua/src/luac.c
+[ 96/417] Compiling libraries/AP_Scripting/lua/src/lzio.c
+[ 97/417] Compiling libraries/AP_Scripting/lua/src/ltm.c
+[ 98/417] Compiling libraries/AP_Scripting/lua/src/ltablib.c
+[ 99/417] Compiling libraries/AP_Common/time.cpp
+[100/417] Compiling libraries/AP_Common/float16.cpp
+[101/417] Compiling libraries/AP_Common/AP_FWVersion.cpp
+[102/417] Compiling libraries/AP_Common/sorting.cpp
+[103/417] Compiling libraries/AP_Common/NMEA.cpp
+[104/417] Compiling libraries/AP_Common/ExpandingString.cpp
+[105/417] Compiling libraries/AP_Common/c++.cpp
+[106/417] Compiling libraries/AP_Common/AP_ExpandingArray.cpp
+[107/417] Compiling libraries/AP_Common/Location.cpp
+[108/417] Compiling libraries/AP_Common/AP_Common.cpp
+[109/417] Compiling libraries/AP_Math/matrix3.cpp
+[110/417] Compiling libraries/AP_Math/SplineCurve.cpp
+[111/417] Compiling libraries/AP_Math/chirp.cpp
+[112/417] Compiling libraries/AP_Math/AP_Math.cpp
+[113/417] Compiling libraries/AP_Math/AP_GeodesicGrid.cpp
+[114/417] Compiling libraries/AP_Math/vector3.cpp
+[115/417] Compiling libraries/AP_Math/control.cpp
+[116/417] Compiling libraries/AP_Math/vector2.cpp
+[117/417] Compiling libraries/AP_Math/spline5.cpp
+[118/417] Compiling libraries/AP_Math/quaternion.cpp
+[119/417] Compiling libraries/AP_Math/polyfit.cpp
+[120/417] Compiling libraries/AP_Math/matrixN.cpp
+[121/417] Compiling libraries/AP_Math/crc.cpp
+[122/417] Compiling libraries/AP_Math/matrix_alg.cpp
+[123/417] Compiling libraries/AP_Math/polygon.cpp
+[124/417] Compiling libraries/AP_Math/location.cpp
+[125/417] Compiling libraries/AP_Math/location_double.cpp
+[126/417] Compiling modules/lwip/src/core/altcp_alloc.c
+[127/417] Compiling libraries/AP_Networking/AP_Networking_port.cpp
+[128/417] Compiling libraries/AP_Networking/lwip_hal/arch/evtimer.c
+[129/417] Compiling modules/lwip/src/netif/ppp/mppe.c
+[130/417] Compiling modules/lwip/src/netif/ppp/lcp.c
+[131/417] Compiling modules/lwip/src/netif/ppp/ipv6cp.c
+[132/417] Compiling modules/lwip/src/netif/ppp/ipcp.c
+[133/417] Compiling modules/lwip/src/netif/ppp/fsm.c
+[134/417] Compiling modules/lwip/src/netif/ppp/eui64.c
+[135/417] Compiling modules/lwip/src/netif/ppp/ecp.c
+[136/417] Compiling modules/lwip/src/netif/ppp/eap.c
+[137/417] Compiling modules/lwip/src/netif/ppp/demand.c
+[138/417] Compiling modules/lwip/src/netif/ppp/chap_ms.c
+[139/417] Compiling modules/lwip/src/netif/ppp/chap-new.c
+[140/417] Compiling modules/lwip/src/netif/ppp/magic.c
+[141/417] Compiling modules/lwip/src/netif/ppp/chap-md5.c
+[142/417] Compiling modules/lwip/src/netif/ppp/ccp.c
+[143/417] Compiling modules/lwip/src/netif/ppp/auth.c
+[144/417] Compiling modules/lwip/src/netif/zepif.c
+[145/417] Compiling modules/lwip/src/netif/slipif.c
+[146/417] Compiling modules/lwip/src/netif/lowpan6_ble.c
+[147/417] Compiling modules/lwip/src/netif/lowpan6.c
+[148/417] Compiling modules/lwip/src/netif/bridgeif_fdb.c
+[149/417] Compiling modules/lwip/src/netif/ethernet.c
+[150/417] Compiling modules/lwip/src/netif/lowpan6_common.c
+[151/417] Compiling modules/lwip/src/netif/bridgeif.c
+[152/417] Compiling modules/lwip/src/api/tcpip.c
+[153/417] Compiling modules/lwip/src/api/netifapi.c
+[154/417] Compiling modules/lwip/src/api/netdb.c
+[155/417] Compiling modules/lwip/src/api/netbuf.c
+[156/417] Compiling modules/lwip/src/api/sockets.c
+[157/417] Compiling modules/lwip/src/api/err.c
+[158/417] Compiling modules/lwip/src/api/api_msg.c
+[159/417] Compiling modules/lwip/src/api/if_api.c
+[160/417] Compiling modules/lwip/src/core/ipv4/ip4_frag.c
+[161/417] Compiling modules/lwip/src/api/api_lib.c
+[162/417] Compiling modules/lwip/src/core/ipv4/ip4.c
+[163/417] Compiling modules/lwip/src/core/ipv4/ip4_addr.c
+[164/417] Compiling modules/lwip/src/core/ipv4/icmp.c
+[165/417] Compiling modules/lwip/src/core/ipv4/igmp.c
+[166/417] Compiling modules/lwip/src/core/ipv4/dhcp.c
+[167/417] Compiling modules/lwip/src/core/ipv4/etharp.c
+[168/417] Compiling modules/lwip/src/core/ipv4/autoip.c
+[169/417] Compiling modules/lwip/src/core/ipv4/acd.c
+[170/417] Compiling modules/lwip/src/core/timeouts.c
+[171/417] Compiling modules/lwip/src/core/tcp_out.c
+[172/417] Compiling modules/lwip/src/core/udp.c
+[173/417] Compiling modules/lwip/src/core/tcp_in.c
+[174/417] Compiling modules/lwip/src/core/sys.c
+[175/417] Compiling modules/lwip/src/core/stats.c
+[176/417] Compiling modules/lwip/src/core/tcp.c
+[177/417] Compiling modules/lwip/src/core/raw.c
+[178/417] Compiling modules/lwip/src/core/netif.c
+[179/417] Compiling modules/lwip/src/core/pbuf.c
+[180/417] Compiling modules/lwip/src/core/memp.c
+[181/417] Compiling modules/lwip/src/core/mem.c
+[182/417] Compiling modules/lwip/src/core/init.c
+[183/417] Compiling modules/lwip/src/core/inet_chksum.c
+[184/417] Compiling modules/lwip/src/core/ip.c
+[185/417] Compiling modules/lwip/src/netif/ppp/multilink.c
+[186/417] Compiling modules/lwip/src/core/def.c
+[187/417] Compiling modules/lwip/src/core/altcp_tcp.c
+[188/417] Compiling libraries/AP_Networking/AP_Networking_PPP.cpp
+[189/417] Compiling modules/lwip/src/core/altcp.c
+[190/417] Compiling libraries/AP_Networking/AP_Networking_CAN.cpp
+[191/417] Compiling libraries/AP_Networking/AP_Networking_ChibiOS.cpp
+[192/417] Compiling modules/lwip/src/core/dns.c
+[193/417] Compiling libraries/AP_Networking/AP_Networking_tests.cpp
+[194/417] Compiling libraries/AP_Networking/AP_Networking_address.cpp
+[195/417] Compiling modules/lwip/src/netif/ppp/vj.c
+[196/417] Compiling libraries/AP_Networking/AP_Networking_macaddr.cpp
+[197/417] Compiling libraries/AP_Networking/AP_Networking.cpp
+[198/417] Compiling modules/lwip/src/netif/ppp/utils.c
+[199/417] Compiling libraries/AP_Networking/lwip_hal/arch/sys_arch.cpp
+[200/417] Compiling modules/lwip/src/netif/ppp/upap.c
+[201/417] Compiling modules/lwip/src/netif/ppp/pppol2tp.c
+[202/417] Compiling modules/lwip/src/netif/ppp/ppp.c
+[203/417] Compiling modules/lwip/src/netif/ppp/pppos.c
+[204/417] Compiling modules/lwip/src/netif/ppp/pppoe.c
+[205/417] Compiling modules/lwip/src/netif/ppp/pppcrypt.c
+[206/417] Compiling modules/lwip/src/netif/ppp/pppapi.c
+[207/417] Compiling libraries/AP_ROMFS/tinflate.cpp
+[208/417] Compiling libraries/AP_ROMFS/AP_ROMFS.cpp
+[209/417] Compiling libraries/AP_CheckFirmware/monocypher.cpp
+[210/417] Compiling libraries/AP_CheckFirmware/AP_CheckFirmware_secure_command.cpp
+[211/417] Compiling libraries/AP_CheckFirmware/AP_CheckFirmware.cpp
+[212/417] Compiling libraries/AP_Math/SCurve.cpp
+[213/417] Compiling libraries/AP_HAL/SIMState.cpp
+[214/417] Compiling libraries/AP_HAL_ChibiOS/system.cpp
+[215/417] Compiling libraries/AP_HAL_ChibiOS/Storage.cpp
+[216/417] Compiling libraries/AP_HAL_ChibiOS/HAL_ChibiOS_Class.cpp
+[217/417] Compiling libraries/AP_HAL_ChibiOS/GPIO.cpp
+[218/417] Compiling libraries/AP_Scripting/AP_Scripting_helpers.cpp
+[219/417] Compiling libraries/AP_Scripting/lua_boxed_numerics.cpp
+[220/417] Compiling libraries/AP_Scripting/lua_scripts.cpp
+[221/417] Compiling libraries/AP_Scripting/AP_Scripting_CRSFMenu.cpp
+[222/417] Compiling build/BVMT_PDBex/libraries/AP_Scripting/lua_generated_bindings.cpp
+[223/417] Compiling libraries/AP_Scripting/lua_bindings.cpp
+[224/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.xacti.GimbalAttitudeStatus.c
+[225/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Delete_res.c
+[226/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.StatusMsg2.c
+[227/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.tunnel.Call_req.c
+[228/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.DataTypeKind.c
+[229/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetLED_res.c
+[230/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SelfTest_res.c
+[231/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/mppt.OutputEnable_req.c
+[232/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.navigation.GlobalNavigationSolution.c
+[233/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.tunnel.Broadcast.c
+[234/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.indication.LightsCommand.c
+[235/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.enumeration.Begin_req.c
+[236/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.sensors.hygrometer.Hygrometer.c
+[237/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetAngle_res.c
+[238/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetReportingFrequency_req.c
+[239/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.tunnel.Protocol.c
+[240/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.esc.Status.c
+[241/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.esc.StatusExtended.c
+[242/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.gnss.Auxiliary.c
+[243/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.device.Temperature.c
+[244/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.HardwareVersion.c
+[245/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetLED_req.c
+[246/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.gnss.MovingBaselineData.c
+[247/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.air_data.Sideslip.c
+[248/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.GetTransportStats_req.c
+[249/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.air_data.StaticPressure.c
+[250/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.air_data.RawAirData.c
+[251/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.actuator.Status.c
+[252/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.gnss.Status.c
+[253/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.esc.RPMCommand.c
+[254/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.BeginFirmwareUpdate_req.c
+[255/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.sensors.rpm.RPM.c
+[256/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.System.c
+[257/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.ahrs.RawIMU.c
+[258/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.power.CircuitStatus.c
+[259/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.ahrs.Solution.c
+[260/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetID_req.c
+[261/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.OperatorID.c
+[262/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetDirection_res.c
+[263/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/cuav.equipment.power.CBAT.c
+[264/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.dynamic_node_id.server.RequestVote_res.c
+[265/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetDirection_req.c
+[266/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.param.NumericValue.c
+[267/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.sensors.rc.RCInput.c
+[268/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.tmotor.esc.ParamCfg.c
+[269/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.EntryType.c
+[270/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetAngle_req.c
+[271/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.RestartNode_req.c
+[272/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetBaud_req.c
+[273/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SelfTest_req.c
+[274/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.indication.RGB565.c
+[275/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.RawCommand.c
+[276/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Path.c
+[277/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.GetMajorConfig_res.c
+[278/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.GetMaintenanceInformation_res.c
+[279/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.GetEscID.c
+[280/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Read_res.c
+[281/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.camera_gimbal.Status.c
+[282/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.indication.SafetyState.c
+[283/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.GetMaintenanceInformation_req.c
+[284/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.gnss.RelPosHeading.c
+[285/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.SecureCommand_req.c
+[286/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.equipment.power.BatteryInfoAux.c
+[287/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.equipment.power.BatteryContinuous.c
+[288/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.ice.reciprocating.CylinderStatus.c
+[289/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.himark.servo.ServoCmd.c
+[290/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hex.equipment.flow.Measurement.c
+[291/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.ArmStatus.c
+[292/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.GlobalTimeSync.c
+[293/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/mppt.Stream.c
+[294/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.ahrs.MagneticFieldStrength.c
+[295/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.gnss.Fix.c
+[296/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.Timestamp.c
+[297/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.protocol.GlobalTime.c
+[298/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.GetDirectoryEntryInfo_req.c
+[299/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.Location.c
+[300/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.GetDirectoryEntryInfo_res.c
+[301/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.GetNodeInfo_req.c
+[302/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.camera_gimbal.AngularCommand.c
+[303/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.xacti.GnssStatusReq.c
+[304/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.param.Empty.c
+[305/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.dynamic_node_id.server.Entry.c
+[306/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.power.PrimaryPowerSupplyStatus.c
+[307/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.enumeration.Indication.c
+[308/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.dynamic_node_id.server.AppendEntries_req.c
+[309/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.tmotor.esc.PUSHSCI.c
+[310/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetID_res.c
+[311/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.Panic.c
+[312/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetReportingFrequency_res.c
+[313/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.GetDataTypeInfo_req.c
+[314/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.BeginFirmwareUpdate_res.c
+[315/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.range_sensor.Measurement.c
+[316/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.ice.reciprocating.Status.c
+[317/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetBaud_res.c
+[318/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.gnss.ECEFPositionVelocity.c
+[319/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.gnss.Fix2.c
+[320/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.camera_gimbal.Mode.c
+[321/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.GetMajorConfig_req.c
+[322/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.tunnel.Call_res.c
+[323/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.indication.NotifyState.c
+[324/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.air_data.IndicatedAirspeed.c
+[325/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.equipment.power.BatteryCells.c
+[326/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.sensors.magnetometer.MagneticFieldStrengthHiRes.c
+[327/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.actuator.ArrayCommand.c
+[328/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.equipment.power.BatteryTag.c
+[329/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.BasicID.c
+[330/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.xacti.GnssStatus.c
+[331/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.actuator.Command.c
+[332/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.tmotor.esc.PUSHCAN.c
+[333/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.param.Value.c
+[334/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.indication.Button.c
+[335/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.equipment.trafficmonitor.TrafficReport.c
+[336/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.SoftwareVersion.c
+[337/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.gnss.Heading.c
+[338/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.equipment.power.BatteryPeriodic.c
+[339/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.protocol.CanStats.c
+[340/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.param.GetSet_req.c
+[341/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/ardupilot.equipment.proximity_sensor.Proximity.c
+[342/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.CoarseOrientation.c
+[343/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.protocol.Stats.c
+[344/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.tunnel.SerialConfig.c
+[345/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.power.BatteryInfo.c
+[346/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.hardpoint.Status.c
+[347/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.tunnel.Targetted.c
+[348/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.GetInfo_req.c
+[349/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.GetDataTypeInfo_res.c
+[350/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.camera_gimbal.GEOPOICommand.c
+[351/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.dynamic_node_id.server.RequestVote_req.c
+[352/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.GetInfo_res.c
+[353/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.GetTransportStats_res.c
+[354/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.safety.ArmingStatus.c
+[355/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Read_req.c
+[356/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.indication.SingleLightCommand.c
+[357/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.himark.servo.ServoInfo.c
+[358/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.esc.RawCommand.c
+[359/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.param.ExecuteOpcode_req.c
+[360/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Error.c
+[361/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.ahrs.MagneticFieldStrength2.c
+[362/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.SecureCommand_res.c
+[363/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.volz.servo.ActuatorStatus.c
+[364/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Write_req.c
+[365/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.enumeration.Begin_res.c
+[366/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.param.GetSet_res.c
+[367/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.debug.LogMessage.c
+[368/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.indication.BeepCommand.c
+[369/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.xacti.CopterAttStatus.c
+[370/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Delete_req.c
+[371/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.CANIfaceStats.c
+[372/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.debug.KeyValue.c
+[373/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.hardpoint.Command.c
+[374/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.AccessCommandShell_res.c
+[375/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.air_data.StaticTemperature.c
+[376/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.GetNodeInfo_res.c
+[377/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.param.ExecuteOpcode_res.c
+[378/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.protocol.FlexDebug.c
+[379/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/mppt.OutputEnable_res.c
+[380/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.file.Write_res.c
+[381/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.air_data.TrueAirspeed.c
+[382/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.xacti.GimbalControlData.c
+[383/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.tmotor.esc.ParamGet.c
+[384/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.AccessCommandShell_req.c
+[385/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.debug.LogLevel.c
+[386/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.dynamic_node_id.server.AppendEntries_res.c
+[387/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetThrottleSource_req.c
+[388/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.air_data.AngleOfAttack.c
+[389/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.dynamic_node_id.Allocation.c
+[390/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.StatusMsg3.c
+[391/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.tmotor.esc.FocCtrl.c
+[392/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.dynamic_node_id.server.Discovery.c
+[393/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.StatusMsg1.c
+[394/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.gnss.RTCMStream.c
+[395/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/dronecan.remoteid.SelfID.c
+[396/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.equipment.ice.FuelTankStatus.c
+[397/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.RestartNode_res.c
+[398/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/uavcan.protocol.NodeStatus.c
+[399/417] Compiling build/BVMT_PDBex/modules/DroneCAN/libcanard/dsdlc_generated/src/com.hobbywing.esc.SetThrottleSource_res.c
+[400/417] Compiling modules/DroneCAN/libcanard/canard.c
+[401/417] Compiling Tools/AP_Bootloader/custom.cpp
+[402/417] Compiling Tools/AP_Bootloader/bl_protocol.cpp
+[403/417] Compiling Tools/AP_Bootloader/AP_Bootloader.cpp
+[404/417] Compiling Tools/AP_Bootloader/flash_from_sd.cpp
+[405/417] Compiling Tools/AP_Bootloader/support.cpp
+[406/417] Compiling Tools/AP_Bootloader/md5.cpp
+[407/417] Linking build/BVMT_PDBex/lib/libAP_Bootloader_libs.a
+[408/417] Compiling Tools/AP_Bootloader/network.cpp
+[409/417] Compiling Tools/AP_Bootloader/can.cpp
+[410/417] Compiling modules/DroneCAN/libcanard/canard.c
+[411/417] Linking build/BVMT_PDBex/Tools/AP_Periph/liblibcanard.a
+[412/417] Linking build/BVMT_PDBex/Tools/AP_Bootloader/liblibcanard.a
+[413/417] Linking build/BVMT_PDBex/bootloader/AP_Bootloader
+Waf: Leaving directory `/home/osboxes/ArduPilot/build/BVMT_PDBex'
+Building for BVMT_PDBex
+Running (./waf configure --board BVMT_PDBex --bootloader --no-submodule-update --Werror)
+Running (./waf clean)
+Running (./waf bootloader)
+Build failed: ./waf bootloader
+Failed boards: ['BVMT_PDBex']
+Waf: Entering directory `/home/osboxes/ArduPilot/build/BVMT_PDBex'
+Checking for env.py
+env added AP_PERIPH=1
+env added ENABLE_DFU_BOOT=0
+env added PROCESS_STACK=0x1C00
+env added MAIN_STACK=0x600
+env added IOMCU_FW=0
+env added IOMCU_FW_WITH_HEATER=0
+env added PERIPH_FW=0
+env added HAL_NUM_CAN_IFACES=2
+env added HAL_CANFD_SUPPORTED=0
+env added BOARD_FLASH_SIZE=512
+env added EXT_FLASH_SIZE_MB=0
+env added INT_FLASH_PRIMARY=False
+env added ENABLE_CRASHDUMP=False
+env appended CPU_FLAGS=['-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard']
+env added CORTEX=cortex-m4
+env added APJ_BOARD_ID=3994
+env added APJ_BOARD_TYPE=STM32F412Rx
+env added USBID=0x1209/0x5741
+env added FLASH_RESERVE_START_KB=0
+env added EXT_FLASH_RESERVE_START_KB=0
+env added FLASH_TOTAL=32768
+env added HAS_EXTERNAL_FLASH_SECTIONS=0
+env added CHIBIOS_BUILD_FLAGS=USE_FATFS=no CHIBIOS_STARTUP_MK=os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk CHIBIOS_PLATFORM_MK=os/hal/ports/STM32/STM32F4xx/platform.mk MCU=cortex-m4
+[2/8] Creating build/BVMT_PDBex/modules/ChibiOS/include_dirs
+[6/8] Creating build/BVMT_PDBex/chibios_flags.h
+[8/8] Linking build/BVMT_PDBex/modules/ChibiOS/libch.a
+[1/107] ChibiOS: Compiling crt0_v7m.S
+[2/107] ChibiOS: Compiling vectors.S
+[3/107] ChibiOS: Compiling chcoreasm.S
+[4/107] ChibiOS: Compiling chcore.c
+[5/107] ChibiOS: Compiling crt1.c
+[6/107] ChibiOS: Compiling bufstreams.c
+[7/107] ChibiOS: Compiling chprintf.c
+[8/107] ChibiOS: Compiling chscanf.c
+[9/107] ChibiOS: Compiling memstreams.c
+[10/107] ChibiOS: Compiling nullstreams.c
+[11/107] ChibiOS: Compiling osal.c
+[12/107] ChibiOS: Compiling hal_adc_lld.c
+[13/107] ChibiOS: Compiling hal_can_lld.c
+[14/107] ChibiOS: Compiling hal_crypto_lld.c
+[15/107] ChibiOS: Compiling hal_dac_lld.c
+[16/107] ChibiOS: Compiling stm32_dma.c
+[17/107] ChibiOS: Compiling stm32_exti.c
+[18/107] ChibiOS: Compiling hal_pal_lld.c
+[19/107] ChibiOS: Compiling hal_i2c_lld.c
+[20/107] ChibiOS: Compiling hal_mac_lld.c
+[21/107] ChibiOS: Compiling hal_usb_lld.c
+[22/107] ChibiOS: Compiling hal_wspi_lld.c
+[23/107] ChibiOS: Compiling hal_rtc_lld.c
+[24/107] ChibiOS: Compiling hal_sdc_lld.c
+[25/107] ChibiOS: Compiling hal_i2s_lld.c
+[26/107] ChibiOS: Compiling hal_spi_lld.c
+[27/107] ChibiOS: Compiling hal_st_lld.c
+[28/107] ChibiOS: Compiling hal_eicu_lld.c
+[29/107] ChibiOS: Compiling hal_gpt_lld.c
+[30/107] ChibiOS: Compiling hal_icu_lld.c
+[31/107] ChibiOS: Compiling hal_pwm_lld.c
+[32/107] ChibiOS: Compiling hal_serial_lld.c
+[33/107] ChibiOS: Compiling hal_uart_lld.c
+[34/107] ChibiOS: Compiling hal_wdg_lld.c
+[35/107] ChibiOS: Compiling hal_efl_lld.c
+[36/107] ChibiOS: Compiling hal_lld.c
+[37/107] ChibiOS: Compiling stm32_isr.c
+[38/107] ChibiOS: Compiling nvic.c
+[39/107] ChibiOS: Compiling hal.c
+[40/107] ChibiOS: Compiling hal_adc.c
+[41/107] ChibiOS: Compiling hal_buffers.c
+[42/107] ChibiOS: Compiling hal_can.c
+[43/107] ChibiOS: Compiling hal_crypto.c
+[44/107] ChibiOS: Compiling hal_dac.c
+[45/107] ChibiOS: Compiling hal_efl.c
+[46/107] ChibiOS: Compiling hal_eicu.c
+[47/107] ChibiOS: Compiling hal_flash.c
+[48/107] ChibiOS: Compiling hal_gpt.c
+[49/107] ChibiOS: Compiling hal_i2c.c
+[50/107] ChibiOS: Compiling hal_i2s.c
+[51/107] ChibiOS: Compiling hal_icu.c
+[52/107] ChibiOS: Compiling hal_mac.c
+[53/107] ChibiOS: Compiling hal_mmc_spi.c
+[54/107] ChibiOS: Compiling hal_mmcsd.c
+[55/107] ChibiOS: Compiling hal_pal.c
+[56/107] ChibiOS: Compiling hal_pwm.c
+[57/107] ChibiOS: Compiling hal_queues.c
+[58/107] ChibiOS: Compiling hal_rtc.c
+[59/107] ChibiOS: Compiling hal_sdc.c
+[60/107] ChibiOS: Compiling hal_serial.c
+[61/107] ChibiOS: Compiling hal_serial_usb.c
+[62/107] ChibiOS: Compiling hal_sio.c
+[63/107] ChibiOS: Compiling hal_spi.c
+[64/107] ChibiOS: Compiling hal_st.c
+[65/107] ChibiOS: Compiling hal_trng.c
+[66/107] ChibiOS: Compiling hal_uart.c
+[67/107] ChibiOS: Compiling hal_usb.c
+[68/107] ChibiOS: Compiling hal_wdg.c
+[69/107] ChibiOS: Compiling hal_wspi.c
+[70/107] ChibiOS: Compiling chdelegates.c
+[71/107] ChibiOS: Compiling chfactory.c
+[72/107] ChibiOS: Compiling chmboxes.c
+[73/107] ChibiOS: Compiling chmemcore.c
+[74/107] ChibiOS: Compiling chmemheaps.c
+[75/107] ChibiOS: Compiling chmempools.c
+[76/107] ChibiOS: Compiling chobjcaches.c
+[77/107] ChibiOS: Compiling chpipes.c
+[78/107] ChibiOS: Compiling chcond.c
+[79/107] ChibiOS: Compiling chdebug.c
+[80/107] ChibiOS: Compiling chdynamic.c
+[81/107] ChibiOS: Compiling chevents.c
+[82/107] ChibiOS: Compiling chinstances.c
+[83/107] ChibiOS: Compiling chmsg.c
+[84/107] ChibiOS: Compiling chmtx.c
+[85/107] ChibiOS: Compiling chregistry.c
+[86/107] ChibiOS: Compiling chrfcu.c
+[87/107] ChibiOS: Compiling chschd.c
+[88/107] ChibiOS: Compiling chsem.c
+[89/107] ChibiOS: Compiling chstats.c
+[90/107] ChibiOS: Compiling chsys.c
+[91/107] ChibiOS: Compiling chthreads.c
+[92/107] ChibiOS: Compiling chtm.c
+[93/107] ChibiOS: Compiling chtrace.c
+[94/107] ChibiOS: Compiling chvt.c
+[95/107] ChibiOS: Compiling syscalls.c
+[96/107] ChibiOS: Compiling stubs.c
+[97/107] ChibiOS: Compiling board.c
+[98/107] ChibiOS: Compiling usbcfg.c
+[99/107] ChibiOS: Compiling usbcfg_dualcdc.c
+[100/107] ChibiOS: Compiling usbcfg_common.c
+[101/107] ChibiOS: Compiling flash.c
+[102/107] ChibiOS: Compiling malloc.c
+[103/107] ChibiOS: Compiling hrt.c
+[104/107] ChibiOS: Compiling stm32_util.c
+[105/107] ChibiOS: Compiling bouncebuffer.c
+[106/107] ChibiOS: Compiling watchdog.c
+[107/107] ChibiOS: Compiling ch.cpp
+
+ChibiOS: Done!
+
+Not embedding bootloader; /home/osboxes/ArduPilot/Tools/bootloaders/BVMT_PDBex_bl.bin does not exist
+Generating compile_commands.json
+Build commands will be stored in build/BVMT_PDBex/compile_commands.json
+Generating compile_commands.json
+Build commands will be stored in build/BVMT_PDBex/compile_commands.json
+[412/417] Linking build/BVMT_PDBex/bootloader/AP_Bootloader
+Waf: Leaving directory `/home/osboxes/ArduPilot/build/BVMT_PDBex'

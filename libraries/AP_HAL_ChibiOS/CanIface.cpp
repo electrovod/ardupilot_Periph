@@ -393,7 +393,7 @@ volatile int retc = 0;
         // setup frame initial state
         txi.pushed         = false;
 #ifdef Slow_CAN
-    hal.scheduler->delay( Slow_CAN_Del );        
+    // hal.scheduler->delay( Slow_CAN_Del );        
     #warning ==== Slow_CAN in CANiface !
 #endif          // def Slow_CAN    
 
@@ -998,8 +998,8 @@ bool CANIface::init(const uint32_t bitrate, const CANIface::OperatingMode mode)
     initialised_ = true;
 // GC_Debug:
 // Force "Silent CAN"  pin to Low :
-hal.gpio->pinMode( 70, HAL_GPIO_OUTPUT);
-hal.gpio->write( 70, 0 );
+// hal.gpio->pinMode( 70, HAL_GPIO_OUTPUT);
+// hal.gpio->write( 70, 0 );
 
     return true;
 }

@@ -1,0 +1,139 @@
+# hw definition file for processing by chibios_pins.py
+# hardware repository: https://github.com/ARK-Electronics/ARK_CANNODE
+# Converted by GrayCat from ARK_CANNODE
+
+# MCU class and specific type
+# note: the device is STM32F412CG, not all F412 pins are available
+MCU STM32F4xx STM32F412Rx
+
+# board ID. See Tools/AP_Bootloader/board_types.txt
+APJ_BOARD_ID AP_HW_BVMT_PDBex
+
+env AP_PERIPH 1
+
+# crystal frequency
+OSCILLATOR_HZ 8000000
+
+# ChibiOS system timer
+STM32_ST_USE_TIMER 5
+
+# bootloader starts firmware at 64k
+FLASH_RESERVE_START_KB 64
+
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0
+
+# 512kb flash
+FLASH_SIZE_KB 512
+
+# undef ROMFS
+undef HAL_HAVE_SAFETY_SWITCH
+undef IMU
+undef BOOTLOADER_DEV_LIST
+undef HAL_OS_FATFS_IO
+undef OSD_ENABLED
+undef SDMMC1
+undef AP_PERIPH_GPS_ENABLED
+undef AP_PERIPH_MAG_ENABLED
+undef AP_PERIPH_BARO_ENABLED
+undef AP_PERIPH_AIRSPEED_ENABLED
+undef AP_PERIPH_ADSB_ENABLED
+undef AP_PERIPH_RANGEFINDER_ENABLED
+# later: define AP_PERIPH_RC_OUT_ENABLED
+# undef AP_PERIPH_BATTERY_ENABLED
+
+
+# ====== enable ESC control
+define HAL_SERIAL_ESC_COMM_ENABLED 1
+define HAL_SUPPORT_RCOUT_SERIAL 1
+define HAL_WITH_ESC_TELEM 1
+HAL_WITH_ESC_TELEM 1
+AP_EXTENDED_ESC_TELEM_ENABLED 1
+define AP_EXTENDED_ESC_TELEM_ENABLED 1
+
+define AP_PERIPH_SERIAL_OPTIONS_ENABLED 1
+    # .......... Ser 1 settings:
+define DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
+DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
+SERIAL1_PROTOCOL SerialProtocol_Scripting
+define SERIAL1_PROTOCOL SerialProtocol_Scripting
+define DEFAULT_SERIAL1_BAUD 19200
+define SERIAL1_BAUD 19200
+SERIAL1_BAUD 19200
+
+# order of I2C buses
+I2C_ORDER I2C1
+
+# Bus #0 is "internal":
+define HAL_I2C_INTERNAL_MASK 1
+
+# order of UARTs
+SERIAL_ORDER USART1 
+
+# pin definitions
+# Now we start defining some PWM pins. We also map these pins to GPIO
+# values, so users can set SERVOx_FUNCTION=-1 to determine which
+# PWM outputs on the primary MCU are set up as GPIOs.
+# To match HAL_PX4 we number the GPIOs for the PWM outputs
+# starting at 50.
+PA15  TIM2_CH1 TIM2 PWM(1) GPIO(50) BIDIR
+# Moved:PA1  TIM2_CH2 TIM2 PWM(2) GPIO(51)
+# Moved:  PB10 TIM2_CH3 TIM2 PWM(3) GPIO(52)
+# Moved:PB4  TIM3_CH1 TIM3 PWM(4) GPIO(53) BIDIR
+# Moved:PB5  TIM3_CH2 TIM3 PWM(5) GPIO(54)
+# Moved:PB0  TIM3_CH3 TIM3 PWM(6) GPIO(55)
+# Moved:PB1  TIM3_CH4 TIM3 PWM(7) GPIO(56) BIDIR
+# Moved: PB7  TIM4_CH2 TIM4 PWM(8) GPIO(58) NODMA   # DMA would be shared with I2C
+
+# USART1 :
+PA9  USART1_TX USART1
+PA10 USART1_RX USART1
+
+# USART2 in debug connector
+# .... GC: Not used yet:
+# PA2 USART2_TX USART2
+# PA3 USART2_RX USART2
+
+# LEDs
+PB10 LED_R1 OUTPUT HIGH GPIO(0)
+PB2  LED_B1 OUTPUT HIGH GPIO(2)
+
+define AP_NOTIFY_GPIO_LED_RGB_RED_PIN 0
+define AP_NOTIFY_GPIO_LED_RGB_BLUE_PIN 2
+
+# CAN bus
+define HAL_CAN_DRIVER_DEFAULT 1
+
+PA11 CAN1_RX CAN1
+PA12 CAN1_TX CAN1
+
+PB12 CAN2_RX CAN2
+PB13 CAN2_TX CAN2
+
+# pins for SWD debugging with a STlink or black-magic probe.
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+# store parameters in pages 2 and 3
+# STORAGE_FLASH_PAGE 2
+define HAL_STORAGE_SIZE 4096
+
+# ====== ADC pins
+define HAL_USE_ADC TRUE
+define HAL_WITH_MCU_MONITORING 1
+define STM32_ADC_USE_ADC1 TRUE
+
+# ....  ADC : ..........................................................
+# ------------------ BATTERY Monitor -----------------------
+define AP_PERIPH_BATTERY_ENABLED 1
+undef PB0
+PB0 BATT_VOLTAGE_SENS  ADC1 SCALE(1)
+
+
+# I2C port
+PB6 I2C1_SCL I2C1
+PB7 I2C1_SDA I2C1
+
+define AP_PERIPH_RC_OUT_ENABLED 1
+define AP_PERIPH_NOTIFY_ENABLED 1
+
