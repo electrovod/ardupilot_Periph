@@ -5,8 +5,9 @@
       "type": "apLaunch",
       "request": "launch",
       "target": "AP_Periph",
-      "preLaunchTask": "ardupilot: BVMT_RIO-AP_Periph",
-      "isSITL": false
+      "preLaunchTask": "ardupilot: BVMT_PDBex-AP_Periph-upload",
+      "isSITL": false,
+      "board": "BVMT_PDBex"
     }
   ],
   "version": "0.2.0"

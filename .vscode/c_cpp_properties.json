@@ -10,7 +10,7 @@
             "cStandard": "c11",
             "cppStandard": "gnu++11",
             "intelliSenseMode": "gcc-arm",
-            "compileCommands": "${workspaceFolder}/build/BVMT_RIO/compile_commands.json"
+            "compileCommands": "${workspaceFolder}/build/BVMT_PDBex/compile_commands.json"
         }
     ],
     "version": 4

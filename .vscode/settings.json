@@ -1,5 +1,5 @@
 {
-    "ardupilot.activeConfiguration": "BVMT_RIO-AP_Periph",
+    "ardupilot.activeConfiguration": "BVMT_PDBex-AP_Periph",
     "wscript.elf_file_path": "${workspaceFolder}/build/BVMT_RIO/bin/AP_Periph",
     "wscript.board": "BVMT_RIO"
 }
