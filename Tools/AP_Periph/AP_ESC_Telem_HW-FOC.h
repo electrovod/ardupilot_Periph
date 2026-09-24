@@ -74,19 +74,21 @@ typedef enum MultiSkid_e
                                                                         ///< ...possible: 2-first, intervaled-next.
     msk_Transit,                                                        ///< Unknown by now, transiting
     } MultiSkid_t;
+#endif      //  HAL_WITH_ESC_TELEM
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA62              ///< GrayCat local version
+#define                 GC_Version                  0xAA77              ///< GrayCat local version
 
-#define                 NUM_Telems                  4                   ///< Quantity of Telemetry channels
+#if HAL_WITH_ESC_TELEM
+#define                 NUM_Telems                  1 // 4                   ///< Quantity of Telemetry channels
 
 #define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
-#define                 Use_FOCgen                  1                   ///< Flag whether to use FOC UART Telemetry Generator
+// #define                 Use_FOCgen                  1                   ///< Flag whether to use FOC UART Telemetry Generator
 // #define                 Use_BadCRC_Marker           1                    ///< Flag whether to use Fake Temperatures to indicate CRC errors
 
 // #define                 GC_AlwaysRemap              1                   ///< Flag whether to Always Do Channels Remapping
-#define                 GC_Remap19                  1                   ///< Flag whether to use Ch20...27 => S5...S12 remap
+// #define                 GC_Remap19                  1                   ///< Flag whether to use Ch20...27 => S5...S12 remap
 
 #define                 RC_IndirStartPWM            900                 ///< Starting "PWM-setting" from which RC-remapping begins
 #define                 RC_DisArmedVal              1495                ///< Value for "DisArmed" thumbler

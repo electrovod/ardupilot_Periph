@@ -17,49 +17,61 @@ OSCILLATOR_HZ 8000000
 # ChibiOS system timer
 STM32_ST_USE_TIMER 5
 
-FLASH_RESERVE_START_KB 64
 # two sectors for bootloader, two for storage
-FLASH_BOOTLOADER_LOAD_KB 64
+# tried: FLASH_BOOTLOADER_LOAD_KB 64
+# define HAL_NO_GPIO_IRQ
 
 # bootloader embedding / bootloader flashing not available
-define AP_BOOTLOADER_FLASHING_ENABLED 1
+define AP_BOOTLOADER_FLASHING_ENABLED 0
+
+# ++++++++++++++++++++++++++++++++++ Flash: +++++++++++++++++++++++++++++++
+FLASH_RESERVE_START_KB 0
+# two sectors for bootloader, two for storage
+FLASH_BOOTLOADER_LOAD_KB 64
+# Needed:  HAL_STORAGE_SIZE
+define HAL_STORAGE_SIZE 4096
+
 
 # 512kb flash
 FLASH_SIZE_KB 512
 
-# order of UARTs
-SERIAL_ORDER USART1 
-
-# USART1 : 
-PA9  USART1_TX USART1
-PA10 USART1_RX USART1
-
+# ---------------------------------------------
+# PB2 LED_BOOTLOADER OUTPUT HIGH  # blue
+define HAL_LED_ON 1
 
 # LEDs
-# LED
-# green LED1 marked as B/E
-# blue LED0 marked as ACT
-define AP_NOTIFY_GPIO_LED_2_ENABLED 1
-PB2  LED0 OUTPUT HIGH GPIO(90) # blue
-PB10 LED1 OUTPUT HIGH GPIO(91) # green
-define HAL_GPIO_A_LED_PIN 91
-define HAL_GPIO_B_LED_PIN 90
+PB10 LED_BOOTLOADER OUTPUT HIGH
+PB2 LED_ACTIVITY  OUTPUT LOW
+# define HAL_LED_ON 0
+
+# -----------------
 
 # CAN bus
 define HAL_CAN_DRIVER_DEFAULT 1
 
 PA11 CAN1_RX CAN1
 PA12 CAN1_TX CAN1
+CAN_ORDER 1
 
-PB12 CAN2_RX CAN2
-PB13 CAN2_TX CAN2
 
 # pins for SWD debugging with a STlink or black-magic probe.
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# store parameters in pages 2 and 3
-STORAGE_FLASH_PAGE 2
-define HAL_STORAGE_SIZE 4096
+define HAL_USE_SERIAL FALSE
 
-
+# undef ROMFS
+undef HAL_HAVE_SAFETY_SWITCH
+undef IMU
+# undef BOOTLOADER_DEV_LIST
+undef HAL_OS_FATFS_IO
+undef OSD_ENABLED
+undef SDMMC1
+undef AP_PERIPH_GPS_ENABLED
+undef AP_PERIPH_MAG_ENABLED
+undef AP_PERIPH_BARO_ENABLED
+undef AP_PERIPH_AIRSPEED_ENABLED
+undef AP_PERIPH_ADSB_ENABLED
+undef AP_PERIPH_RANGEFINDER_ENABLED
+# later: define AP_PERIPH_RC_OUT_ENABLED
+# undef AP_PERIPH_BATTERY_ENABLED

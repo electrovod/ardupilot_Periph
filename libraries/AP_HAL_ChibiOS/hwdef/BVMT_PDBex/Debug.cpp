@@ -85,6 +85,26 @@ const struct LogStructure AP_Periph_FW::log_structure[] = {
 void AP_Periph_FW::init()
 {
 
+// GC_Debug:
+// Wave Pin:
+#define WavePin 2
+#define WavePin2 1
+hal.gpio->pinMode( WavePin, HAL_GPIO_OUTPUT);
+hal.gpio->pinMode( WavePin2, HAL_GPIO_OUTPUT);
+hal.gpio->write( WavePin, 1); 
+hal.gpio->write( WavePin2, 1); 
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 0); 
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 1); 
+hal.gpio->write( WavePin2, 0); 
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 0); 
+hal.gpio->write( WavePin2, 1); 
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 1); 
+
+    
     // always run with watchdog enabled. This should have already been
     // setup by the bootloader, but if not then enable now
 #ifndef DISABLE_WATCHDOG
@@ -102,7 +122,23 @@ void AP_Periph_FW::init()
     hal.serial(2)->begin( /* Default: 115200 */ 19200, 128, 256);
 #endif      // ---------- ( 3994 != APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
 
+// GC_Debug:
+// Short Wave Pin:
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin2, 0); 
+hal.scheduler->delay(2);
+hal.gpio->write( WavePin2, 1); 
+hal.scheduler->delay(1);
+
     load_parameters();
+
+// GC_Debug:
+// Short Wave Pin:
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin2, 0); 
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin2, 1); 
+hal.scheduler->delay(1);
 
     stm32_watchdog_pat();
 
@@ -320,6 +356,20 @@ void AP_Periph_FW::init()
     scripting.init();
 #endif
     start_ms = AP_HAL::millis();
+
+// GC_Debug:
+// Wave Pin:
+hal.gpio->pinMode( WavePin, HAL_GPIO_OUTPUT);
+hal.gpio->write( WavePin, 1); 
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 0); 
+hal.scheduler->delay(2);
+hal.gpio->write( WavePin, 1); 
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 0); 
+hal.scheduler->delay(2);
+hal.gpio->write( WavePin, 1); 
+
 }
 
 #if (defined(HAL_PERIPH_NEOPIXEL_COUNT_WITHOUT_NOTIFY) && HAL_PERIPH_NEOPIXEL_COUNT_WITHOUT_NOTIFY == 8) || AP_PERIPH_NOTIFY_ENABLED

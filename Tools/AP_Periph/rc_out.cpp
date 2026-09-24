@@ -47,6 +47,16 @@ extern const AP_HAL::HAL &hal;
 
 void AP_Periph_FW::rcout_init()
 {
+
+// GC_Debug:
+// Wave Pin:
+hal.gpio->pinMode( 1, HAL_GPIO_OUTPUT);
+hal.gpio->write( 1, 1); 
+hal.scheduler->delay(1);
+hal.gpio->write( 1, 0); 
+hal.scheduler->delay(1);
+hal.gpio->write( 1, 1); 
+
 #if AP_PERIPH_SAFETY_SWITCH_ENABLED
     // start up with safety enabled. This disables the pwm output until we receive an packet from the rempte system
     hal.rcout->force_safety_on();
@@ -83,7 +93,9 @@ void AP_Periph_FW::rcout_init()
     rcout_init_1Hz();
 
 // GC_Debug:
-    hal.scheduler->register_io_process(FUNCTOR_BIND_MEMBER(&AP_Periph_FW::tick_rc, void));
+    #if ( 3994 != APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+        hal.scheduler->register_io_process(FUNCTOR_BIND_MEMBER(&AP_Periph_FW::tick_rc, void));
+    #endif  // #if ( 3994 != APJ_BOARD_ID   )
 
 #if HAL_DSHOT_ENABLED
     hal.rcout->set_dshot_esc_type(SRV_Channels::get_dshot_esc_type());
@@ -590,6 +602,7 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
     actuator.mask |= SRV_Channels::get_output_channel_mask(function);
 
     rcout_has_new_data_to_update = true;
+    now_ms = now_ms;
 #if AP_SIM_ENABLED
     sim_update_actuator(actuator_id);
 #endif

@@ -1800,8 +1800,14 @@ HW_FOC_ESC_Telem_t      UART_Telem_In;                                  // Must 
 uint8_t                *UART_Telem_Ptr = (uint8_t *) &UART_Telem_In;
 static int              BufIdx[NUM_Telems];    
 
-static int              Telem_Errs[NUM_Telems] = {0};
-static uint8_t          read_buffer[NUM_Telems][ReadBufSize] = {0};    
+#if NUM_Telems > 0
+    static int              Telem_Errs[NUM_Telems] = {0};
+    static uint8_t          read_buffer[NUM_Telems][ReadBufSize] = {0};    
+#else
+    static int              Telem_Errs[NUM_Telems];
+    static uint8_t          read_buffer[NUM_Telems][ReadBufSize];    
+#endif      // NUM_Telems
+
 static char             wr_buffer[ReadBufSize] = { 0 };
 
 int16_t Convert_FOC2Int( uint8_t RegLow, uint8_t RegHi   )
@@ -1819,6 +1825,7 @@ int16_t Convert_FOC2Int( uint8_t RegLow, uint8_t RegHi   )
  */
 void ReadTelem_N(int Uart_N )
     {
+#if NUM_Telems > 0
     auto                   *uartN = hal.serial( Uart_N+1 );
     static int32_t          LastPackTS[NUM_Telems]; 
     const float             nan = nanf("");
@@ -1953,6 +1960,12 @@ else
                     };      // ---------------- Too long timeout, no data...
                 };      // ---------- UART empty, do Fake-fake if needed:
         };      // -------------------- UART_N OK
+#else       // ----- if      //  NUM_Telems > 0
+    wr_buffer[0] = wr_buffer[0] ;
+    read_buffer[0][0] = read_buffer[0][0] ;
+    Telem_Errs[0] = Telem_Errs[0];
+    BufIdx[0] = BufIdx[0];
+#endif      //  NUM_Telems > 0
     };      // ------------------------------ ReadTelem_N() --------------------------------
 
 /*
@@ -1973,10 +1986,12 @@ void AP_Periph_FW::esc_telem_update()
         };
 
     // GC_Debug by GrayCat:    
+#if 0
     ReadTelem_N( 0 );
     ReadTelem_N( 1 );
     ReadTelem_N( 2 );
     ReadTelem_N( 3 );
+#endif
 
 #ifdef GC_Debug_DirectFake
 int32_t             now_ms = AP_HAL::millis();

@@ -17,19 +17,24 @@ OSCILLATOR_HZ 8000000
 # ChibiOS system timer
 STM32_ST_USE_TIMER 5
 
+# ++++++++++++++++++++++++++++++++++++++++ Flash: ++++++++++++++++
+# store parameters in pages 2 and 3
+STORAGE_FLASH_PAGE 2
+define HAL_STORAGE_SIZE 8192
+
 # bootloader starts firmware at 64k
-# Try without: FLASH_RESERVE_START_KB 64
+FLASH_RESERVE_START_KB 64
 
 # bootloader embedding / bootloader flashing not available
-define AP_BOOTLOADER_FLASHING_ENABLED 1
+define AP_BOOTLOADER_FLASHING_ENABLED 0
 
 # 512kb flash
 FLASH_SIZE_KB 512
 
-undef ROMFS
+# undef ROMFS
 undef HAL_HAVE_SAFETY_SWITCH
 undef IMU
-undef BOOTLOADER_DEV_LIST
+# undef BOOTLOADER_DEV_LIST
 undef HAL_OS_FATFS_IO
 undef OSD_ENABLED
 undef SDMMC1
@@ -39,8 +44,10 @@ undef AP_PERIPH_BARO_ENABLED
 undef AP_PERIPH_AIRSPEED_ENABLED
 undef AP_PERIPH_ADSB_ENABLED
 undef AP_PERIPH_RANGEFINDER_ENABLED
-# later: define AP_PERIPH_RC_OUT_ENABLED
+# later: 
+define AP_PERIPH_RC_OUT_ENABLED 1
 # undef AP_PERIPH_BATTERY_ENABLED
+# 
 AP_PERIPH_BATTERY_ENABLED
 
 
@@ -55,22 +62,10 @@ define AP_EXTENDED_ESC_TELEM_ENABLED 1
 # define AP_PERIPH_SERIAL_OPTIONS_ENABLED 1
 
     # .......... Ser 1 settings:
-define DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
-DEFAULT_SERIAL1_PROTOCOL  SerialProtocol_Scripting
-SERIAL1_PROTOCOL SerialProtocol_Scripting
-define SERIAL1_PROTOCOL SerialProtocol_Scripting
-define DEFAULT_SERIAL1_BAUD 19200
-define SERIAL1_BAUD 19200
-SERIAL1_BAUD 19200
 
-# order of I2C buses
-I2C_ORDER I2C1
-
-# Bus #0 is "internal":
-define HAL_I2C_INTERNAL_MASK 1
-
+define HAL_USE_SERIAL TRUE
 # order of UARTs
-SERIAL_ORDER USART1
+SERIAL_ORDER EMPTY  USART1  
 
 # pin definitions
 # Now we start defining some PWM pins. We also map these pins to GPIO
@@ -84,24 +79,22 @@ PB8  TIM4_CH3 TIM4 PWM(2) GPIO(51)
 PB5  TIM3_CH2 TIM3 PWM(3) GPIO(52)
 PB4  TIM3_CH1 TIM3 PWM(4) GPIO(53)
 
+PA0 EXTERN_GPIO1 OUTPUT GPIO(1) 
+PA1 EXTERN_GPIO2 OUTPUT GPIO(2)
+
 # USART1 :
 PA9  USART1_TX USART1
 PA10 USART1_RX USART1
 
 # USART2 in debug connector
-PA2 USART2_TX USART2
-PA3 USART2_RX USART2
+# PA2 USART2_TX USART2
+# PA3 USART2_RX USART2
 
 # LEDs
-# LED
-# green LED1 marked as B/E
-# blue LED0 marked as ACT
-define AP_NOTIFY_GPIO_LED_2_ENABLED 1
-PB2  LED0 OUTPUT HIGH GPIO(90) # blue
-PB10 LED1 OUTPUT HIGH GPIO(91) # green
-define HAL_GPIO_A_LED_PIN 91
-define HAL_GPIO_B_LED_PIN 90
-
+define HAL_LED_ON 1
+# LEDs
+PB10 LED_BOOTLOADER OUTPUT LOW
+PB2 LED  OUTPUT HIGH
 
 # CAN bus
 define HAL_CAN_DRIVER_DEFAULT 1
@@ -109,33 +102,40 @@ define HAL_CAN_DRIVER_DEFAULT 1
 PA11 CAN1_RX CAN1
 PA12 CAN1_TX CAN1
 
-PB12 CAN2_RX CAN2
-PB13 CAN2_TX CAN2
+# PB12 CAN2_RX CAN2
+# PB13 CAN2_TX CAN2
+
+CAN_ORDER 1 
 
 # pins for SWD debugging with a STlink or black-magic probe.
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# store parameters in pages 2 and 3
-# STORAGE_FLASH_PAGE 2
-define HAL_STORAGE_SIZE 4096
 
 # ====== ADC pins
+# define HAL_USE_ADC FALSE
 define HAL_USE_ADC TRUE
-define HAL_WITH_MCU_MONITORING 1
+# Try, from AI: define STM32_ADC_ADC1_DMA_STREAM STM32_DMA_STREAM_ID(2, 4)
+# define HAL_WITH_MCU_MONITORING 1
 define STM32_ADC_USE_ADC1 TRUE
 
 # ....  ADC : ..........................................................
 # ------------------ BATTERY Monitor -----------------------
-define AP_PERIPH_BATTERY_ENABLED 1
-undef PB0
+# define AP_PERIPH_BATTERY_ENABLED 1
+# undef PB0
 PB0 BATT_VOLTAGE_SENS  ADC1 SCALE(1)
-PB1 BATT2_VOLTAGE_SENS  ADC1 SCALE(1)
+# PB1 BATT2_VOLTAGE_SENS  ADC1 SCALE(1)
+
+# order of I2C buses
+I2C_ORDER I2C1
+
+# Bus #0 is "internal":
+define HAL_I2C_INTERNAL_MASK 1
 
 # I2C port
 PB6 I2C1_SCL I2C1
 PB7 I2C1_SDA I2C1
 
-define AP_PERIPH_RC_OUT_ENABLED 1
-define AP_PERIPH_NOTIFY_ENABLED 1
+# define AP_PERIPH_RC_OUT_ENABLED 1
+# define AP_PERIPH_NOTIFY_ENABLED 1
 
