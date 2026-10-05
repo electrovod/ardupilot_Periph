@@ -26,6 +26,8 @@
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
 
+#include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h"
+
 extern const AP_HAL::HAL& hal;
 
 /// map a function to a servo channel and output it
@@ -783,11 +785,13 @@ float SRV_Channels::get_output_norm(SRV_Channel::Function function)
 void SRV_Channels::set_output_norm(SRV_Channel::Function function, float value)
 {
     if (!function_assigned(function)) {
+
         return;
     }
     for (uint8_t i=0; i<NUM_SERVO_CHANNELS; i++) {
         SRV_Channel &c = channels[i];
         if (c.function == function) {
+
             c.set_output_norm(value);
         }
     }

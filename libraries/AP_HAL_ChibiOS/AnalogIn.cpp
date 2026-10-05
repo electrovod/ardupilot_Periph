@@ -30,6 +30,8 @@ extern AP_IOMCU iomcu;
 
 #include "hwdef/common/stm32_util.h"
 
+#include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h" 
+
 // MAVLink is included as we send a mavlink message as part of debug,
 // and also use the MAV_POWER flags below in update_power_flags
 #include <GCS_MAVLink/GCS_MAVLink.h>
@@ -70,29 +72,45 @@ using namespace ChibiOS;
   scaling table between ADC count and actual input voltage, to account
   for voltage dividers on the board.
  */
-const AnalogIn::pin_info AnalogIn::pin_config[] = { HAL_ANALOG_PINS };
+
+#if HAL_WITH_MCU_MONITORING &&  ( 3994 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+        // internal ADC channels (from F412 reference manual)
+        #define ADC1_VSENSE_CHAN 18
+        #define ADC1_VREFINT_CHAN 17
+        #define HAL_MCU_MONITORING_PINS  {ADC1_VSENSE_CHAN, 253, 3.30/4096}, {ADC1_VREFINT_CHAN, 254, 3.30/4096}
+
+        const AnalogIn::pin_info AnalogIn::pin_config[] = { HAL_ANALOG_PINS  HAL_MCU_MONITORING_PINS  };
+#else       // ++++++++++ Default ADC1:
+    const AnalogIn::pin_info AnalogIn::pin_config[] = { HAL_ANALOG_PINS };
+#endif  // --------- HAL_WITH_MCU_MONITORING && (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+
 
 #ifdef HAL_ANALOG2_PINS
     const AnalogIn::pin_info AnalogIn::pin_config_2[] = { HAL_ANALOG2_PINS };
     #define ADC2_GRP1_NUM_CHANNELS ARRAY_SIZE(AnalogIn::pin_config_2)
 #endif
 
-#if defined(HAL_ANALOG3_PINS) || HAL_WITH_MCU_MONITORING
-#if HAL_WITH_MCU_MONITORING
-    // internal ADC channels (from H7 reference manual)
-    #define ADC3_VSENSE_CHAN 18
-    #define ADC3_VREFINT_CHAN 19
-    #define ADC3_VBAT4_CHAN 17
-    #define HAL_MCU_MONITORING_PINS {ADC3_VBAT4_CHAN, 252, 3.30/4096}, {ADC3_VSENSE_CHAN, 253, 3.30/4096}, {ADC3_VREFINT_CHAN, 254, 3.30/4096}
-#else
-    #define HAL_MCU_MONITORING_PINS
-#endif
-#ifndef HAL_ANALOG3_PINS
-    // #define HAL_ANALOG3_PINS
-#endif
+#if defined(HAL_ANALOG3_PINS) && HAL_WITH_MCU_MONITORING
+    #if HAL_WITH_MCU_MONITORING
+        // internal ADC channels (from H7 reference manual)
+        #define ADC3_VSENSE_CHAN 18
+        #define ADC3_VREFINT_CHAN 19
+        #define ADC3_VBAT4_CHAN 17
+        #define HAL_MCU_MONITORING_PINS {ADC3_VBAT4_CHAN, 252, 3.30/4096}, {ADC3_VSENSE_CHAN, 253, 3.30/4096}, {ADC3_VREFINT_CHAN, 254, 3.30/4096}
+    #else
+        #define HAL_MCU_MONITORING_PINS
+    #endif
+
+    #ifndef HAL_ANALOG3_PINS
+        // #define HAL_ANALOG3_PINS
+    #endif
     // const AnalogIn::pin_info AnalogIn::pin_config_3[] = { HAL_ANALOG3_PINS HAL_MCU_MONITORING_PINS};
     #define ADC3_GRP1_NUM_CHANNELS ARRAY_SIZE(AnalogIn::pin_config_3)
-#endif
+
+// GC_Debug:
+#else       // -+-+- defined(HAL_ANALOG3_PINS) 
+    
+#endif      // -------- defined(HAL_ANALOG3_PINS) 
 
 #define ADC_GRP1_NUM_CHANNELS   ARRAY_SIZE(AnalogIn::pin_config)
 
@@ -444,6 +462,17 @@ void AnalogIn::init()
 #endif
 }
 
+// GC_Debug:
+#if ( 3994 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+void adcSTM32EnableVREF(ADCDriver *adcp) 
+    {
+
+    (void)adcp;
+
+    ADC1_COMMON->CCR |= ADC_CCR_TSVREFE;
+    }
+#endif              // ------------------ ( 3994 == APJ_BOARD_ID   )     
+
 void AnalogIn::setup_adc(uint8_t index)
 {
     uint8_t num_grp_channels = get_num_grp_channels(index);
@@ -520,11 +549,14 @@ void AnalogIn::setup_adc(uint8_t index)
 #endif
 
     adcStart(adcp, NULL);
-#if HAL_WITH_MCU_MONITORING && defined ADCD3
-    if (index == 2) {
-        adcSTM32EnableVREF(&ADCD3);
-        adcSTM32EnableTS(&ADCD3);
-        adcSTM32EnableVBAT(&ADCD3);
+#if HAL_WITH_MCU_MONITORING 
+    if (index == 0) {
+        adcSTM32EnableVREF(&ADCD1);
+// GC_Debug:
+#if ( 3994 != APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+         adcSTM32EnableTS(&ADCD1);
+         adcSTM32EnableVBAT(&ADCD1);
+#endif              // ----------- ( 3994 != APJ_BOARD_ID   )      
     }
 #endif
     memset(&adcgrpcfg[index], 0, sizeof(adcgrpcfg[index]));
@@ -636,7 +668,7 @@ void AnalogIn::read_adc(uint8_t index, uint32_t *val)
     memset(sample_sum[index], 0, sizeof(uint32_t) * num_grp_channels);
     sample_count[index] = 0;
 #if HAL_WITH_MCU_MONITORING
-    if (index == 2) {
+    if (index == 0) {
         // copy the min/max values of vrefint if we are reading ADC3
         if (_mcu_vrefint_min == 0 ||
             _mcu_vrefint_min > min_vrefint) {
@@ -650,8 +682,8 @@ void AnalogIn::read_adc(uint8_t index, uint32_t *val)
         min_vrefint = 0;
         max_vrefint = 0;
         // accumulate temperature and Vcc readings
-        _mcu_monitor_temperature_accum += val[num_grp_channels - 2];
-        _mcu_monitor_voltage_accum += val[num_grp_channels - 1];
+        _mcu_monitor_temperature_accum += val[num_grp_channels - 2  ];
+        _mcu_monitor_voltage_accum += val[ num_grp_channels - 1  ];
         _mcu_monitor_sample_count++;
     }
 #endif
@@ -747,6 +779,83 @@ void AnalogIn::_timer_tick(void)
         hal.scheduler->is_system_initialized()) {
         last_mcu_temp_us = now;
 
+#if ( 3998 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_MUCAN") 
+// GC_Debug:
+            // factory calibration values
+        // const float TS_CAL1 = *((const volatile uint16_t *)0x1FFF75A8);
+        // const float TS_CAL2 = *((const volatile uint16_t *)0x1FFF75CA);
+        const float VREFINT_CAL = *(const volatile uint16_t *)0x1FFF75AA;
+        const float DividerV = ( _mcu_monitor_voltage_accum > 2000) ?  ( VREFINT_CAL/ float( _mcu_monitor_voltage_accum/_mcu_monitor_sample_count) ) : 1.0;
+        const float TS_CAL1 = *((const volatile uint16_t *)0x1FFF75A8) / DividerV;
+        const float TS_CAL2 = *((const volatile uint16_t *)0x1FFF75CA) / DividerV;
+
+        
+        // Default:  _mcu_temperature = ((130 - 30) / (TS_CAL2 - TS_CAL1)) * (float(_mcu_monitor_temperature_accum/_mcu_monitor_sample_count) - TS_CAL1) + 30;
+// GC_Debug:
+// _mcu_temperature = TS_CAL2 - TS_CAL1;
+float Sens_Temp = ( ( float( _mcu_monitor_temperature_accum/_mcu_monitor_sample_count ) - TS_CAL1 ) * ( /* TS_CAL2_TEMP */ 130.0 - /* TS_CAL1_TEMP */ 30.0 )) / ( TS_CAL2 - TS_CAL1 ) + /* TS_CAL1_TEMP */ 30.0;
+_mcu_temperature = Sens_Temp;      // Float!
+
+        // _mcu_voltage = 3.3 * VREFINT_CAL / float((_mcu_monitor_voltage_accum/_mcu_monitor_sample_count)+0.001);
+        _mcu_voltage = 3.0f * VREFINT_CAL/ float( (_mcu_monitor_voltage_accum/_mcu_monitor_sample_count) );
+        _mcu_monitor_voltage_accum = 0;
+        _mcu_monitor_temperature_accum = 0;
+        _mcu_monitor_sample_count = 0;
+
+        // note min/max swap due to inversion
+        _mcu_voltage_min = 3.3 * VREFINT_CAL / float(_mcu_vrefint_max+0.001);
+        _mcu_voltage_max = 3.3 * VREFINT_CAL / float(_mcu_vrefint_min+0.001);
+
+            // ..................... Dallas DS1820 read:
+        hal.gpio->write( 2, 0 );
+        hal.scheduler->delay_microseconds_boost( /* wait_usec */ 50u );
+        hal.gpio->write( 2, 1 );
+
+        hal.gpio->pinMode( 1, HAL_GPIO_OUTPUT );        
+        if ( AP_HAL::millis()  & 0x08)  // --  hal.gpio->read(1) )
+            {            
+            hal.gpio->write( 1, 0 );
+            }
+            else
+                {                
+                hal.gpio->write( 1, 1 );
+                };
+
+
+#else           // Other boards
+
+// GC_Debug:
+#if ( 3994 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+
+// GC_Debug:
+hal.gpio->pinMode( WavePin2, HAL_GPIO_OUTPUT);
+hal.gpio->write( WavePin2, 0 );
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin2, 1 );
+
+            // Define the factory calibration memory address for STM32F412
+        const float VREFINT_CAL = *(const volatile uint16_t *)0x1FFF7A2AU;
+        const float DividerV = ( _mcu_monitor_sample_count >= 2 ) ?  ( VREFINT_CAL/ float( _mcu_monitor_voltage_accum/_mcu_monitor_sample_count) ) : 1.0;
+        const float TS_CAL1 = *((const volatile uint16_t *)0x1FFF7A2C) / DividerV;
+        const float TS_CAL2 = *((const volatile uint16_t *)0x1FFF7A2E) / DividerV;
+
+        
+        // Default:  _mcu_temperature = ((130 - 30) / (TS_CAL2 - TS_CAL1)) * (float(_mcu_monitor_temperature_accum/_mcu_monitor_sample_count) - TS_CAL1) + 30;
+// GC_Debug:
+// _mcu_temperature = TS_CAL2 - TS_CAL1;
+float Sens_Temp = ( ( float( _mcu_monitor_temperature_accum) / float(_mcu_monitor_sample_count ) - TS_CAL1 ) * ( /* TS_CAL2_TEMP */ 130.0 - /* TS_CAL1_TEMP */ 30.0 )) / ( TS_CAL2 - TS_CAL1 ) + /* TS_CAL1_TEMP */ 30.0;
+_mcu_temperature = Sens_Temp;      // Float!
+
+        // 
+        _mcu_voltage = 3.3f * VREFINT_CAL / float((_mcu_monitor_voltage_accum/_mcu_monitor_sample_count)+0.001);
+        // _mcu_voltage = 3.0f * VREFINT_CAL / float( (_mcu_monitor_voltage_accum/_mcu_monitor_sample_count) );
+
+   
+        _mcu_monitor_voltage_accum = 0;
+        _mcu_monitor_temperature_accum = 0;
+        _mcu_monitor_sample_count = 0;
+
+#else       // ------------ #if ( 3994 != APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
         // factory calibration values
         const float TS_CAL1 = *(const volatile uint16_t *)0x1FF1E820;
         const float TS_CAL2 = *(const volatile uint16_t *)0x1FF1E840;
@@ -761,7 +870,8 @@ void AnalogIn::_timer_tick(void)
         // note min/max swap due to inversion
         _mcu_voltage_min = 3.3 * VREFINT_CAL / float(_mcu_vrefint_max+0.001);
         _mcu_voltage_max = 3.3 * VREFINT_CAL / float(_mcu_vrefint_min+0.001);
-        
+#endif          // ------------------  ( 3994 != APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+#endif          // ----  :: (CHIBIOS_BOARD_NAME == "AP_HW_MUCAN")         
         // reset min and max
         _mcu_vrefint_max = 0;
         _mcu_vrefint_min = 0;

@@ -78,10 +78,10 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA77              ///< GrayCat local version
+#define                 GC_Version                  0xAA78              ///< GrayCat local version
 
 #if HAL_WITH_ESC_TELEM
-#define                 NUM_Telems                  1 // 4                   ///< Quantity of Telemetry channels
+#define                 NUM_Telems                  12 // 4                   ///< Quantity of Telemetry channels
 
 #define                 Use_ExtRC                   1                   ///< Flag whether to use RC Extention
 // #define                 Use_FOCgen                  1                   ///< Flag whether to use FOC UART Telemetry Generator
@@ -98,12 +98,17 @@ typedef enum MultiSkid_e
     #define                 RC_IndirCh1                 1                   ///< Number of the first Indirect Channel
     #define                 RC_RemapOfs                 20                  ///< Quantity of channels to shift Servos 1...8 to: #21-#1 = 20
 #else       // testbed from Lastivka:
-    #define                 RC_IndirCh1                 5                   ///< Number of the first Indirect Channel
+    #define                 RC_IndirCh1                 9                   ///< Number of the first Indirect Channel
     #define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
 #endif        // --------- CHIBIOS_BOARD_NAME 
 
 #define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
 #define                 HW_FOC_INTER_PACKET_TO      2                  ///< TimeOut between HW_FOC packets
+
+// GC_Debug:
+// Wave Pin:
+#define WavePin  1                                                      // Debug Pin GPIO(1)
+#define WavePin2 2                                                      // Debug Pin GPIO(2)
 
 // ============================== P R O C E D U R E S : ==========================
 

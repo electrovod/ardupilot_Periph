@@ -163,6 +163,7 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     if (rc == nullptr) 
         return;
 
+    AllZeros = AllZeros;
     const uint8_t channel_count = MIN(num_channels, SERVO_OUT_MOTOR_MAX);
     for (uint8_t i=0; i<channel_count; i++) 
         {
@@ -215,24 +216,7 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
 
 #endif      //  GC_Debug_UART2
         };      // --------- for (uint8_t i=0;)
-    
-    if (0 && ( 0==( AP_HAL::millis() & 0x1F) /* &&  !AllZeros */  ) )
-        {
-        auto    *uart_dbg = hal.serial(7);                // Serial 8
         
-        // GC_Debug:
-        if ( uart_dbg->get_baud_rate() != 19200 )
-            {
-            uart_dbg->end();
-            uart_dbg->begin( /* Default: 115200 */ 19200, /* rxSpace */ 128,  /* txSpace */ 128 );
-            };
-
-        uint16_t FOC_CRC = crc16_ccitt( (const uint8_t *) &HW_FOC_Telem, /* len */ 22, /*  crc_init */ 0 );
-        HW_FOC_Telem.CRC_L = FOC_CRC & 0xFF;
-        HW_FOC_Telem.CRC_H = FOC_CRC >> 8;
-        uart_dbg->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
-        HW_FOC_Telem.PktNum_L += 1 + 0*AllZeros;
-        };
     rcout_has_new_data_to_update = true;
 };      // ---------------------------------- rcout_esc() --------------------------
 
@@ -256,12 +240,11 @@ int         Fired_TS;                                           ///< "Fired" sta
 
 void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_value)
 {
+
 #if HAL_PWM_COUNT > 0
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
 
-// GC_Debug:
-#ifdef Use_ExtRC_UnitLess
-    if ( actuator_id < HAL_PWM_COUNT )
+    if ( actuator_id <= HAL_PWM_COUNT )
         {       // +++++++++++++++++++ Default output:        
         SRV_Channels::set_output_norm(function, command_value);
         }       // ------------------- Default output:
@@ -272,6 +255,9 @@ void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_v
             SRV_Channels::set_output_norm( function_rm, command_value);
             };      // ------------------- GrayCat Extended : remapped Output
 
+// GC_Debug:
+#ifdef Use_ExtRC_UnitLess
+    
 // GC_Debug:
     if ( 15 == actuator_id )
         {       // ............. Process channel_16 as Shifter:
@@ -514,6 +500,20 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
 {
     int32_t                 now_ms = AP_HAL::millis();
 #if HAL_PWM_COUNT > 0
+
+
+hal.gpio->pinMode( WavePin, HAL_GPIO_OUTPUT);
+hal.gpio->pinMode( WavePin2, HAL_GPIO_OUTPUT);
+hal.gpio->write( WavePin, 1);
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 0);
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 1);
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 0);
+hal.scheduler->delay(1);
+hal.gpio->write( WavePin, 1);
+
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
     SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
 

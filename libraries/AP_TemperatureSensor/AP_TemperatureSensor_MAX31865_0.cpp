@@ -27,8 +27,6 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_HAL/utility/sparse-endian.h>
 
-#include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h" 
-
 extern const AP_HAL::HAL &hal;
 
 #define MAX31865_REG_WRITE_ADDR_OFFSET      0x80
@@ -87,14 +85,6 @@ AP_TemperatureSensor_MAX31865::AP_TemperatureSensor_MAX31865(AP_TemperatureSenso
                                                          AP_TemperatureSensor_Params &params) :
     AP_TemperatureSensor_Backend(front, state, params)
 {
-
-// GC_Debug:
-hal.gpio->pinMode( WavePin2, HAL_GPIO_OUTPUT);
-hal.gpio->write( WavePin2, 0);
-hal.scheduler->delay(2);
-hal.gpio->write( WavePin2, 1);
-
-
     AP_Param::setup_object_defaults(this, var_info);
     _state.var_info = var_info;
 }
@@ -127,12 +117,9 @@ void AP_TemperatureSensor_MAX31865::init()
 
     _dev->set_speed(AP_HAL::Device::SPEED_LOW);
 
-// GC_Debug:
-hal.gpio->pinMode( WavePin2, HAL_GPIO_OUTPUT);
-hal.gpio->write( WavePin2, 0);
-hal.scheduler->delay(3);
-hal.gpio->write( WavePin2, 1);
+    _dev->write_register(MAX31865_REG_CONFIG_WRITE, config_register);
 
+    _dev->set_speed(AP_HAL::Device::SPEED_HIGH);
 
     /* Request 5Hz update */
     _dev->register_periodic_callback(200 * AP_USEC_PER_MSEC,
@@ -186,23 +173,17 @@ void AP_TemperatureSensor_MAX31865::thread_tick()
         return;
     }
 
-// GC_Debug:
-hal.gpio->pinMode( WavePin, HAL_GPIO_OUTPUT);
-hal.gpio->write( WavePin, 0);
-hal.scheduler->delay(1);
-hal.gpio->write( WavePin, 1);
-
     uint16_t raw_data;
-    if (!_dev->read_registers( /* MAX31865_REG_DATA_MSB */ 0, (uint8_t *)&raw_data, sizeof(raw_data))) {
+    if (!_dev->read_registers(MAX31865_REG_DATA_MSB, (uint8_t *)&raw_data, sizeof(raw_data))) {
         return;
     }
 
     // 16bit byte swap
-    const uint16_t data = raw_data;     // Tried:  htobe16(raw_data);
-// GC_Debug: MAX6675 :
-    // fault is #2-bit, temperature data is upper 12 bits
-    const bool is_fault = (data & 0x0004 ) != 0;
-    const uint16_t data_temperature = (data >> 3) & 0x0FFF ;
+    const uint16_t data = htobe16(raw_data);
+
+    // fault is LSB bit, temperature data is upper 15 bits
+    const bool is_fault = (data & 0x0001) != 0;
+    const uint16_t data_temperature = data >> 1;
 
     if (is_fault) {
 #if MAX31865_DEBUGGING
@@ -214,19 +195,17 @@ hal.gpio->write( WavePin, 1);
         }
 #endif
         // clear the fault
-        // _dev->write_register(MAX31865_REG_CONFIG_WRITE, config_register);
+        _dev->write_register(MAX31865_REG_CONFIG_WRITE, config_register);
         return;
     }
 
-    // Default:  const float temperature = calculate_temperature(data_temperature);
-    float temperature = data_temperature * 0.25f;
-    // Avoid warning:  temperature = temperature;
+    const float temperature = calculate_temperature(data_temperature);
 
 #if MAX31865_DEBUGGING
     Debug("%d MAX31865 %u -> %.2f C", _state.instance, data_temperature, temperature);
 #endif
 
-    set_temperature( temperature );
+    set_temperature(temperature);
 }
 
 #endif // AP_TEMPERATURE_SENSOR_MAX31865_ENABLED
