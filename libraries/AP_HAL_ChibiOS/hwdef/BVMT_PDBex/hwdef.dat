@@ -17,7 +17,11 @@ OSCILLATOR_HZ 8000000
 # ChibiOS system timer
 STM32_ST_USE_TIMER 5
 
-BRD_BOOT_DELAY 3000 
+BRD_BOOT_DELAY 3000
+define BOOT_DELAY 3000
+BOOT_DELAY 3000
+HAL_DEFAULT_BOOT_DELAY 3000
+define  HAL_DEFAULT_BOOT_DELAY 3000
 
 # ++++++++++++++++++++++++++++++++++++++++ Flash: ++++++++++++++++
 # store parameters in pages 2 and 3
@@ -55,6 +59,7 @@ define AP_PERIPH_BATTERY_ENABLED 1
 
 # ======= Temperature:
 define AP_PERIPH_DEVICE_TEMPERATURE_ENABLED 1
+AP_PERIPH_DEVICE_TEMPERATURE_ENABLED 1
 # ..... Set up Pins for  SPI3
 PC10 SPI3_SCK SPI3
 PC11 SPI3_MISO SPI3
@@ -135,6 +140,7 @@ PB12 CAN2_RX CAN2
 PB13 CAN2_TX CAN2
 
 CAN_ORDER 1 2
+define HAL_PERIPH_CAN_MIRROR 1
 
 # pins for SWD debugging with a STlink or black-magic probe.
 PA13 JTMS-SWDIO SWD
