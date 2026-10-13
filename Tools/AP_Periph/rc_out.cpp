@@ -109,9 +109,7 @@ HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packe
 /// ::  Called from rcout_update() 
 void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
     {
-    auto    *uart2 = hal.serial(2);
     #define ReadBufSize 64                
-    int     AllZeros = 1;
 
     if (rc == nullptr) 
         return;
@@ -121,59 +119,9 @@ void AP_Periph_FW::rcout_esc(int16_t *rc, uint8_t num_channels)
         {
         // we don't support motor reversal yet on ESCs in AP_Periph
         SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), MAX(0,rc[i]));
-// GC_Debug:
-#ifndef GC_Debug_UART2
-         // ::  rc[i] :: [-8192, 8191]
-        if ( 2 == i)
-            {                
-            if ( rc[i]) AllZeros = 0;
-            rc[i] /= 10;                                            // Correct for DroneCAN_GUI multiplier
-            HW_FOC_Telem.eRPM_H = rc[i] >> 8;
-            HW_FOC_Telem.eRPM_L = rc[i] & 0xFF;
-            };      // ---------- if ( 2 == i)
-        
-        // AP_ESC_Telem_Backend::TelemetryData tdata {};
-
-        if ( 0 == i)
-            {
-// GC_Debug:
-            // int OldPWM =  SRV_Channels::srv_channel(0)->get_output_pwm();
-            // SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), 20 );
-            // SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 0 ,  /* uint16_t value */ /*  OldPWM+1 */ (rc[i] & 0x3FFF) );
-            int16_t NewVal = rc[i] & 0x3FFF;
-            HW_FOC_Telem.iVolt_L = NewVal & 0xFF;
-            HW_FOC_Telem.iVolt_H = NewVal / 256;
-            if ( rc[i]) AllZeros = 0;
-            };
-        if ( 1 == i)
-            {            
-#if 1
-            if ( rc[i]) AllZeros = 0;
-            int16_t NewVal = rc[i] & 0x3FFF;
-            // SRV_Channels::set_output_pwm_chan( /* uint8_t chan */ 1 ,  /* uint16_t value */ NewVal );
-            HW_FOC_Telem.iCurr_L = NewVal & 0xFF;
-            HW_FOC_Telem.iCurr_H = NewVal >> 8;            
-#else
-            // rc[i] = HW_FOC_Telem.PktNum_L * 32;
-            HW_FOC_Telem.iCurr_H = rc[i] / 256;
-            HW_FOC_Telem.iCurr_L = rc[i] & 0xFF;
-#endif            
-            };
-        if ( 3 == i)
-            {            
-            HW_FOC_Telem.mTemp = rc[i] & 0xFF;
-            HW_FOC_Telem.cTemp = (rc[i] + 17) >> 6;
-            if ( rc[i]) AllZeros = 0;
-            };
-
-#endif      //  GC_Debug_UART2
         };      // --------- for (uint8_t i=0;)
     
-    if ( !AllZeros )
-        {
-        uart2->write( (const uint8_t*) &HW_FOC_Telem, /* len */ sizeof(HW_FOC_Telem) );
-        HW_FOC_Telem.PktNum_L++;
-        };
+
     rcout_has_new_data_to_update = true;
 }
 

@@ -5,6 +5,9 @@
 #include <SRV_Channel/SRV_Channel_config.h>
 // #include "AP_ESC_Telem_Backend.h"
 
+#define                 GC_Version                  0xAA99              ///< GrayCat local version
+
+
 #if HAL_WITH_ESC_TELEM
 
 #ifndef ESC_TELEM_MAX_ESCS
@@ -18,7 +21,7 @@
 
 // Example:  9B 16 01 02 33 3B 00 87 00 87 04 10 01 CB 00 03 00 23 D2 D2 00 00 DA 04
 
-MAVPACKED(
+// MAVPACKED(
     typedef struct HW_FOC_ESC_Telem_s 
         {
         uint8_t     Head;                                           ///< Header
@@ -45,14 +48,16 @@ MAVPACKED(
         uint8_t     Status_L;                                       ///< Status code -- low, see masks
         uint8_t     CRC_L;                                          ///< LOW  byte of CRC -- Little-Endian here!
         uint8_t     CRC_H;                                          ///< HIGH byte of CRC -- Little-Endian here!
-        })  HW_FOC_ESC_Telem_t;
+        }  HW_FOC_ESC_Telem_t;
 
-MAVPACKED(
+// MAVPACKED(
     typedef struct ADC_2_Temp_s
     {
         uint8_t     ADC_Val;
         uint8_t     Temp_Val;
-    } )  ADC_2_Temp_t;
+    }   ADC_2_Temp_t;
+
+
 
 // ============================== P R O C E D U R E S : ==========================
 
@@ -60,3 +65,8 @@ MAVPACKED(
 int FOC_temp_decode(int temp_raw);
 
 #endif // HAL_WITH_ESC_TELEM
+
+// GC_Debug:
+// Wave Pin:
+#define WavePin  1                                                      // Debug Pin GPIO(1)
+#define WavePin2 2                                                      // Debug Pin GPIO(2)

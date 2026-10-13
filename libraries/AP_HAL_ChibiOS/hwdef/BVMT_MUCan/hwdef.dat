@@ -24,7 +24,6 @@ define HAL_USE_SERIAL TRUE
 
 #  --------------------- PWM -----------------------
 undef   PB10 
-PB10  TIM2_CH3   TIM2 PWM(1) 
 PA8   TIM1_CH1   TIM1 PWM(2) GPIO(51)
 PA9   TIM1_CH2   TIM1 PWM(3) GPIO(52)
 # PA10  TIM1_CH3  TIM1 PWM(3) GPIO(52)
@@ -37,35 +36,64 @@ BRD_SAFETY_MASK 15
 PA6   TIM16_CH1 TIM16 GPIO(32) ALARM
 
 # ---------------------- COMPASS ---------------------------
-define AP_PERIPH_MAG_ENABLED 1
+define AP_PERIPH_MAG_ENABLED 0
 
-SPIDEV  rm3100 SPI1 DEVID1   MAG_CS MODE0  1*MHZ  1*MHZ
-COMPASS RM3100 SPI:rm3100 false ROTATION_PITCH_180
+define HAL_COMPASS_MAX_SENSORS 0
 
-define HAL_COMPASS_MAX_SENSORS 1
 
-# added QMC5883L for different board varients
-# COMPASS QMC5883L I2C:0:0xd false ROTATION_PITCH_180_YAW_90
-define AP_PERIPH_MAG_MAX_RATE 3
+# ======= Temperature:
+define AP_PERIPH_DEVICE_TEMPERATURE_ENABLED 1
+AP_PERIPH_DEVICE_TEMPERATURE_ENABLED 1
+# ..... Set up Pins for  SPI1
+# Already defined in Include: PA5 SPI1_SCK SPI1
+# Already defined in Include: PB4 SPI1_MISO SPI1
+undef PA4
+# .... Set up  Chip Select (CS) for MAX6675:
+undef PB10
+PB10 MAX6675_CS CS
+define AP_TEMPERATURE_SENSOR_ENABLED 1
+define AP_TEMPERATURE_SENSOR_MAX31865_ENABLED 1
 
-# -------------------- Buzzer+NeoPixels --------------d------
-define AP_PERIPH_RC_OUT_ENABLED 1
-define AP_PERIPH_NOTIFY_ENABLED 1
-define AP_SERIALLED_ENABLED 1
+#  Definition of programmatic  SPI-device for ArduPilot
+SPIDEV max31865 SPI1 DEVID1 MAX6675_CS MODE0  100*KHZ 100*KHZ
+
+# -------------------- Buzzer+NeoPixels --------------------
 
 # ======== by GrayCat: ================
-define HAL_USE_ADC FALSE
+
+AP_PERIPH_BATTERY_ENABLED
+define AP_PERIPH_BATTERY_ENABLED 1
+# :: 29 == Scripting
+define HAL_BATT_MONITOR_DEFAULT 29
+
+# ====== ADC pins
+define HAL_USE_ADC TRUE
+undef  HAL_ANALOG3_PINS
+define HAL_WITH_MCU_MONITORING 1
+define STM32_ADC_USE_ADC1 TRUE
+
+# ....  ADC : ..........................................................
+# ------------------ BATTERY Monitor -----------------------
+define AP_PERIPH_BATTERY_ENABLED 1
+# undef PB0
+PB0 BATT_VOLTAGE_SENS  ADC1 SCALE(1)
+PB1 BATT_CURRENT_SENS  ADC1 SCALE(1)
+define HAL_BATT_VOLT_PIN 15
+define HAL_BATT_CURR_PIN 16
+define HAL_BATT_VOLT_SCALE 1.0
+define HAL_BATT_CURR_SCALE 1.0
+
+
 undef DEFAULT_SERIAL2_PROTOCOL 
-
 define BOOTLOADER_BAUDRATE 19200
-
-define ESC_TELEM_MAX_ESCS 4
+# define ESC_TELEM_MAX_ESCS 15
 
 # enable ESC control
-define HAL_SERIAL_ESC_COMM_ENABLED 1
+# define AP_PERIPH_RC_OUT_ENABLED 1
+# define HAL_SERIAL_ESC_COMM_ENABLED 1
 # define HAL_SUPPORT_RCOUT_SERIAL 1
-define HAL_WITH_ESC_TELEM 1
-OUT_BLH_BDMASK 15
+#  define HAL_WITH_ESC_TELEM 1
+# OUT_BLH_BDMASK 0
 
 define AP_PERIPH_SERIAL_OPTIONS_ENABLED 1
 
@@ -88,24 +116,24 @@ define DEFAULT_SERIAL2_BAUD 19200
 define SERIAL2_BAUD 19200
 SERIAL2_BAUD 19200
 
-# enable Serial3 port with DMA
-# undef PB10
-# PB10  USART3_TX USART3 SPEED_HIGH
+# AP_EXTENDED_ESC_TELEM_ENABLED 1
+# define AP_EXTENDED_ESC_TELEM_ENABLED 1
 
-undef PC4 
-PC4   USART3_TX USART3 SPEED_HIGH
+# .... Debug pins:
+PA0 EXTERN_GPIO1 OUTPUT GPIO(1)
+PA1 EXTERN_GPIO2 OUTPUT GPIO(2)
 
-undef PB11
-PB11  USART3_RX USART3 SPEED_HIGH
-define DEFAULT_SERIAL3_BAUD 19200
-# SERIAL3_PROTOCOL SerialProtocol_ESCTelemetry
-5SERIAL3_BAUD 19200
+# RM3100 DIS-able:
+PA4 EXTERN_GPIO3 OUTPUT GPIO(3) HIGH
 
-define DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
-DEFAULT_SERIAL3_PROTOCOL  SerialProtocol_Scripting
-SERIAL3_PROTOCOL SerialProtocol_Scripting
-define SERIAL3_PROTOCOL SerialProtocol_Scripting
+# BARO
+define AP_PERIPH_BARO_ENABLED 1
+define BARO_MAX_INSTANCES 1
 
-AP_EXTENDED_ESC_TELEM_ENABLED 1
-define AP_EXTENDED_ESC_TELEM_ENABLED 1
+# =========== AirSpeed emulation:
+define AP_PERIPH_AIRSPEED_ENABLED 1
+
+# Types: "20"==Scripting;
+define HAL_AIRSPEED_TYPE_DEFAULT 20
+define AIRSPEED_MAX_SENSORS 1
 

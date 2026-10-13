@@ -20,7 +20,7 @@ extern const AP_HAL::HAL &hal;
 void AP_Periph_FW::can_battery_update(void)
 {
     const uint32_t now_ms = AP_HAL::millis();
-    if (now_ms - battery.last_can_send_ms < 100) {
+    if (now_ms - battery.last_can_send_ms < 500) {
         return;
     }
     battery.last_can_send_ms = now_ms;
@@ -31,10 +31,12 @@ void AP_Periph_FW::can_battery_update(void)
             // do not transmit this battery
             continue;
         }
+// GC_Debug:
+#if 0
         if (!battery_lib.healthy(i)) {
             continue;
         }
-
+#endif
         uavcan_equipment_power_BatteryInfo pkt {};
 
         // if a battery serial number is assigned, use that as the ID. Else, use the index.
@@ -47,11 +49,17 @@ void AP_Periph_FW::can_battery_update(void)
         if (battery_lib.current_amps(current, i)) {
             pkt.current = current;
         }
-        float temperature;
-        if (battery_lib.get_temperature(temperature, i)) {
+
+        // float temperature;
+// GC_Debug:
+        // if (battery_lib.get_temperature(temperature, i)) {
+// GC_Debug:
+    float temp_deg = 0.0;
+    if ( periph.temperature_sensor.get_temperature(temp_deg, /* index */ 0 )   ) 
+        {
             // Battery lib reports temperature in Celsius.
             // Convert Celsius to Kelvin for transmission on CAN.
-            pkt.temperature = C_TO_KELVIN(temperature);
+            pkt.temperature = C_TO_KELVIN(temp_deg);
         }
 
         // Populate state of health

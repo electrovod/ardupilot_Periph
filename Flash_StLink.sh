@@ -5,9 +5,10 @@
 
 # xfce4-terminal --command="/usr/local/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32CubeProgrammer" 
 
-/usr/local/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer.sh  -c port=SWD reset=HWrst mode=UR  -w $1 -run
+/usr/local/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer.sh  -c port=SWD reset=HWrst mode=UR   -w $1 -run
 
 # -vb 3  : Verbose
+# -e all : Erase All
 
 echo -e "\7 ==== Done ===="
 
