@@ -1738,6 +1738,7 @@ void AP_Periph_FW::can_start()
     if (user_set_node_id != CANARD_BROADCAST_NODE_ID) {
         canardSetLocalNodeID(&dronecan.canard, user_set_node_id);
     }
+    hal.scheduler->delay(1000);
 }
 
 

@@ -20,12 +20,12 @@ extern const AP_HAL::HAL &hal;
 void AP_Periph_FW::can_battery_update(void)
 {
     const uint32_t now_ms = AP_HAL::millis();
-    if (now_ms - battery.last_can_send_ms < 500) {
+    if ( ( (now_ms - battery.last_can_send_ms) & 0x7FFFFFFF) < 500) {
         return;
     }
     battery.last_can_send_ms = now_ms;
 
-    const uint8_t battery_instances = battery_lib.num_instances();
+    const uint8_t battery_instances = 1 ;     // Was:  battery_lib.num_instances();
     for (uint8_t i=0; i<battery_instances; i++) {
         if (BIT_IS_SET(g.battery_hide_mask, i)) {
             // do not transmit this battery
@@ -94,7 +94,11 @@ void AP_Periph_FW::can_battery_update(void)
         if (battery_lib.has_cell_voltages(i)) {
             can_battery_send_cells(i);
         }
-    }
+    
+    };      // ---------------- battery_instances
+
+
+
 }
 
 /*
