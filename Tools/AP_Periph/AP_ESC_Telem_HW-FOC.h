@@ -5,7 +5,7 @@
 #include <SRV_Channel/SRV_Channel_config.h>
 // #include "AP_ESC_Telem_Backend.h"
 
-#define                 GC_Version                  0xAA9C              ///< GrayCat local version
+#define                 GC_Version                  0xAA9D              ///< GrayCat local version
 
 
 #if HAL_WITH_ESC_TELEM

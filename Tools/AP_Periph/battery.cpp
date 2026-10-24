@@ -97,7 +97,31 @@ void AP_Periph_FW::can_battery_update(void)
     
     };      // ---------------- battery_instances
 
+// GC_Debug:
+    {       // +++++++++++++++++++++++++ Transmit Bare Temperature:
+    uavcan_equipment_device_Temperature pkt {};
+    float temp_deg = 3.0;
+    if ( periph.temperature_sensor.get_temperature(temp_deg, /* index */ 0 )   ) 
+        {
+            // Battery lib reports temperature in Celsius.
+            // Convert Celsius to Kelvin for transmission on CAN.
+            pkt.temperature = C_TO_KELVIN(temp_deg);
+        }
+    pkt.temperature = C_TO_KELVIN(temp_deg);
 
+    // Use source ID from temperature lib
+    pkt.device_id = 3;   // temperature_sensor.get_source_id(index);
+
+    uint8_t buffer[UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_MAX_SIZE];
+    const uint16_t total_size = uavcan_equipment_device_Temperature_encode(&pkt, buffer, !canfdout());
+
+    canard_broadcast(UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_SIGNATURE,
+                        UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ID,
+                        CANARD_TRANSFER_PRIORITY_LOW,
+                        &buffer[0],
+                        total_size);
+
+    }
 
 }
 
