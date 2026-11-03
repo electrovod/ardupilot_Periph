@@ -20,21 +20,23 @@ extern const AP_HAL::HAL &hal;
 void AP_Periph_FW::can_battery_update(void)
 {
     const uint32_t now_ms = AP_HAL::millis();
-    if (now_ms - battery.last_can_send_ms < /* Default: 100 , GC_Debug: */ 1000 ) {
+    if ( ( (now_ms - battery.last_can_send_ms) & 0x7FFFFFFF) < 500) {
         return;
     }
     battery.last_can_send_ms = now_ms;
 
-    const uint8_t battery_instances = battery_lib.num_instances();
+    const uint8_t battery_instances = 1 ;     // Was:  battery_lib.num_instances();
     for (uint8_t i=0; i<battery_instances; i++) {
         if (BIT_IS_SET(g.battery_hide_mask, i)) {
             // do not transmit this battery
             continue;
         }
+// GC_Debug:
+#if 0
         if (!battery_lib.healthy(i)) {
             continue;
         }
-
+#endif
         uavcan_equipment_power_BatteryInfo pkt {};
 
         // if a battery serial number is assigned, use that as the ID. Else, use the index.
@@ -47,11 +49,17 @@ void AP_Periph_FW::can_battery_update(void)
         if (battery_lib.current_amps(current, i)) {
             pkt.current = current;
         }
-        float temperature;
-        if (battery_lib.get_temperature(temperature, i)) {
+
+        // float temperature;
+// GC_Debug:
+        // if (battery_lib.get_temperature(temperature, i)) {
+// GC_Debug:
+    float temp_deg = 0.0;
+    if ( periph.temperature_sensor.get_temperature(temp_deg, /* index */ 0 )   ) 
+        {
             // Battery lib reports temperature in Celsius.
             // Convert Celsius to Kelvin for transmission on CAN.
-            pkt.temperature = C_TO_KELVIN(temperature);
+            pkt.temperature = C_TO_KELVIN(temp_deg);
         }
 
         // Populate state of health
@@ -86,7 +94,35 @@ void AP_Periph_FW::can_battery_update(void)
         if (battery_lib.has_cell_voltages(i)) {
             can_battery_send_cells(i);
         }
+    
+    };      // ---------------- battery_instances
+
+// GC_Debug:
+    {       // +++++++++++++++++++++++++ Transmit Bare Temperature:
+    uavcan_equipment_device_Temperature pkt {};
+    float temp_deg =  hal.analogin->mcu_temperature();      //   3.0;
+    if ( periph.temperature_sensor.get_temperature(temp_deg, /* index */ 0 )   ) 
+        {
+            // Battery lib reports temperature in Celsius.
+            // Convert Celsius to Kelvin for transmission on CAN.
+            pkt.temperature = C_TO_KELVIN(temp_deg);
+        }
+    pkt.temperature = C_TO_KELVIN(temp_deg);
+
+    // Use source ID from temperature lib
+    pkt.device_id = 3;   // temperature_sensor.get_source_id(index);
+
+    uint8_t buffer[UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_MAX_SIZE];
+    const uint16_t total_size = uavcan_equipment_device_Temperature_encode(&pkt, buffer, !canfdout());
+
+    canard_broadcast(UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_SIGNATURE,
+                        UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ID,
+                        CANARD_TRANSFER_PRIORITY_LOW,
+                        &buffer[0],
+                        total_size);
+
     }
+
 }
 
 /*

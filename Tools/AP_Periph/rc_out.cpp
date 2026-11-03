@@ -501,19 +501,6 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
     int32_t                 now_ms = AP_HAL::millis();
 #if HAL_PWM_COUNT > 0
 
-
-hal.gpio->pinMode( WavePin, HAL_GPIO_OUTPUT);
-hal.gpio->pinMode( WavePin2, HAL_GPIO_OUTPUT);
-hal.gpio->write( WavePin, 1);
-hal.scheduler->delay(1);
-hal.gpio->write( WavePin, 0);
-hal.scheduler->delay(1);
-hal.gpio->write( WavePin, 1);
-hal.scheduler->delay(1);
-hal.gpio->write( WavePin, 0);
-hal.scheduler->delay(1);
-hal.gpio->write( WavePin, 1);
-
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
     SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
 

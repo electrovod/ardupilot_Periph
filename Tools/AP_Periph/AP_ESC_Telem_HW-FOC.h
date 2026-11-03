@@ -78,7 +78,7 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA78              ///< GrayCat local version
+#define                 GC_Version                  0xAA7E              ///< GrayCat local version
 
 #if HAL_WITH_ESC_TELEM
 #define                 NUM_Telems                  12 // 4                   ///< Quantity of Telemetry channels
@@ -87,8 +87,8 @@ typedef enum MultiSkid_e
 // #define                 Use_FOCgen                  1                   ///< Flag whether to use FOC UART Telemetry Generator
 // #define                 Use_BadCRC_Marker           1                    ///< Flag whether to use Fake Temperatures to indicate CRC errors
 
-// #define                 GC_AlwaysRemap              1                   ///< Flag whether to Always Do Channels Remapping
-// #define                 GC_Remap19                  1                   ///< Flag whether to use Ch20...27 => S5...S12 remap
+#define                 GC_AlwaysRemap              1                   ///< Flag whether to Always Do Channels Remapping
+#define                 GC_Remap19                  1                   ///< Flag whether to use Ch20...27 => S5...S12 remap
 
 #define                 RC_IndirStartPWM            900                 ///< Starting "PWM-setting" from which RC-remapping begins
 #define                 RC_DisArmedVal              1495                ///< Value for "DisArmed" thumbler
@@ -98,8 +98,13 @@ typedef enum MultiSkid_e
     #define                 RC_IndirCh1                 1                   ///< Number of the first Indirect Channel
     #define                 RC_RemapOfs                 20                  ///< Quantity of channels to shift Servos 1...8 to: #21-#1 = 20
 #else       // testbed from Lastivka:
-    #define                 RC_IndirCh1                 9                   ///< Number of the first Indirect Channel
-    #define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
+    #if ( 3994 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
+        #define                 RC_IndirCh1                 1                   ///< Number of the first Indirect Channel
+        #define                 RC_RemapOfs                 20                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
+    #else   // +++++ Not AP_HW_BVMT_PDBex :
+        #define                 RC_IndirCh1                 9                   ///< Number of the first Indirect Channel
+        #define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
+    #endif  // AP_HW_BVMT_PDBex
 #endif        // --------- CHIBIOS_BOARD_NAME 
 
 #define                 ReadBufSize                 64                 ///< Size of the intermediate buffer
