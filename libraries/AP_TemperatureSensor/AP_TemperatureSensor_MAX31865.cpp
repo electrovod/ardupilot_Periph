@@ -27,7 +27,13 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_HAL/utility/sparse-endian.h>
 
+// GC_Debug:
 #include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h" 
+
+#define     TempBuffer_Size                 16               ///< Size of the Buffer for averaging
+uint16_t    TempBuffer[ TempBuffer_Size ]   = {0};          ///< Buffer for averaging
+uint8_t     tBufIdx = 0;                                    ///< Current index into buffer
+bool        Temp_Good = false;
 
 extern const AP_HAL::HAL &hal;
 
@@ -207,15 +213,25 @@ void AP_TemperatureSensor_MAX31865::thread_tick()
         return;
     }
 
+    TempBuffer[ tBufIdx++ ] = data_temperature;                                       // Store for averaging,...
+    if ( TempBuffer_Size == tBufIdx )                                             // Last element?...        
+        Temp_Good = true;
+    tBufIdx = (tBufIdx) % TempBuffer_Size;                                        // Advance buffer
+
+    float temperature = 0.0;                                                        // Init accumulator
+    for ( int bcnt=0; bcnt < TempBuffer_Size; bcnt++ )
+        {
+        temperature += TempBuffer[ bcnt ];
+        }
+
     // Default:  const float temperature = calculate_temperature(data_temperature);
-    float temperature = data_temperature * 0.25f;
-    // Avoid warning:  temperature = temperature;
+    temperature = temperature *  ( 0.25f * (1.0f / TempBuffer_Size) );
 
 #if MAX31865_DEBUGGING
     Debug("%d MAX31865 %u -> %.2f C", _state.instance, data_temperature, temperature);
 #endif
-
-    set_temperature( temperature );
+    if (Temp_Good)
+        set_temperature( temperature );
 }
 
 #endif // AP_TEMPERATURE_SENSOR_MAX31865_ENABLED

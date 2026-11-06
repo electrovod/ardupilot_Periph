@@ -61,6 +61,8 @@ void AP_Periph_FW::can_battery_update(void)
             // Convert Celsius to Kelvin for transmission on CAN.
             pkt.temperature = C_TO_KELVIN(temp_deg);
         }
+        else
+            return;
 
         // Populate state of health
         pkt.state_of_health_pct = UAVCAN_EQUIPMENT_POWER_BATTERYINFO_STATE_OF_HEALTH_UNKNOWN;
