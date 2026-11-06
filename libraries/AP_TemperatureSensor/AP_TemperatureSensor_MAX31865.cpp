@@ -218,14 +218,12 @@ void AP_TemperatureSensor_MAX31865::thread_tick()
         Temp_Good = true;
     tBufIdx = (tBufIdx) % TempBuffer_Size;                                        // Advance buffer
 
-    float temperature = 0.0;                                                        // Init accumulator
-    for ( int bcnt=0; bcnt < TempBuffer_Size; bcnt++ )
-        {
-        temperature += TempBuffer[ bcnt ];
-        }
+    uint16_t temp_acc = 0;                                                        // Init accumulator
+    for ( int bcnt=0; bcnt < TempBuffer_Size; bcnt++ )        
+        temp_acc += TempBuffer[ bcnt ];
 
     // Default:  const float temperature = calculate_temperature(data_temperature);
-    temperature = temperature *  ( 0.25f * (1.0f / TempBuffer_Size) );
+    float temperature = float(temp_acc) / 4.0 * (1.0f / TempBuffer_Size) ;
 
 #if MAX31865_DEBUGGING
     Debug("%d MAX31865 %u -> %.2f C", _state.instance, data_temperature, temperature);
