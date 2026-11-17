@@ -186,12 +186,6 @@ void AP_TemperatureSensor_MAX31865::thread_tick()
         return;
     }
 
-// GC_Debug:
-hal.gpio->pinMode( WavePin, HAL_GPIO_OUTPUT);
-hal.gpio->write( WavePin, 0);
-hal.scheduler->delay(1);
-hal.gpio->write( WavePin, 1);
-
     uint16_t raw_data;
     if (!_dev->read_registers( /* MAX31865_REG_DATA_MSB */ 0, (uint8_t *)&raw_data, sizeof(raw_data))) {
         return;

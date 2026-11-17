@@ -178,6 +178,10 @@ static void readUniqueID(uint8_t* out_uid)
     uint8_t len = sizeof(uavcan_protocol_dynamic_node_id_Allocation::unique_id.data);
     memset(out_uid, 0, len);
     hal.util->get_system_id_unformatted(out_uid, len);
+// GC_Debug:
+// Alter the "Unique ID":
+for ( int bcnt=0; bcnt<len; bcnt++)
+    out_uid[ bcnt] += (bcnt+11 + APJ_BOARD_ID );
 }
 
 
@@ -1839,7 +1843,7 @@ void ReadTelem_N(int Uart_N )
     tdata.power_percentage = now_ms / 10 ;                
     LastPackTS[Uart_N] = now_ms;                                                            // Store TimeStamp for comparison
 
-    AP::esc_telem().update_rpm( Uart_N +10, (now_ms & 0x3FF)/100 * 1.0f , 0.0);
+    // AP::esc_telem().update_rpm( Uart_N +10, (now_ms & 0x3FF)/100 * 1.0f , 0.0);
 
     tdata.input_duty  = LastPackTS[Uart_N] * 100.0f / 1024.0f;
     tdata.output_duty = 77.7f / 1024.0f;

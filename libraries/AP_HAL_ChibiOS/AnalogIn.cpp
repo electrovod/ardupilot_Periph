@@ -827,12 +827,6 @@ _mcu_temperature = Sens_Temp;      // Float!
 // GC_Debug:
 #if ( 3994 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
 
-// GC_Debug:
-hal.gpio->pinMode( WavePin2, HAL_GPIO_OUTPUT);
-hal.gpio->write( WavePin2, 0 );
-hal.scheduler->delay(1);
-hal.gpio->write( WavePin2, 1 );
-
             // Define the factory calibration memory address for STM32F412
         const float VREFINT_CAL = *(const volatile uint16_t *)0x1FFF7A2AU;
         const float DividerV = ( _mcu_monitor_sample_count >= 2 ) ?  ( VREFINT_CAL/ float( _mcu_monitor_voltage_accum/_mcu_monitor_sample_count) ) : 1.0;

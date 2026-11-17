@@ -78,7 +78,7 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAA7E              ///< GrayCat local version
+#define                 GC_Version                  0xAB0F              ///< GrayCat local version
 
 #if HAL_WITH_ESC_TELEM
 #define                 NUM_Telems                  12 // 4                   ///< Quantity of Telemetry channels
@@ -99,8 +99,10 @@ typedef enum MultiSkid_e
     #define                 RC_RemapOfs                 20                  ///< Quantity of channels to shift Servos 1...8 to: #21-#1 = 20
 #else       // testbed from Lastivka:
     #if ( 3994 == APJ_BOARD_ID   )                                          // :: (CHIBIOS_BOARD_NAME == "AP_HW_BVMT_PDBex") 
-        #define                 RC_IndirCh1                 1                   ///< Number of the first Indirect Channel
+        #define                 RC_IndirCh1                 21                   ///< Number of the first Indirect Channel
         #define                 RC_RemapOfs                 20                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15
+
+        #undef                  GC_Remap19
     #else   // +++++ Not AP_HW_BVMT_PDBex :
         #define                 RC_IndirCh1                 9                   ///< Number of the first Indirect Channel
         #define                 RC_RemapOfs                 15                  ///< Quantity of channels to shift Servos 5...12 to: #20-#5 = 15

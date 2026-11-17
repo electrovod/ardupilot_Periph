@@ -22,6 +22,7 @@
 #include "../../libraries/AP_ESC_Telem/AP_ESC_Telem.h"
 #include "AP_ESC_Telem_HW-FOC.h"
 
+// GC_Debug:
 HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packet of HW_FOC Telemetry
     {
     HW_FOC_Val_HEAD,                                                // Header
@@ -32,6 +33,9 @@ HW_FOC_ESC_Telem_t      HW_FOC_Telem =                                  // Packe
     0
     };                                       
 
+uint            IndirCh_cnt;                                        ///< Counter to detect Indirect control
+uint            IndirCh_val = 1;                                    ///< Final Value of the Counter to detect Indirect control
+#define         MAX_IndirCh_cnt         30                          ///< Maximum counter for Indirect control detector
 
 // magic value from UAVCAN driver packet
 // dsdl/uavcan/equipment/esc/1030.RawCommand.uavcan
@@ -244,7 +248,7 @@ void AP_Periph_FW::rcout_srv_unitless(uint8_t actuator_id, const float command_v
 #if HAL_PWM_COUNT > 0
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
 
-    if ( actuator_id <= HAL_PWM_COUNT )
+    if ( actuator_id <= HAL_PWM_COUNT /* Try: */ + 16 )
         {       // +++++++++++++++++++ Default output:        
         SRV_Channels::set_output_norm(function, command_value);
         }       // ------------------- Default output:
@@ -355,6 +359,8 @@ void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
                 FireSkidsMask( 0 );                                                                 // Release all!
                 Fired_TS =  0;
                 Firing = false;
+// debug:
+AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Zero- Feedback through Telemetry
                 };      // ----------------  Release previous channel
             };      // -------------- Clear previously selected  Channel;
         if  ( Firing && ( ( AP_HAL::millis() - Fired_TS ) > 500 ) )     // TimeOut after Releasing Fire
@@ -364,7 +370,11 @@ void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
             Firing = false;
             };      // ----------------  Release previous channel
         if  ( (ControlVal > RC_DisArmedVal-5) &&  (ControlVal < RC_DisArmedVal+5) )              // DisArmed?...
+            {
             Channel_PreSet = -1;
+// debug:
+AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Zero- Feedback through Telemetry
+            }
             else                                                                                 // Normal channel
                 Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                   // Store selection
         }       // ------------- One of Indirect Channels pre-selected:
@@ -374,8 +384,12 @@ void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
                 {
                 
                 const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );                    
-                if ( !Firing  && ( AvgContrVal > 1900.0 ) && (PrevContrValue == ControlVal) && !((ControlVal > RC_DisArmedVal-5) && (ControlVal < RC_DisArmedVal+5) ) )                                 // Valid mask?...
+
+                if ( !Firing  && ( AvgContrVal > 1900.0 ) && (PrevContrValue == ControlVal) && !((ControlVal > RC_DisArmedVal-5) && (ControlVal < RC_DisArmedVal+5) ) )         // Valid mask?...
                     {       // +++++++++++++++++++ Process Output
+// debug:
+AP::esc_telem().update_rpm( 11-1, Channel_PreSet * 1.0f , 0.0);                                // Feedback through Telemetry
+
                     SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
                     Firing = true;
                     Fired_TS =  AP_HAL::millis();                                       // Start count of "Fired" state time
@@ -397,6 +411,8 @@ void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
                         Fired_TS =  0;
                         };      // -------------- Clear previously selected  Channel;
                     Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
+// debug:
+AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Zero- Feedback through Telemetry
                     };      // ------------------ Non-Valid  Control Val and Preset channel
             };      // ------------------ Outside the Indirect Channels range
     PrevContrValue = ControlVal;
@@ -410,7 +426,7 @@ void FireSkidsMask( uint8_t Mask )
         SRV_Channels::set_output_limit( function_indir, ( Mask & ( 1 << ocnt ) ) ?  SRV_Channel::Limit::MAX : SRV_Channel::Limit::MIN  );
         };      // ------------------------ Outputs setting loop
 // GC_Debug2:
-    AP::esc_telem().update_rpm( 9-1, (1000+Mask) * 1.0f , 0.0);                                     // Feedback through Telemetry
+    AP::esc_telem().update_rpm( 9-1, (2000+Mask) * 1.0f , 0.0);                                     // Feedback through Telemetry
 
     };
 
@@ -421,7 +437,7 @@ void SaveLimits( float ch_val )
     int  IntVal = ch_val;
     int  ChNum = ((IntVal >> 9) & 0x7)  + RC_IndirCh1;                                                // Get Out Channel number
 
-    AP::esc_telem().update_rpm( 8-1, (IntVal & 0xFF)*4.0 + 1000.0 , 0.0);                                // Feedback through Telemetry        
+    // AP::esc_telem().update_rpm( 8-1, (IntVal & 0xFF)*4.0 + 1000.0 , 0.0);                                // Feedback through Telemetry        
     
     if ( IntVal & 0x100 )                                                           // Syndrome bit for ON-state?...
         hal.util->snprintf( buf, sizeof(buf), "OUT%d_MAX" , ChNum);  
@@ -502,14 +518,24 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
 #if HAL_PWM_COUNT > 0
 
     const SRV_Channel::Function function = SRV_Channel::Function(SRV_Channel::k_rcin1 + actuator_id - 1);
-    SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
+    // default: SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
 
 #ifdef Use_ExtRC
 
 // GC_Debug: Output to the pre-selected channel:
-    if ( actuator_id < HAL_PWM_COUNT )
+    if ( actuator_id < HAL_PWM_COUNT /* Extend to Servo21...28 */ + 1+16+4 )
         {       // +++++++++++++++++++ Default output:        
-        SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
+        if ( ( actuator_id < (HAL_PWM_COUNT*1.0f) ) || ( IndirCh_val < MAX_IndirCh_cnt/4 ) )
+            SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
+// debug:
+AP::esc_telem().update_rpm( 8-1, IndirCh_val * 1.0f , 0.0);                                // Feedback through Telemetry        
+
+// debug:
+if ( ( actuator_id > 16 ) && (command_value > 1501.0) )
+    AP::esc_telem().update_rpm( 11-1, actuator_id * 1.0f , 0.0);                                // Feedback through Telemetry
+    else
+        AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Feedback through Telemetry
+
         }       // ------------------- Default output:
         else
             {       // +++++++++++++++++++ GrayCat Extended : remapped Output
@@ -524,9 +550,9 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
             };      // ------------------- GrayCat Extended : remapped Output
 
 // GC_Debug:   Pre-Select channel from RCIn16
+    int32_t ControlVal  = ( int(command_value) ) ;                                     // Extract controlling value (byte)...
     if ( 16 == actuator_id )
-        {       // ............. Process channel_16 as Shifter:            
-        int32_t ControlVal  = ( int(command_value) ) ;                                     // Extract controlling value (byte)...
+        {       // ............. Process channel_16 as Shifter:                    
 // GC_Debug2:
         AP::esc_telem().update_rpm( 10-1, command_value , 0.0);                                // Feedback through Telemetry
 
@@ -535,24 +561,16 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
             Remap19_en = 1;
             else
                 {       // +++++++++++++++++++ Finished Remap19 state, zero-down
-#ifndef GC_AlwaysRemap
-                if ( Remap19_en )
-                    {       // ++++++++++++++++++++ Was ReMapped, Undo!
-                    for ( int ccnt=5; ccnt<=13 ; ccnt++)
-                        {       // +++++++++++++++++++++++ Zero-down Outputs 
-                        const SRV_Channel::Function function_z = SRV_Channel::Function(SRV_Channel::k_rcin1 + ccnt-1 );
-                        SRV_Channels::set_output_limit( function_z, SRV_Channel::Limit::MIN );
-                        };      // ----------------------- Zero-down Outputs
-                    Channel_PreSet = -1;                                                              //  clear Pre-Select
-                    };      // ------------------- Was ReMapped, Undo!
-                // try without: 
-                Remap19_en = 0;
-#endif          // --  ndef GC_AlwaysRemap
-
                 if ( CalcDiff_ContrVals( command_value ) )                                                          // PWM lower-then-min-SBUS ?...
                     {       // ++++++++++++++++++ Got Syndrome, Initiate Multi-Skid mode!
                     Skid_Mode = msk_Multi;                                                      // Start MultiSkid mode!
                     MultiSkid_TS = now_ms;                                                      // ReArm timeout;
+
+                    if (  ( (ControlVal >= 800) && (ControlVal < RC_DisArmedVal-5) ) || (ControlVal > RC_DisArmedVal+22)  )
+                        IndirCh_cnt += ( IndirCh_cnt >= MAX_IndirCh_cnt ) ? 0 : (MAX_IndirCh_cnt-IndirCh_cnt+1)/2 ;                // Increase syndrome
+                        else
+                            if ( --IndirCh_cnt <= 1 )                                                                   // Lower probability
+                                IndirCh_cnt = 1;                                                                        // saturate
                     }       // ------------------ Initiate Multi-Skid mode!
                     else
                         {       // +++++++++++++++++++ No Multi-Skid mode syndrome....
@@ -562,8 +580,13 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
                             if ( Firing )
                                 FireSkidsMask( 0 );                                                               // Release all!
                             Firing = false;
-                            Skid_Mode = msk_Single;                                                     // Start SingleSkid mode!
+                            Skid_Mode = msk_Single;                                                     // Start SingleSkid mode!                            
                             };      // ------------------- Finalize Multi-Skid mode after Time-Out!
+                        if (  ( (ControlVal >= 800) && (ControlVal < RC_DisArmedVal-5) ) || (ControlVal > RC_DisArmedVal+22)  )
+                            IndirCh_cnt += ( IndirCh_cnt >= MAX_IndirCh_cnt ) ? 0 : (MAX_IndirCh_cnt-IndirCh_cnt+1)/2 ;                // Increase syndrome
+                            else
+                                if ( --IndirCh_cnt <= 1 )                                                                   // Lower probability
+                                    IndirCh_cnt = 1;                                                                        // saturate
                         }       // ------------------- No Multi-Skid mode syndrome....
 
                 };      // ------------------- Finished Remap19 state, zero-down        
@@ -571,13 +594,21 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
         switch (Skid_Mode) 
             {
             case msk_Single : 
-                        if ( (command_value - AvgContrVal) < 190.0 )                                     // Filter stabilized?
+                        if ( fabsf(command_value - AvgContrVal) < /* Good: 190.0 */ 150.0 )                                     // Filter stabilized?
                             ProcessSingleSkid( ControlVal ); 
                         break;
             case msk_Multi :  ProcessMultiSkids( ControlVal,  /* command_value */ AvgContrVal ); break;
             default: break;
             };      // -------------------- switch Skid_Mode         
-        };      // ------------- Process channel_16 as Shifter:
+        IndirCh_val = IndirCh_cnt;
+        }      // ------------- Process channel_16 as Shifter:
+        else    
+            {       // ++++++++++++++++++++++++ Some other channel, not 16
+            if (ControlVal >= RC_DisArmedVal -5 )                                                       // ON-channel from "ServoN" commands?
+                IndirCh_cnt -= IndirCh_cnt/2;                                                           // Fast decay
+            if ( --IndirCh_cnt <= 1 )                                                                   // Lower probability
+                IndirCh_cnt = 1;                                                                        // saturate
+            };      // ------------------------ Some other channel, not 16
 
     if ( 31 == actuator_id )
         {       // +++++++++ Process channel_31 as Limits Setter:            

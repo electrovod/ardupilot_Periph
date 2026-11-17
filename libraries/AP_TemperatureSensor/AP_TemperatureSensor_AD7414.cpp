@@ -21,6 +21,7 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include <AP_HAL/I2CDevice.h>
+#include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h" 
 
 extern const AP_HAL::HAL &hal;
 
@@ -30,36 +31,39 @@ extern const AP_HAL::HAL &hal;
 
 void AP_TemperatureSensor_AD7414::init()
 {
+    if (_dev)                                                                       // Already assigned?...
+        return;
+    
+
     // AD7414-0 with AS tied to GND uses 7-bit I2C address 0x49.
     // AD7414-1 with AS tied to GND uses 0x4D; override TEMP1_ADDR if required.
     _params.bus_address.set_default(AD7414_DEFAULT_ADDRESS);
 
-    _dev = hal.i2c_mgr->get_device_ptr(_params.bus, _params.bus_address);
-    if (_dev == nullptr) {
+    _dev = hal.i2c_mgr->get_device_ptr( /* _params.bus */ 0, /* _params.bus_address */ AD7414_DEFAULT_ADDRESS  );
+    if (_dev == nullptr) 
         return;
-    }
 
     _dev->set_retries(3);
-}
+    _last_read_ms = 0;
+};
 
 void AP_TemperatureSensor_AD7414::update()
 {
-    if (_dev == nullptr) {
+    if (_dev == nullptr)                 
         return;
-    }
+        
 
-    const uint32_t now_ms = AP_HAL::millis();
-    if (now_ms - _last_read_ms < AD7414_UPDATE_INTERVAL_MS) {
+    const int32_t now_ms = AP_HAL::millis();
+    if ( (now_ms - _last_read_ms) < AD7414_UPDATE_INTERVAL_MS) 
         return;
-    }
-    _last_read_ms = now_ms;
+    _last_read_ms = now_ms;                                 // Store for comparison
 
     uint8_t data[2];
     {
         WITH_SEMAPHORE(_dev->get_semaphore());
-        if (!_dev->read_registers(AD7414_REG_TEMPERATURE, data, sizeof(data))) {
+        if (! _dev->read_registers( AD7414_REG_TEMPERATURE, data, sizeof(data)) )                         
             return;
-        }
+            
     }
 
     // AD7414 register layout:
@@ -73,6 +77,7 @@ void AP_TemperatureSensor_AD7414::update()
 
     // One LSB = 0.25 degrees Celsius.
     set_temperature(float(signed_raw) * 0.25f);
+
 }
 
 #endif // AP_TEMPERATURE_SENSOR_AD7414_ENABLED

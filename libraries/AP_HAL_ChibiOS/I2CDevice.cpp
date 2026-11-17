@@ -30,6 +30,9 @@
 #include "ch.h"
 #include "hal.h"
 
+// GC_Debug:
+#include "../Tools/AP_Periph/AP_ESC_Telem_HW-FOC.h" 
+
 static const struct I2CInfo {
     I2CDriver *i2c;
     uint8_t instance;
@@ -351,6 +354,7 @@ bool I2CDevice::transfer(const uint8_t *send, uint32_t send_len,
         }
     } else {
         // combined transfer
+
         if (!_transfer(send, send_len, recv, recv_len)) {
             return false;
         }
