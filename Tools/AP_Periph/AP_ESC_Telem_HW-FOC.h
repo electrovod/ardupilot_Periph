@@ -78,7 +78,7 @@ typedef enum MultiSkid_e
 
 // ============================== C O N S T A N T S : ============================
 
-#define                 GC_Version                  0xAB0F              ///< GrayCat local version
+#define                 GC_Version                  0xAB13              ///< GrayCat local version
 
 #if HAL_WITH_ESC_TELEM
 #define                 NUM_Telems                  12 // 4                   ///< Quantity of Telemetry channels
@@ -114,8 +114,9 @@ typedef enum MultiSkid_e
 
 // GC_Debug:
 // Wave Pin:
-#define WavePin  1                                                      // Debug Pin GPIO(1)
-#define WavePin2 2                                                      // Debug Pin GPIO(2)
+#define WavePin  1                                                      ///< Debug Pin GPIO(1)
+#define WavePin2 2                                                      ///< Debug Pin GPIO(2)
+// #define Use_ESCout_Debug    1                                           ///< Whether to use Debug through "ESC" output
 
 // ============================== P R O C E D U R E S : ==========================
 

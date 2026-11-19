@@ -235,7 +235,7 @@ uint16_t    SkidsMask = 0;                                      ///< Mask of Ena
 bool        Firing = false;
 
     // .......... MultiSkid mode detection by Syndrome:
-#define     ContrValsBufSize            8                       ///< Size of the Buffer
+#define     ContrValsBufSize            4                       ///< Size of the Buffer
 float       ContrHistory[ ContrValsBufSize ]    = {0.0};          ///< History of Control Vals
 uint        ContrHist_Idx = 0;                                  ///< Index into History of Control Vals
 float       AvgContrVal = 0.0;                                  ///< Average calculated
@@ -323,7 +323,7 @@ int CalcDiff_ContrVals( float NewContrVal )
     ContrHistory[ ContrHist_Idx++ ] = NewContrVal;                                  // Put new val into array;
     ContrHist_Idx %= ContrValsBufSize;                                              // Wrap index
 
-    AvgContrVal = 0.0;                                                              // Init filter
+    AvgContrVal = 0.0;                                                              // Init filter accumulator
     for ( int acnt=0; acnt<ContrValsBufSize; acnt++ )
         {       // +++++++++++++++++++++ Walk all buffer loop
         float NextVal = ContrHistory[ acnt ];
@@ -360,7 +360,9 @@ void  AP_Periph_FW::ProcessSingleSkid( int32_t ControlVal )
                 Fired_TS =  0;
                 Firing = false;
 // debug:
+#ifdef Use_ESCout_Debug
 AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Zero- Feedback through Telemetry
+#endif  //  #ifdef Use_ESCout_Debug
                 };      // ----------------  Release previous channel
             };      // -------------- Clear previously selected  Channel;
         if  ( Firing && ( ( AP_HAL::millis() - Fired_TS ) > 500 ) )     // TimeOut after Releasing Fire
@@ -373,7 +375,9 @@ AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                //
             {
             Channel_PreSet = -1;
 // debug:
+#ifdef Use_ESCout_Debug
 AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Zero- Feedback through Telemetry
+#endif  //      #ifdef Use_ESCout_Debug
             }
             else                                                                                 // Normal channel
                 Channel_PreSet = IndirectCh + RC_IndirCh1 - 1;                                   // Store selection
@@ -385,10 +389,12 @@ AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                //
                 
                 const SRV_Channel::Function function_indir = SRV_Channel::Function(SRV_Channel::k_rcin1 + Channel_PreSet );                    
 
-                if ( !Firing  && ( AvgContrVal > 1900.0 ) && (PrevContrValue == ControlVal) && !((ControlVal > RC_DisArmedVal-5) && (ControlVal < RC_DisArmedVal+5) ) )         // Valid mask?...
+                if ( !Firing  && ( /* AvgContrVal */ ControlVal > 1900 ) && (PrevContrValue == ControlVal) && !((ControlVal > RC_DisArmedVal-5) && (ControlVal < RC_DisArmedVal+5) ) )         // Valid mask?...
                     {       // +++++++++++++++++++ Process Output
 // debug:
+#ifdef Use_ESCout_Debug
 AP::esc_telem().update_rpm( 11-1, Channel_PreSet * 1.0f , 0.0);                                // Feedback through Telemetry
+#endif  //    #ifdef Use_ESCout_Debug
 
                     SRV_Channels::set_output_limit( function_indir, SRV_Channel::Limit::MAX );                        
                     Firing = true;
@@ -412,7 +418,9 @@ AP::esc_telem().update_rpm( 11-1, Channel_PreSet * 1.0f , 0.0);                 
                         };      // -------------- Clear previously selected  Channel;
                     Channel_PreSet = -1;                                                              //  Finally, clear Pre-Select
 // debug:
+#ifdef Use_ESCout_Debug
 AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Zero- Feedback through Telemetry
+#endif  //  #ifdef Use_ESCout_Debug
                     };      // ------------------ Non-Valid  Control Val and Preset channel
             };      // ------------------ Outside the Indirect Channels range
     PrevContrValue = ControlVal;
@@ -426,7 +434,9 @@ void FireSkidsMask( uint8_t Mask )
         SRV_Channels::set_output_limit( function_indir, ( Mask & ( 1 << ocnt ) ) ?  SRV_Channel::Limit::MAX : SRV_Channel::Limit::MIN  );
         };      // ------------------------ Outputs setting loop
 // GC_Debug2:
+#ifdef Use_ESCout_Debug
     AP::esc_telem().update_rpm( 9-1, (2000+Mask) * 1.0f , 0.0);                                     // Feedback through Telemetry
+#endif      //  #ifdef Use_ESCout_Debug
 
     };
 
@@ -478,7 +488,7 @@ void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_va
 
         if ( command_value < (RC_DisArmedVal*1.0) )
             {       // ++++++++++++++++ First half of PWM Range
-            uint16_t IndirectCh = ( ( command_value -  (RC_IndirStartPWM*1.0)  ) / 4.5  );             // Every 4.5 "1"-s... ; Try: round( 
+            uint16_t IndirectCh = ( ( command_value -  (RC_IndirStartPWM*1.0)  ) / 4.49  );             // Every 4.5 "1"-s... ; Previous divider: =4.5
             SkidsMask = IndirectCh;
             }       // ---------------- First half of PWM Range
             else
@@ -488,7 +498,9 @@ void AP_Periph_FW::ProcessMultiSkids( int32_t ControlVal, const float command_va
                 };      // ---------------- Second half of PWM Range
 
 // GC_Debug2:
-    AP::esc_telem().update_rpm( 9-1, SkidsMask * 1.0f , 0.0);                                // Feedback through Telemetry
+#ifdef Use_ESCout_Debug
+    AP::esc_telem().update_rpm( 9-1, (2000+SkidsMask) * 1.0f , 0.0);                                // Feedback through Telemetry
+#endif  //    #ifdef Use_ESCout_Debug
         }       // -------------- One of Indirect Channels pre-selected:
         else
             {       // ++++++++++++++ check for "Fire" command
@@ -528,14 +540,17 @@ void AP_Periph_FW::rcout_srv_PWM(uint8_t actuator_id, const float command_value)
         if ( ( actuator_id < (HAL_PWM_COUNT*1.0f) ) || ( IndirCh_val < MAX_IndirCh_cnt/4 ) )
             SRV_Channels::set_output_pwm(function, uint16_t(command_value+0.5));
 // debug:
+#ifdef Use_ESCout_Debug
 AP::esc_telem().update_rpm( 8-1, IndirCh_val * 1.0f , 0.0);                                // Feedback through Telemetry        
+#endif      //  #ifdef Use_ESCout_Debug
 
 // debug:
+#ifdef Use_ESCout_Debug
 if ( ( actuator_id > 16 ) && (command_value > 1501.0) )
     AP::esc_telem().update_rpm( 11-1, actuator_id * 1.0f , 0.0);                                // Feedback through Telemetry
     else
         AP::esc_telem().update_rpm( 11-1, 0.0f , 0.0);                                // Feedback through Telemetry
-
+#endif      //  #ifdef Use_ESCout_Debug
         }       // ------------------- Default output:
         else
             {       // +++++++++++++++++++ GrayCat Extended : remapped Output
@@ -554,7 +569,9 @@ if ( ( actuator_id > 16 ) && (command_value > 1501.0) )
     if ( 16 == actuator_id )
         {       // ............. Process channel_16 as Shifter:                    
 // GC_Debug2:
+#ifdef Use_ESCout_Debug
         AP::esc_telem().update_rpm( 10-1, command_value , 0.0);                                // Feedback through Telemetry
+#endif      //  #ifdef Use_ESCout_Debug
 
             // ..... ReMap: .....
         if ( ControlVal >= 2299 )                                                          // PWM higher-then-High?...
@@ -566,12 +583,12 @@ if ( ( actuator_id > 16 ) && (command_value > 1501.0) )
                     Skid_Mode = msk_Multi;                                                      // Start MultiSkid mode!
                     MultiSkid_TS = now_ms;                                                      // ReArm timeout;
 
-                    if (  ( (ControlVal >= 800) && (ControlVal < RC_DisArmedVal-5) ) || (ControlVal > RC_DisArmedVal+22)  )
+                    if (  (ControlVal >= 800)  /* && (ControlVal < RC_DisArmedVal-5) ) || (ControlVal > RC_DisArmedVal+22) */ )
                         IndirCh_cnt += ( IndirCh_cnt >= MAX_IndirCh_cnt ) ? 0 : (MAX_IndirCh_cnt-IndirCh_cnt+1)/2 ;                // Increase syndrome
                         else
                             if ( --IndirCh_cnt <= 1 )                                                                   // Lower probability
                                 IndirCh_cnt = 1;                                                                        // saturate
-                    }       // ------------------ Initiate Multi-Skid mode!
+                    }       // ------------------ Got Syndrome,  Initiate Multi-Skid mode!
                     else
                         {       // +++++++++++++++++++ No Multi-Skid mode syndrome....
                         if ( ( (now_ms - MultiSkid_TS) > MultiSkidMode_TO )  && (msk_Single != Skid_Mode ) )      // TimeOut of MultiSkid mode expired?...
@@ -594,13 +611,12 @@ if ( ( actuator_id > 16 ) && (command_value > 1501.0) )
         switch (Skid_Mode) 
             {
             case msk_Single : 
-                        if ( fabsf(command_value - AvgContrVal) < /* Good: 190.0 */ 150.0 )                                     // Filter stabilized?
+                        // if ( fabsf(command_value - AvgContrVal) < /* Good: 190.0 */ 150.0 )                                     // Filter stabilized?
                             ProcessSingleSkid( ControlVal ); 
                         break;
-            case msk_Multi :  ProcessMultiSkids( ControlVal,  /* command_value */ AvgContrVal ); break;
+            case msk_Multi :  ProcessMultiSkids( ControlVal,   /* command_value */ AvgContrVal  ); break;
             default: break;
-            };      // -------------------- switch Skid_Mode         
-        IndirCh_val = IndirCh_cnt;
+            };      // -------------------- switch Skid_Mode                 
         }      // ------------- Process channel_16 as Shifter:
         else    
             {       // ++++++++++++++++++++++++ Some other channel, not 16
@@ -609,6 +625,7 @@ if ( ( actuator_id > 16 ) && (command_value > 1501.0) )
             if ( --IndirCh_cnt <= 1 )                                                                   // Lower probability
                 IndirCh_cnt = 1;                                                                        // saturate
             };      // ------------------------ Some other channel, not 16
+    IndirCh_val = IndirCh_cnt;                                                                          // Transfer accumulated value
 
     if ( 31 == actuator_id )
         {       // +++++++++ Process channel_31 as Limits Setter:            
